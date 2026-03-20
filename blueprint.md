@@ -16,11 +16,38 @@ A premium creator platform for Wellinder, focusing on wellness, beauty, and dail
   - Premium textures and subtle shadows for cards.
   - High-quality iconography using `lucide-react`.
 
+## **Current Task: Landing Page Enhancements**
+
+### **1. Widen Main Layout**
+- **Action:** Increase the `max-w-*` utility classes on main content sections to make the layout wider and more expansive, while maintaining mobile responsiveness. The hero image will be made full-width.
+
+### **2. Update Tier Description**
+- **Action:** Modify the description for "The Raw" membership tier.
+- **New Text:** "Every jewel begins uncut — your raw potential is where brilliance starts."
+
+### **3. Add Legal Links**
+- **Action:** Add a simple footer to the landing page containing "Terms of Service" and "Privacy Policy" links.
+
+### **4. Implement Application Form**
+- **Action:** Create a new "Apply" section with a form.
+- **Trigger:** The floating "Join the Wellinder Creators" button will smoothly scroll to this form section.
+- **Form Fields:**
+  - Name (text input)
+  - TikTok ID (text input)
+  - Instagram ID (text input)
+  - Email (email input)
+  - Country (select dropdown)
+- **Country Logic:**
+  - The dropdown will list multiple countries.
+  - Form submission will be **enabled only if "Singapore" is selected**.
+  - A clear message will inform the user if they select a non-eligible country.
+
 ## **Features**
 1. **Landing Page ("Apply"):**
    - Hero section with high-quality media.
    - Philosophy section explaining the brand's vision.
    - Membership tier system (The Raw, The Crystal, The Jewel).
+   - **(New)** Application form with country-specific submission logic.
 2. **Creator Portal ("The Jewels"):**
    - Google Authentication via Firebase Auth.
    - Dashboard with stats, product seeding, and active missions.
@@ -41,11 +68,10 @@ A premium creator platform for Wellinder, focusing on wellness, beauty, and dail
 - `firebase-applet-config.json`: Firebase configuration.
 
 ## **Implementation Notes**
-- **Tailwind 4:** Configured via `@tailwindcss/vite` plugin. No `tailwind.config.js` needed.
-- **Motion:** Used for smooth entry animations and interactive hover effects.
-- **Firebase:** Automatic profile creation in Firestore on first sign-in.
+- The application form state will be managed locally within the `ApplyPage` component using `useState`.
+- The country list will be hardcoded for this implementation.
 
 ## **Future Enhancements**
 - Add more interactive missions.
-- Implement a direct application form submission to Firestore.
+- Implement form submission to a backend service like Firestore.
 - Add more product seeding items and a detailed view for each.

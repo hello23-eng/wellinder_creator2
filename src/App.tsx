@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Instagram, Send, Gem, Lock, LayoutDashboard, ShoppingBag, Users, Sparkles, Diamond, LogOut } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion';
+import { Menu, X, Instagram, Send, Gem, Lock, LayoutDashboard, ShoppingBag, Users, Sparkles, Diamond, LogOut, CheckCircle, ArrowRight } from 'lucide-react';
+import * as React from 'react';
 import { useState } from 'react';
 import { auth } from './firebase';
 import { signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth';
@@ -95,27 +96,67 @@ const FooterCTA = () => {
 // --- Pages ---
 
 const ApplyPage = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    tiktok: '',
+    instagram: '',
+    email: '',
+    country: '',
+  });
+  const [isEligible, setIsEligible] = useState(false);
+  const [formSubmitted, setFormSubmitted] = useState(false);
+
+  const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedCountry = e.target.value;
+    setFormData({ ...formData, country: selectedCountry });
+    setIsEligible(selectedCountry === 'Singapore');
+  };
+  
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isEligible) {
+      console.log('Form Submitted:', formData);
+      setFormSubmitted(true);
+      // Here you would typically send the data to a server
+    }
+  };
+  
+  const countries = [
+    { value: "", label: "Select a country", disabled: true },
+    { value: "Singapore", label: "Singapore" },
+    { value: "United States", label: "United States (Not Available)" },
+    { value: "United Kingdom", label: "United Kingdom (Not Available)" },
+    { value: "Canada", label: "Canada (Not Available)" },
+    { value: "Australia", label: "Australia (Not Available)" },
+    { value: "Korea, Republic of", label: "South Korea (Not Available)" },
+  ];
+
   return (
-    <div className="min-h-screen pb-32">
-      {/* Hero Section - Intact Aspect Ratio */}
+    <div className="min-h-screen pb-48">
+      {/* Hero Section */}
       <section className="relative w-full bg-wellinder-dark overflow-hidden">
-        <div className="w-full aspect-video">
+        <div className="w-full aspect-[9/10] md:aspect-video max-h-[80vh]">
           <img
             src="https://i.ibb.co/XZq7R5PV/0314-1.gif"
             alt="The Diamond Vault"
-            className="w-full h-full object-cover object-top"
+            className="w-full h-full object-cover object-center"
             referrerPolicy="no-referrer"
           />
         </div>
-        <div className="absolute inset-0 bg-black/5" />
+        <div className="absolute inset-0 bg-black/10" />
       </section>
 
       {/* Philosophy Section */}
-      <section className="py-32 px-6 bg-wellinder-cream">
-        <div className="max-w-4xl mx-auto text-center">
+      <section className="py-24 md:py-32 px-6 bg-wellinder-cream">
+        <div className="max-w-5xl mx-auto text-center">
           <span className="text-wellinder-dark uppercase tracking-[0.3em] text-xs font-semibold mb-4 block">Our Philosophy</span>
-          <h2 className="text-3xl md:text-4xl font-serif mb-8 italic text-wellinder-dark">"Wellinder: Wellness in wonder."</h2>
-          <div className="text-wellinder-dark/70 leading-relaxed text-lg space-y-6">
+          <h2 className="text-3xl md:text-5xl font-serif mb-8 italic text-wellinder-dark leading-tight">"Wellinder: Wellness in wonder."</h2>
+          <div className="text-wellinder-dark/70 leading-relaxed text-base md:text-lg space-y-6 max-w-3xl mx-auto">
             <p className="font-medium text-wellinder-dark">We believe.</p>
             <p>
               That life is transformed not by grand gestures,<br />
@@ -138,14 +179,14 @@ const ApplyPage = () => {
       </section>
 
       {/* Membership Tiers */}
-      <section className="py-24 px-6 bg-wellinder-cream">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-serif text-center mb-16 text-wellinder-dark">The Jewellery Tier System</h2>
+      <section className="py-24 px-6 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-serif text-center mb-16 text-wellinder-dark">The Jewellery Tier System</h2>
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
                 title: 'The Raw',
-                desc: 'Your journey begins here — a natural origin with boundless potential.',
+                desc: 'Every jewel begins uncut — your raw potential is where brilliance starts.',
                 icon: <Diamond className="w-8 h-8 text-wellinder-dark" />,
                 status: 'THE ORIGIN'
               },
@@ -168,19 +209,12 @@ const ApplyPage = () => {
                     >
                       ✨
                     </motion.div>
-                    <motion.div
-                      animate={{ opacity: [0, 1, 0], scale: [0.5, 1, 0.5], rotate: [0, -45, -90] }}
-                      transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-                      className="absolute -bottom-1 -left-1 text-[8px]"
-                    >
-                      ✨
-                    </motion.div>
                   </div>
                 ),
                 status: 'THE MASTERPIECE'
               }
             ].map((tier, i) => (
-              <div key={i} className="bg-white p-8 rounded-3xl border border-wellinder-dark/5 hover:border-wellinder-dark/20 transition-all hover:shadow-xl group">
+              <div key={i} className="bg-white p-8 rounded-3xl border border-wellinder-dark/10 hover:border-wellinder-dark/20 transition-all hover:shadow-2xl hover:-translate-y-2 group">
                 <div className="mb-6 transform transition-transform group-hover:scale-110 duration-500">{tier.icon}</div>
                 <h3 className="text-xl font-serif mb-2 text-wellinder-dark">{tier.title}</h3>
                 <p className="text-[10px] text-wellinder-dark/40 uppercase tracking-widest font-bold mb-4">{tier.status}</p>
@@ -190,6 +224,60 @@ const ApplyPage = () => {
           </div>
         </div>
       </section>
+      
+      {/* Application Form Section */}
+      <section id="apply-form" className="py-24 md:py-32 px-6 bg-wellinder-cream">
+        <div className="max-w-2xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-serif text-center mb-4 text-wellinder-dark">Begin Your Journey</h2>
+          <p className="text-center text-wellinder-dark/60 mb-12">Fill out the form below to apply for the Wellinder Creator Program.</p>
+
+          {formSubmitted ? (
+            <div className="text-center bg-white p-12 rounded-3xl border border-wellinder-dark/10 shadow-xl">
+                <motion.div initial={{scale: 0.8, opacity: 0}} animate={{scale: 1, opacity: 1}}>
+                    <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-6"/>
+                    <h3 className="text-2xl font-serif text-wellinder-dark mb-4">Thank You!</h3>
+                    <p className="text-wellinder-dark/70">Your application has been received. We are excited to review your profile and will get back to you soon.</p>
+                </motion.div>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <input type="text" name="name" placeholder="Full Name" onChange={handleInputChange} required className="w-full p-4 rounded-xl border border-wellinder-dark/10 focus:ring-2 focus:ring-wellinder-dark/50 outline-none transition" />
+                    <input type="email" name="email" placeholder="Email Address" onChange={handleInputChange} required className="w-full p-4 rounded-xl border border-wellinder-dark/10 focus:ring-2 focus:ring-wellinder-dark/50 outline-none transition" />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <input type="text" name="tiktok" placeholder="TikTok Handle" onChange={handleInputChange} className="w-full p-4 rounded-xl border border-wellinder-dark/10 focus:ring-2 focus:ring-wellinder-dark/50 outline-none transition" />
+                    <input type="text" name="instagram" placeholder="Instagram Handle" onChange={handleInputChange} required className="w-full p-4 rounded-xl border border-wellinder-dark/10 focus:ring-2 focus:ring-wellinder-dark/50 outline-none transition" />
+                </div>
+                <div>
+                    <select name="country" onChange={handleCountryChange} value={formData.country} required className="w-full p-4 rounded-xl border border-wellinder-dark/10 focus:ring-2 focus:ring-wellinder-dark/50 outline-none transition appearance-none bg-white">
+                        {countries.map(c => <option key={c.value} value={c.value} disabled={c.disabled}>{c.label}</option>)}
+                    </select>
+                    {formData.country && !isEligible && (
+                        <p className="text-red-500 text-sm mt-3 font-medium">
+                            We appreciate your interest! However, we are only accepting applications from creators based in Singapore at this time.
+                        </p>
+                    )}
+                </div>
+                <div>
+                    <button type="submit" disabled={!isEligible} className="w-full bg-wellinder-dark text-white py-4 rounded-full font-sans font-semibold tracking-wide shadow-lg flex items-center justify-center gap-3 transition-colors disabled:bg-wellinder-dark/30 disabled:cursor-not-allowed hover:bg-black">
+                        Apply Now
+                        <ArrowRight className="w-4 h-4" />
+                    </button>
+                </div>
+                 <div className="text-center pt-4">
+                    <p className="text-xs text-wellinder-dark/40">
+                        By applying, you agree to our 
+                        <a href="#" className="underline hover:text-wellinder-dark mx-1">Terms of Service</a> 
+                        and 
+                        <a href="#" className="underline hover:text-wellinder-dark ml-1">Privacy Policy</a>.
+                    </p>
+                </div>
+            </form>
+          )}
+        </div>
+      </section>
+      
     </div>
   );
 };
@@ -347,7 +435,7 @@ const PortalPage = () => {
             <div className="bg-white p-8 rounded-3xl shadow-sm border border-wellinder-dark/5">
               <h3 className="text-lg font-serif mb-4 text-wellinder-dark">Vault Status</h3>
               <div className="w-full bg-wellinder-cream h-2 rounded-full overflow-hidden mb-4">
-                <div className="bg-wellinder-dark h-full w-[75%]"></div>
+                <div className="bg-wellinder-dark h-full w-[75%]" />
               </div>
               <p className="text-xs text-wellinder-dark/60 leading-relaxed">
                 You are <strong>75%</strong> towards maintaining your 'Jewel' status for next season. Keep it up!
