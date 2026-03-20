@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+firebase-applet-config.json
+wellinder_-the-diamond-vault (2)/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
