@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Instagram, Send, Gem, Lock, LayoutDashboard, ShoppingBag, Users, Sparkles, Diamond, LogOut } from 'lucide-react';
-import * as React from 'react';
 import { useState } from 'react';
 import { auth } from './firebase';
 import { signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth';
@@ -348,7 +347,7 @@ const PortalPage = () => {
             <div className="bg-white p-8 rounded-3xl shadow-sm border border-wellinder-dark/5">
               <h3 className="text-lg font-serif mb-4 text-wellinder-dark">Vault Status</h3>
               <div className="w-full bg-wellinder-cream h-2 rounded-full overflow-hidden mb-4">
-                <div className="bg-wellinder-dark h-full w-[75%]" />
+                <div className="bg-wellinder-dark h-full w-[75%]"></div>
               </div>
               <p className="text-xs text-wellinder-dark/60 leading-relaxed">
                 You are <strong>75%</strong> towards maintaining your 'Jewel' status for next season. Keep it up!
