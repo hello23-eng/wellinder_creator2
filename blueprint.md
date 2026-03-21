@@ -1,77 +1,37 @@
-# **Project Blueprint: Wellinder Creator Hub**
+# Wellinder Creator Hub - Blueprint
 
-## **Overview**
-A premium creator platform for Wellinder, focusing on wellness, beauty, and daily routines. The application features a landing page for applications ("The Diamond Vault") and a creator-exclusive dashboard ("The Jewels Dashboard").
+## Overview
+A premium, jewellery-themed creator community platform. This application serves as the gateway for creators to join the "Diamond Vault", a refined community where rituals are shared and brilliance is cultivated.
 
-## **Design Philosophy**
-- **Typography:** Expressive serif ("Playfair Display") for headlines and clean sans-serif ("Inter") for body text.
-- **Color Palette:**
-  - `wellinder-dark` (#1A1A1A): Primary text and dark backgrounds.
-  - `wellinder-cream` (#F5F5F4): Primary background for a clean, premium feel.
-  - `wellinder-gold` (#1A1A1A): Accent color.
-  - `wellinder-champagne` (#FDF5E6): Soft background accent.
-- **Visual Effects:** 
-  - Glassmorphism for the header.
-  - Smooth animations using `motion`.
-  - Premium textures and subtle shadows for cards.
-  - High-quality iconography using `lucide-react`.
+## Current Features
+- **Premium Design:** Integrated high-end aesthetics with custom fonts (Playfair Display, Inter) and a "wellinder-cream/wellinder-dark" theme.
+- **Hero Section:** High-impact visual introduction with an optimized aspect ratio for mobile and desktop.
+- **Philosophy Section:** Communicates the core values of the Wellinder community.
+- **Jewellery Tier System:** Displays the progression path for creators (Raw, Crystal, Jewel).
+- **Application Form:** A custom-styled form for prospective creators, submitting data to the `inquiries` Firestore collection.
+- **Secret Vault (Creator Portal):** 
+  - Exclusive access for authorized creators.
+  - Integration with Google Auth.
+  - Dashboard for Product Seeding, Active Missions, and Creator Stats.
+- **Firebase Integration:** Real-time data storage and authentication.
+- **Supabase Integration:** Real-time backend services for database and authentication (configured via `.env`).
+- **Responsive Navigation:** Fixed header with a mobile-friendly menu and consistent branding.
 
-## **Current Task: Landing Page Enhancements**
+## Tech Stack
+- **React (Vite)**
+- **Tailwind CSS v4** (with @theme blocks)
+- **Framer Motion / motion/react** (for sophisticated animations)
+- **Lucide React** (for premium iconography)
+- **Firebase** (Auth & Firestore)
+- **Supabase** (Client library installed and configured)
 
-### **1. Widen Main Layout**
-- **Action:** Increase the `max-w-*` utility classes on main content sections to make the layout wider and more expansive, while maintaining mobile responsiveness. The hero image will be made full-width.
+## Implementation Details
+- **Unified Source:** The application logic is primarily contained within `src/App.tsx` for simplicity and performance, supported by `src/auth.tsx` for context management.
+- **Theme Definition:** Custom colors and fonts are defined in `src/index.css` using Tailwind v4 syntax.
+- **Error Handling:** Global `ErrorBoundary` implemented to ensure a smooth user experience.
 
-### **2. Update Tier Description**
-- **Action:** Modify the description for "The Raw" membership tier.
-- **New Text:** "Every jewel begins uncut — your raw potential is where brilliance starts."
-
-### **3. Add Legal Links**
-- **Action:** Add a simple footer to the landing page containing "Terms of Service" and "Privacy Policy" links.
-
-### **4. Implement Application Form**
-- **Action:** Create a new "Apply" section with a form.
-- **Trigger:** The floating "Join the Wellinder Creators" button will smoothly scroll to this form section.
-- **Form Fields:**
-  - Name (text input)
-  - TikTok ID (text input)
-  - Instagram ID (text input)
-  - Email (email input)
-  - Country (select dropdown)
-- **Country Logic:**
-  - The dropdown will list multiple countries.
-  - Form submission will be **enabled only if "Singapore" is selected**.
-  - A clear message will inform the user if they select a non-eligible country.
-
-## **Features**
-1. **Landing Page ("Apply"):**
-   - Hero section with high-quality media.
-   - Philosophy section explaining the brand's vision.
-   - Membership tier system (The Raw, The Crystal, The Jewel).
-   - **(New)** Application form with country-specific submission logic.
-2. **Creator Portal ("The Jewels"):**
-   - Google Authentication via Firebase Auth.
-   - Dashboard with stats, product seeding, and active missions.
-   - Dynamic user role management (Admin/Client) via Firestore.
-3. **Core Infrastructure:**
-   - Firebase (Auth, Firestore) for backend.
-   - React Router for navigation.
-   - Tailwind CSS 4 for modern, utility-first styling.
-   - Centralized Auth Context for state management.
-   - Global Error Boundary for application stability.
-
-## **Project Structure**
-- `src/App.tsx`: Main routing and layout.
-- `src/AuthContext.tsx`: Firebase authentication context and hook.
-- `src/components/ErrorBoundary.tsx`: Global error handling component.
-- `src/firebase.ts`: Firebase initialization and connection test.
-- `src/index.css`: Tailwind 4 theme and global styles.
-- `firebase-applet-config.json`: Firebase configuration.
-
-## **Implementation Notes**
-- The application form state will be managed locally within the `ApplyPage` component using `useState`.
-- The country list will be hardcoded for this implementation.
-
-## **Future Enhancements**
-- Add more interactive missions.
-- Implement form submission to a backend service like Firestore.
-- Add more product seeding items and a detailed view for each.
+## Recent Changes
+- **Full Design Integration:** Replaced the previous codebase with the complete design from the `wellinder_-the-diamond-vault (2)` folder.
+- **Form Completion:** Re-implemented the application form using the `inquiries` schema.
+- **Linting & Optimization:** Cleaned up unused variables and refined the code structure for better maintainability.
+- **Auth Separation:** Moved authentication context to a separate file to support Fast Refresh and cleaner component logic.
