@@ -1,27 +1,21 @@
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'motion/react';
-import { Menu, X, Instagram, Send, Gem, Lock, LayoutDashboard, ShoppingBag, Users, Sparkles, Diamond, LogOut, AlertCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Menu, X, Instagram, Send, Gem, Lock, LayoutDashboard, ShoppingBag, Users, Sparkles, Diamond, LogOut, AlertCircle, TrendingUp } from 'lucide-react';
 import * as React from 'react';
-import { useState, useEffect, createContext, useContext, Component } from 'react';
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+import { useState, useEffect, createContext, useContext } from 'react';
 import { auth, db } from './firebase';
-import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut, User } from 'firebase/auth';
+import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth';
+import type { User } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-
-function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
 
 // --- Firebase Context & Error Boundary ---
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  isAdmin: boolean;
 }
 
-const AuthContext = createContext<AuthContextType>({ user: null, loading: true, isAdmin: false });
+const AuthContext = createContext<AuthContextType>({ user: null, loading: true });
 
 export const useAuth = () => useContext(AuthContext);
 
@@ -49,15 +43,14 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
   }
 
   render() {
-    const state = this.state as ErrorBoundaryState;
-    if (state.hasError) {
+    if (this.state.hasError) {
       return (
         <div className="min-h-screen flex items-center justify-center bg-wellinder-cream p-6 text-center">
           <div className="max-w-md">
             <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
             <h1 className="text-2xl font-serif mb-2">Something went wrong</h1>
             <p className="text-wellinder-dark/60 mb-6">
-              {state.error?.message || "An unexpected error occurred."}
+              {this.state.error?.message || "An unexpected error occurred."}
             </p>
             <button 
               onClick={() => window.location.reload()}
@@ -69,26 +62,21 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
         </div>
       );
     }
-    return (this.props as ErrorBoundaryProps).children;
+    return this.props.children;
   }
 }
 
 const FirebaseProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
       if (user) {
-        // Check for admin role in Firestore
         try {
           const userDoc = await getDoc(doc(db, 'users', user.uid));
-          if (userDoc.exists()) {
-            setIsAdmin(userDoc.data().role === 'admin');
-          } else {
-            // Create default client profile if it doesn't exist
+          if (!userDoc.exists()) {
             await setDoc(doc(db, 'users', user.uid), {
               uid: user.uid,
               email: user.email,
@@ -96,13 +84,10 @@ const FirebaseProvider = ({ children }: { children: React.ReactNode }) => {
               role: 'client',
               createdAt: new Date().toISOString()
             });
-            setIsAdmin(false);
           }
         } catch (err) {
-          console.error("Error fetching user role:", err);
+          console.error("Error checking or creating user doc:", err);
         }
-      } else {
-        setIsAdmin(false);
       }
       setLoading(false);
     });
@@ -110,7 +95,7 @@ const FirebaseProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, isAdmin }}>
+    <AuthContext.Provider value={{ user, loading }}>
       {children}
     </AuthContext.Provider>
   );
@@ -135,10 +120,20 @@ const DiamondIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+const RawDiamondIcon = ({ className }: { className?: string }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.5"
+    className={className}
+  >
+    <path d="M12 2L22 12L12 22L2 12L12 2Z" />
+  </svg>
+);
+
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const location = useLocation();
-  const isPortal = location.pathname.startsWith('/portal');
 
   return (
     <header className="fixed top-0 left-0 w-full z-50 px-6 py-4 flex justify-between items-center bg-white/80 backdrop-blur-sm border-b border-wellinder-dark/5">
@@ -152,10 +147,15 @@ const Header = () => {
       
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="p-2 hover:bg-wellinder-dark/5 rounded-full transition-colors"
+        className="p-2 hover:bg-wellinder-dark/5 rounded-full transition-colors md:hidden"
       >
         {isOpen ? <X /> : <Menu />}
       </button>
+
+      <nav className="hidden md:flex items-center gap-8">
+        <Link to="/" className="text-sm font-medium hover:text-wellinder-gold transition-colors">Home</Link>
+        <Link to="/portal" className="text-sm font-medium hover:text-wellinder-gold transition-colors">Creator Portal</Link>
+      </nav>
 
       <AnimatePresence>
         {isOpen && (
@@ -163,10 +163,10 @@ const Header = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="absolute top-full left-0 w-full bg-white border-b border-wellinder-dark/10 p-8 shadow-xl"
+            className="absolute top-full left-0 w-full bg-white border-b border-wellinder-dark/10 p-8 shadow-xl md:hidden"
           >
             <nav className="flex flex-col gap-6 text-center">
-              <Link to="/" onClick={() => setIsOpen(false)} className="text-xl font-serif hover:text-wellinder-gold transition-colors">Apply</Link>
+              <Link to="/" onClick={() => setIsOpen(false)} className="text-xl font-serif hover:text-wellinder-gold transition-colors">Home</Link>
               <Link to="/portal" onClick={() => setIsOpen(false)} className="text-xl font-serif hover:text-wellinder-gold transition-colors">Creator Portal</Link>
               <div className="pt-4 border-t border-wellinder-dark/5 flex justify-center gap-6">
                 <Instagram className="w-5 h-5 opacity-50" />
@@ -182,7 +182,8 @@ const Header = () => {
 
 const FooterCTA = () => {
   const location = useLocation();
-  if (location.pathname !== '/') return null;
+  const navigate = useNavigate();
+  if (location.pathname.startsWith('/apply') || location.pathname.startsWith('/portal')) return null;
 
   return (
     <div className="fixed bottom-0 left-0 w-full p-6 z-40">
@@ -190,7 +191,7 @@ const FooterCTA = () => {
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          onClick={() => document.getElementById('apply-form')?.scrollIntoView({ behavior: 'smooth' })}
+          onClick={() => navigate('/apply')}
           className="w-full bg-wellinder-dark text-white py-4 rounded-full font-sans font-semibold tracking-wide shadow-2xl flex items-center justify-center gap-2"
         >
           Join the Wellinder Creators
@@ -204,17 +205,16 @@ const FooterCTA = () => {
 };
 
 // --- Pages ---
-
-const ApplyPage = () => {
+const HomePage = () => {
   return (
     <div className="min-h-screen pb-32">
-      {/* Hero Section - Intact Aspect Ratio */}
+      {/* Hero Section */}
       <section className="relative w-full bg-wellinder-dark overflow-hidden">
-        <div className="w-full aspect-video">
+        <div className="w-full h-[85vh] md:h-auto md:aspect-video">
           <img 
-            src="https://i.ibb.co/XZq7R5PV/0314-1.gif" 
-            alt="The Diamond Vault"
-            className="w-full h-full object-cover object-top"
+            src="https://i.ibb.co/0Vq61G3t/Gemini-Generated-Image-xwsfv7xwsfv7xwsf.png" 
+            alt="Wellinder creator with flowers"
+            className="w-full h-full object-cover object-center"
             referrerPolicy="no-referrer"
           />
         </div>
@@ -222,28 +222,16 @@ const ApplyPage = () => {
       </section>
 
       {/* Philosophy Section */}
-      <section className="py-32 px-6 bg-wellinder-cream">
+      <section className="py-20 md:py-24 px-6 bg-wellinder-cream">
         <div className="max-w-4xl mx-auto text-center">
           <span className="text-wellinder-dark uppercase tracking-[0.3em] text-xs font-semibold mb-4 block">Our Philosophy</span>
-          <h2 className="text-3xl md:text-4xl font-serif mb-8 italic text-wellinder-dark">"Wellinder: Wellness in wonder."</h2>
-          <div className="text-wellinder-dark/70 leading-relaxed text-lg space-y-6">
+          <h2 className="text-2xl md:text-3xl font-serif mb-8 italic text-wellinder-dark">Wellinder: Wellness in wonder.</h2>
+          <div className="text-wellinder-dark/70 leading-relaxed text-base md:text-lg space-y-6">
             <p className="font-medium text-wellinder-dark">We believe.</p>
-            <p>
-              That life is transformed not by grand gestures,<br />
-              but by the power of small daily routines.
-            </p>
-            <p>
-              Just as a raw stone is refined into a brilliant jewel,<br />
-              human beauty begins to radiate through consistent, mindful care.
-            </p>
-            <p>
-              WELLINDER stands with creators who cherish their own routines<br />
-              and dare to share those stories with the world.
-            </p>
-            <p>
-              If your routine can become an inspiration to others,<br />
-              we invite you to begin your brilliant journey with us.
-            </p>
+            <p>That life is transformed not by grand gestures, but by the power of small daily rituals.</p>
+            <p>Just as a raw stone is refined into a brilliant jewel, human beauty begins to radiate through consistent, mindful care.</p>
+            <p>WELLINDER stands with creators who cherish their own rituals and dare to share those stories with the world.</p>
+            <p>If your ritual can become an inspiration to others, we invite you to begin your brilliant journey with us.</p>
           </div>
         </div>
       </section>
@@ -251,13 +239,13 @@ const ApplyPage = () => {
       {/* Membership Tiers */}
       <section className="py-24 px-6 bg-wellinder-cream">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-serif text-center mb-16 text-wellinder-dark">The Jewellery Tier System</h2>
+          <h2 className="text-2xl md:text-3xl font-serif text-center mb-16 text-wellinder-dark">The Jewellery Tier System</h2>
           <div className="grid md:grid-cols-3 gap-8">
             {[
               { 
                 title: 'The Raw', 
-                desc: 'Your journey begins here — a natural origin with boundless potential.',
-                icon: <Diamond className="w-8 h-8 text-wellinder-dark" />,
+                desc: <>Your journey begins here — a<br />natural origin with boundless<br />potential.</>,
+                icon: <RawDiamondIcon className="w-8 h-8 text-wellinder-dark" />,
                 status: 'THE ORIGIN'
               },
               { 
@@ -301,12 +289,340 @@ const ApplyPage = () => {
           </div>
         </div>
       </section>
+
+      {/* Creator Benefits Section */}
+      <section className="py-24 px-6 bg-white">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-3xl font-serif text-center mb-4 text-wellinder-dark">Creator Benefits</h2>
+          <p className="text-center text-wellinder-dark/50 mb-16 font-light">Our commitment to your growth and brilliance.</p>
+          <div className="grid md:grid-cols-2 gap-x-8 gap-y-12">
+            <div className="flex gap-6">
+              <div className="flex-shrink-0 w-12 h-12 bg-wellinder-cream rounded-full flex items-center justify-center">
+                <ShoppingBag className="w-6 h-6 text-wellinder-dark" />
+              </div>
+              <div>
+                <h3 className="text-lg font-serif mb-2 text-wellinder-dark">Product Seeding</h3>
+                <p className="text-wellinder-dark/60 text-sm leading-relaxed">Receive a curated selection of our finest products to experience and share with your audience, free of charge.</p>
+              </div>
+            </div>
+            <div className="flex gap-6">
+              <div className="flex-shrink-0 w-12 h-12 bg-wellinder-cream rounded-full flex items-center justify-center">
+                <Sparkles className="w-6 h-6 text-wellinder-dark" />
+              </div>
+              <div>
+                <h3 className="text-lg font-serif mb-2 text-wellinder-dark">Exclusive Events</h3>
+                <p className="text-wellinder-dark/60 text-sm leading-relaxed">Get invited to private workshops, launch parties, and creator retreats designed to inspire and connect.</p>
+              </div>
+            </div>
+            <div className="flex gap-6">
+              <div className="flex-shrink-0 w-12 h-12 bg-wellinder-cream rounded-full flex items-center justify-center">
+                <TrendingUp className="w-6 h-6 text-wellinder-dark" />
+              </div>
+              <div>
+                <h3 className="text-lg font-serif mb-2 text-wellinder-dark">Growth Support</h3>
+                <p className="text-wellinder-dark/60 text-sm leading-relaxed">Access our team of experts for personalized guidance on content strategy, audience engagement, and monetization.</p>
+              </div>
+            </div>
+            <div className="flex gap-6">
+              <div className="flex-shrink-0 w-12 h-12 bg-wellinder-cream rounded-full flex items-center justify-center">
+                <Users className="w-6 h-6 text-wellinder-dark" />
+              </div>
+              <div>
+                <h3 className="text-lg font-serif mb-2 text-wellinder-dark">Community & Collaboration</h3>
+                <p className="text-wellinder-dark/60 text-sm leading-relaxed">Join a vibrant community of like-minded creators. Collaborate on exciting projects and build lasting relationships.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };
 
+const ApplyPage = () => {
+  const [formData, setFormData] = useState({
+    fullName: '',
+    tiktokHandle: '',
+    instagramHandle: '',
+    email: '',
+    country: '',
+    agreedToTerms: false,
+  });
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const canSubmit = formData.country === 'Singapore' && formData.agreedToTerms;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!canSubmit) return;
+
+    setLoading(true);
+    try {
+      const inquiryId = `application_${Date.now()}`;
+      await setDoc(doc(db, 'applications', inquiryId), {
+        ...formData,
+        status: 'new',
+        createdAt: new Date().toISOString(),
+      });
+      setSubmitted(true);
+    } catch (error) {
+      console.error("Error submitting application:", error);
+      alert("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (submitted) {
+    return (
+      <div className="min-h-screen bg-wellinder-cream flex items-center justify-center p-6">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center bg-white p-12 rounded-3xl shadow-xl max-w-md mx-auto"
+        >
+          <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Diamond className="w-8 h-8 text-green-500" />
+          </div>
+          <h3 className="text-2xl font-serif text-wellinder-dark mb-4 italic">Application Received</h3>
+          <p className="text-wellinder-dark/60 leading-relaxed">
+            Thank you for your interest. We've received your application and will be in touch shortly.
+          </p>
+          <button
+            onClick={() => navigate('/')}
+            className="mt-8 text-wellinder-dark/50 hover:text-wellinder-dark transition-colors text-sm font-medium"
+          >
+            Back to Home
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-wellinder-cream pt-24 md:pt-32 pb-12 px-6">
+      <div className="max-w-md mx-auto">
+        <div className="text-center mb-12">
+          <p className="text-sm uppercase tracking-[0.3em] font-semibold text-wellinder-dark/50 mb-4">Application</p>
+          <p className="font-serif text-lg md:text-xl text-wellinder-dark/80 leading-relaxed">
+            If your daily ritual can inspire others, we invite you to begin your brilliant transformation with us.
+          </p>
+          <h1 className="font-serif text-3xl md:text-5xl text-wellinder-dark mt-6 italic">Join the Wellness Collective</h1>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-1">
+            <label className="text-[10px] uppercase tracking-widest font-bold text-wellinder-dark/40 ml-4">Full Name</label>
+            <input
+              type="text"
+              required
+              placeholder="e.g., Tan Wei Kiat"
+              className="w-full bg-white border-gray-200 rounded-2xl px-6 py-4 focus:border-wellinder-dark/20 focus:ring-4 focus:ring-wellinder-dark/5 outline-none transition-all placeholder:text-wellinder-dark/20"
+              value={formData.fullName}
+              onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-[10px] uppercase tracking-widest font-bold text-wellinder-dark/40 ml-4">TikTok Handle</label>
+            <input
+              type="text"
+              required
+              placeholder="@username"
+              className="w-full bg-white border-gray-200 rounded-2xl px-6 py-4 focus:border-wellinder-dark/20 focus:ring-4 focus:ring-wellinder-dark/5 outline-none transition-all placeholder:text-wellinder-dark/20"
+              value={formData.tiktokHandle}
+              onChange={(e) => setFormData({ ...formData, tiktokHandle: e.target.value })}
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-[10px] uppercase tracking-widest font-bold text-wellinder-dark/40 ml-4">Instagram Handle</label>
+            <input
+              type="text"
+              required
+              placeholder="@username"
+              className="w-full bg-white border-gray-200 rounded-2xl px-6 py-4 focus:border-wellinder-dark/20 focus:ring-4 focus:ring-wellinder-dark/5 outline-none transition-all placeholder:text-wellinder-dark/20"
+              value={formData.instagramHandle}
+              onChange={(e) => setFormData({ ...formData, instagramHandle: e.target.value })}
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-[10px] uppercase tracking-widest font-bold text-wellinder-dark/40 ml-4">Email Address</label>
+            <input
+              type="email"
+              required
+              placeholder="email@example.com"
+              className="w-full bg-white border-gray-200 rounded-2xl px-6 py-4 focus:border-wellinder-dark/20 focus:ring-4 focus:ring-wellinder-dark/5 outline-none transition-all placeholder:text-wellinder-dark/20"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-[10px] uppercase tracking-widest font-bold text-wellinder-dark/40 ml.md-4">Country</label>
+            <select
+              required
+              className="w-full bg-white border-gray-200 rounded-2xl px-6 py-4 appearance-none focus:border-wellinder-dark/20 focus:ring-4 focus:ring-wellinder-dark/5 outline-none transition-all"
+              value={formData.country}
+              onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+            >
+              <option value="" disabled>Select your country</option>
+              <option value="Singapore">Singapore (Now Available)</option>
+              <option value="Japan" disabled>Japan (Coming Soon)</option>
+              <option value="South Korea" disabled>South Korea (Coming Soon)</option>
+              <option value="Malaysia" disabled>Malaysia (Coming Soon)</option>
+              <option value="Thailand" disabled>Thailand (Coming Soon)</option>
+              <option value="Indonesia" disabled>Indonesia (Coming Soon)</option>
+              <option value="Philippines" disabled>Philippines (Coming Soon)</option>
+              <option value="Vietnam" disabled>Vietnam (Coming Soon)</option>
+              <option value="Taiwan" disabled>Taiwan (Coming Soon)</option>
+              <option value="Hong Kong" disabled>Hong Kong (Coming Soon)</option>
+              <option value="Australia" disabled>Australia (Coming Soon)</option>
+              <option value="United States" disabled>United States (Coming Soon)</option>
+              <option value="Canada" disabled>Canada (Coming Soon)</option>
+              <option value="United Kingdom" disabled>United Kingdom (Coming Soon)</option>
+              <option value="India" disabled>India (Coming Soon)</option>
+              <option value="United Arab Emirates" disabled>United Arab Emirates (Coming Soon)</option>
+              <option value="Germany" disabled>Germany (Coming Soon)</option>
+              <option value="France" disabled>France (Coming Soon)</option>
+              <option value="Spain" disabled>Spain (Coming Soon)</option>
+              <option value="Brazil" disabled>Brazil (Coming Soon)</option>
+              <option value="Mexico" disabled>Mexico (Coming Soon)</option>
+            </select>
+            <p className="text-xs text-wellinder-dark/50 pt-2 px-4">* We are currently prioritizing creators based in Singapore.</p>
+          </div>
+
+          <div className="pt-4 space-y-4">
+            <div className="flex items-start gap-3">
+                <input 
+                    type="checkbox" 
+                    id="terms"
+                    checked={formData.agreedToTerms}
+                    onChange={(e) => setFormData({ ...formData, agreedToTerms: e.target.checked })}
+                    className="mt-1 h-5 w-5 rounded-md border-gray-300 text-wellinder-dark focus:ring-wellinder-dark/50"
+                />
+                <label htmlFor="terms" className="text-sm text-wellinder-dark/70">
+                    I agree to the <Link to="/terms" target="_blank" rel="noopener noreferrer" className="underline hover:text-wellinder-dark">Terms of Service</Link> and <Link to="/privacy" target="_blank" rel="noopener noreferrer" className="underline hover:text-wellinder-dark">Privacy Policy</Link>.
+                </label>
+            </div>
+
+            <motion.button
+              type="submit"
+              disabled={!canSubmit || loading}
+              whileHover={{ scale: canSubmit ? 1.02 : 1 }}
+              whileTap={{ scale: canSubmit ? 0.98 : 1 }}
+              className={`w-full py-4 rounded-full font-sans font-semibold tracking-wide transition-colors duration-300 ${
+                canSubmit ? "bg-wellinder-dark text-white shadow-lg" : "bg-gray-200 text-gray-400 cursor-not-allowed"
+              }`}
+            >
+              {loading ? (
+                <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin mx-auto" />
+              ) : (
+                'Submit Application'
+              )}
+            </motion.button>
+          </div>
+        </form>
+        <button onClick={() => navigate(-1)} className="w-full text-center mt-6 text-sm text-wellinder-dark/50 hover:text-wellinder-dark">
+            Back
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const PolicySection = ({ title, children }: { title: string, children: React.ReactNode }) => (
+    <div className="mb-8">
+        <h2 className="text-xl font-serif text-wellinder-dark mb-4">{title}</h2>
+        <div className="space-y-4 text-wellinder-dark/80 leading-relaxed text-sm">
+            {children}
+        </div>
+    </div>
+);
+
+const PrivacyPolicyPage = () => (
+    <div className="min-h-screen bg-wellinder-cream pt-24 md:pt-32 pb-12 px-6">
+        <div className="max-w-3xl mx-auto">
+            <h1 className="text-4xl font-serif text-wellinder-dark mb-2">Privacy Policy</h1>
+            <p className="text-wellinder-dark/50 mb-12">Last Updated: August 1, 2024</p>
+
+            <PolicySection title="Introduction">
+                <p>Welcome to Wellinder. We are committed to protecting your personal information and your right to privacy. If you have any questions or concerns about our policy, or our practices with regards to your personal information, please contact us at privacy@wellinder.com.</p>
+                <p>When you visit our website and use our services, you trust us with your personal information. We take your privacy very seriously. In this privacy notice, we describe our privacy policy. We seek to explain to you in the clearest way possible what information we collect, how we use it and what rights you have in relation to it.</p>
+            </PolicySection>
+
+            <PolicySection title="Information We Collect">
+                <p>We collect personal information that you voluntarily provide to us when you register on the website, express an interest in obtaining information about us or our products and services, when you participate in activities on the website (such as posting messages in our online forums or entering competitions, contests or giveaways) or otherwise contacting us.</p>
+                <p>The personal information that we collect depends on the context of your interactions with us and the website, the choices you make and the products and features you use. The personal information we collect can include the following: Name and Contact Data, Credentials, and Social Media Login Data.</p>
+            </PolicySection>
+
+            <PolicySection title="How We Use Your Information">
+                <p>We use personal information collected via our website for a variety of business purposes described below. We process your personal information for these purposes in reliance on our legitimate business interests, in order to enter into or perform a contract with you, with your consent, and/or for compliance with our legal obligations.</p>
+                <ul className="list-disc list-inside space-y-2">
+                    <li>To facilitate account creation and logon process.</li>
+                    <li>To send you marketing and promotional communications.</li>
+                    <li>To send administrative information to you.</li>
+                    <li>To fulfill and manage your orders.</li>
+                    <li>To post testimonials.</li>
+                    <li>To deliver targeted advertising to you.</li>
+                </ul>
+            </PolicySection>
+            
+            <PolicySection title="International Data Transfers">
+                <p>Your information, including Personal Data, may be transferred to — and maintained on — computers located outside of your state, province, country or other governmental jurisdiction where the data protection laws may differ than those from your jurisdiction.</p>
+                <p>If you are located outside Singapore and choose to provide information to us, please note that we transfer the data, including Personal Data, to Singapore and process it there. Your consent to this Privacy Policy followed by your submission of such information represents your agreement to that transfer.</p>
+            </PolicySection>
+
+            <PolicySection title="Your Data Protection Rights (GDPR)">
+                <p>If you are a resident of the European Economic Area (EEA), you have certain data protection rights. Wellinder aims to take reasonable steps to allow you to correct, amend, delete, or limit the use of your Personal Data.</p>
+                <p>You have the right to: access, update or to delete the information we have on you; the right of rectification; the right to object; the right of restriction; the right to data portability; and the right to withdraw consent.</p>
+            </PolicySection>
+
+            <Link to="/apply" className="text-wellinder-dark/50 hover:text-wellinder-dark mt-8 inline-block">
+                &larr; Back to Application
+            </Link>
+        </div>
+    </div>
+);
+
+const TermsOfServicePage = () => (
+    <div className="min-h-screen bg-wellinder-cream pt-24 md:pt-32 pb-12 px-6">
+        <div className="max-w-3xl mx-auto">
+            <h1 className="text-4xl font-serif text-wellinder-dark mb-2">Terms of Service</h1>
+            <p className="text-wellinder-dark/50 mb-12">Last Updated: August 1, 2024</p>
+
+            <PolicySection title="1. Agreement to Terms">
+                <p>By using the services of Wellinder ('we', 'us', or 'our'), you agree to be bound by these Terms of Service. If you do not agree to these Terms, you may not use our services. We may amend the Terms at any time by posting the amended terms on our site. We may or may not post notices on the homepage when such changes occur.</p>
+            </PolicySection>
+
+            <PolicySection title="2. User Accounts">
+                <p>As a user of the Website, you may be asked to register with us and provide private information. You are responsible for ensuring the accuracy of this information, and you are responsible for maintaining the safety and security of your identifying information. You are also responsible for all activities that occur under your account or password.</p>
+            </PolicySection>
+
+            <PolicySection title="3. Intellectual Property Rights">
+                <p>The Website and its original content, features, and functionality are owned by Wellinder and are protected by international copyright, trademark, patent, trade secret, and other intellectual property or proprietary rights laws. This applies to all content, including text, graphics, logos, and user-generated content that is licensed to us.</p>
+            </PolicySection>
+
+            <PolicySection title="4. Prohibited Activities">
+                <p>You may not access or use the Website for any purpose other than that for which we make the Website available. Prohibited activity includes, but is not limited to: commercial endeavors, criminal or tortious activity, tricking or misleading other users, or using the Website to harass, abuse, or harm another person.</p>
+            </PolicySection>
+
+            <PolicySection title="5. Termination">
+                <p>We may terminate your use of the Website or our services at any time for any reason, with or without notice. You may terminate your account by following the instructions on the Website. Upon termination, your right to use the service will immediately cease.</p>
+            </PolicySection>
+            
+            <Link to="/apply" className="text-wellinder-dark/50 hover:text-wellinder-dark mt-8 inline-block">
+                &larr; Back to Application
+            </Link>
+        </div>
+    </div>
+);
+
 const PortalPage = () => {
-  const { user, loading, isAdmin } = useAuth();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
 
   const handleLogin = async () => {
@@ -482,8 +798,11 @@ export default function App() {
             <Header />
             <main>
               <Routes>
-                <Route path="/" element={<ApplyPage />} />
+                <Route path="/" element={<HomePage />} />
+                <Route path="/apply" element={<ApplyPage />} />
                 <Route path="/portal" element={<PortalPage />} />
+                <Route path="/privacy" element={<PrivacyPolicyPage />} />
+                <Route path="/terms" element={<TermsOfServicePage />} />
               </Routes>
             </main>
             <FooterCTA />
@@ -493,4 +812,3 @@ export default function App() {
     </ErrorBoundary>
   );
 }
-
