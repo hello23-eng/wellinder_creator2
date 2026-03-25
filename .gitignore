@@ -15,6 +15,10 @@ dist-ssr
 .env
 .env.local
 
+src/wellinder_-the-diamond-vault*/
+src/캡쳐/
+supabase/.temp/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
