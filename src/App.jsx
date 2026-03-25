@@ -362,15 +362,32 @@ const ApplicationPage = () => {
                 className="w-full bg-white border border-wellinder-dark/10 rounded-2xl py-4 px-5 text-wellinder-dark outline-none focus:border-wellinder-dark transition-colors appearance-none"
               >
                 <option value="">Select your country</option>
-                <option value="SG">Singapore</option>
-                <option value="MY">Malaysia</option>
-                <option value="KR">South Korea</option>
-                <option value="US">United States</option>
-                <option value="OTHER">Other</option>
+                <option value="SG">🇸🇬 Singapore — Now Open</option>
+                <option value="KR" disabled>🇰🇷 South Korea — Coming Soon</option>
+                <option value="MY" disabled>🇲🇾 Malaysia — Coming Soon</option>
+                <option value="JP" disabled>🇯🇵 Japan — Coming Soon</option>
+                <option value="TW" disabled>🇹🇼 Taiwan — Coming Soon</option>
+                <option value="HK" disabled>🇭🇰 Hong Kong — Coming Soon</option>
+                <option value="TH" disabled>🇹🇭 Thailand — Coming Soon</option>
+                <option value="ID" disabled>🇮🇩 Indonesia — Coming Soon</option>
+                <option value="PH" disabled>🇵🇭 Philippines — Coming Soon</option>
+                <option value="VN" disabled>🇻🇳 Vietnam — Coming Soon</option>
+                <option value="AU" disabled>🇦🇺 Australia — Coming Soon</option>
+                <option value="US" disabled>🇺🇸 United States — Coming Soon</option>
+                <option value="GB" disabled>🇬🇧 United Kingdom — Coming Soon</option>
+                <option value="CA" disabled>🇨🇦 Canada — Coming Soon</option>
+                <option value="FR" disabled>🇫🇷 France — Coming Soon</option>
               </select>
-              <p className="text-[11px] text-wellinder-dark/40 mt-2 px-1">
-                * We are currently prioritizing creators based in Singapore.
-              </p>
+              {formData.country && formData.country !== 'SG' && (
+                <p className="text-[11px] text-amber-600 mt-2 px-1 font-medium">
+                  ✦ We're launching in your region soon. Stay tuned!
+                </p>
+              )}
+              {!formData.country && (
+                <p className="text-[11px] text-wellinder-dark/40 mt-2 px-1">
+                  * Currently accepting applications from Singapore.
+                </p>
+              )}
             </div>
             <div className="flex items-start gap-3 pt-2">
               <input
@@ -387,10 +404,10 @@ const ApplicationPage = () => {
             {error && <p className="text-red-500 text-sm text-center">{error}</p>}
             <button
               type="submit"
-              disabled={!formData.agreed || submitting}
+              disabled={!formData.agreed || submitting || formData.country !== 'SG'}
               className={cn(
                 "w-full py-4 rounded-full font-sans font-semibold tracking-wide transition-all mt-4",
-                formData.agreed && !submitting
+                formData.agreed && !submitting && formData.country === 'SG'
                   ? "bg-wellinder-dark text-white shadow-lg hover:bg-wellinder-dark/90"
                   : "bg-wellinder-dark/20 text-wellinder-dark/40 cursor-not-allowed"
               )}
