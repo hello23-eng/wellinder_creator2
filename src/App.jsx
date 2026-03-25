@@ -6,6 +6,7 @@ import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { supabase } from './lib/supabase';
 import AdminPage from './pages/AdminPage';
+import LoungePage from './pages/LoungePage';
 
 function cn(...inputs) {
   return twMerge(clsx(inputs));
@@ -576,6 +577,7 @@ export default function App() {
             <Route path="/apply" element={<ApplicationPage />} />
             <Route path="/portal" element={<PortalPage />} />
             <Route path="/admin" element={<AdminPage />} />
+            <Route path="/lounge" element={<LoungePage />} />
           </Routes>
         </main>
         <FooterCTA />

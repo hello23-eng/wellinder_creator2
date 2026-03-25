@@ -40,11 +40,19 @@ serve(async (req) => {
       .update({ status: action })
       .eq('id', application_id);
 
-    // 이메일 내용 설정
     let subject = '';
     let html = '';
 
     if (action === 'approved') {
+      // Supabase Auth 초대 발송 (비밀번호 설정 링크 포함)
+      const { error: inviteError } = await supabase.auth.admin.inviteUserByEmail(app.email, {
+        redirectTo: 'https://wellinder.club/lounge',
+      });
+
+      if (inviteError) {
+        console.error('Invite error:', inviteError.message);
+      }
+
       subject = '✨ Welcome to Wellinder Creators — You\'re In!';
       html = `
         <div style="font-family: 'Georgia', serif; max-width: 560px; margin: 0 auto; color: #1a1a1a;">
@@ -59,20 +67,21 @@ serve(async (req) => {
               Your application stood out, and we can't wait to see your journey unfold.
             </p>
             <p>
-              Your Lounge access is ready. Click below to set up your account and step inside:
+              You'll receive a separate email shortly with a link to set up your password and access <strong>The Lounge</strong> — your exclusive space for missions, announcements, and creator resources.
+            </p>
+            <p>
+              Once your password is set, you can log in anytime at:
             </p>
             <div style="text-align: center; margin: 40px 0;">
               <a href="https://wellinder.club/lounge" style="background: #1a1a1a; color: white; padding: 16px 40px; border-radius: 999px; text-decoration: none; font-size: 14px; letter-spacing: 0.1em;">
                 Enter the Lounge →
               </a>
             </div>
-            <p style="font-size: 13px; color: #999;">
-              The Lounge is your exclusive space for missions, announcements, and creator resources.
-            </p>
             <p>Welcome to the collective,<br/><em>Wellinder Team</em></p>
           </div>
         </div>
       `;
+
     } else if (action === 'rejected') {
       subject = 'Thank you for applying to Wellinder Creators';
       html = `
