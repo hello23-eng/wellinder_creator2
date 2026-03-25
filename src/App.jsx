@@ -34,6 +34,18 @@ const DiamondIcon = ({ className }) => (
 // --- Header ---
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [session, setSession] = useState(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => setSession(session));
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setIsOpen(false);
+  };
 
   return (
     <header className="fixed top-0 left-0 w-full z-50 px-6 py-4 flex justify-between items-center bg-white/80 backdrop-blur-sm border-b border-wellinder-dark/5">
@@ -67,10 +79,25 @@ const Header = () => {
                 className="text-xl font-serif hover:text-wellinder-gold transition-colors"
               >Apply</a>
               <Link
-                to="/portal"
+                to="/lounge"
                 onClick={() => setIsOpen(false)}
-                className="text-xl font-serif hover:text-wellinder-gold transition-colors"
-              >Creator Portal</Link>
+                className="text-xl font-serif hover:text-wellinder-gold transition-colors flex items-center justify-center gap-2"
+              >
+                Lounge
+                <span className="text-[9px] uppercase tracking-widest font-bold text-wellinder-dark/30 border border-wellinder-dark/20 px-2 py-0.5 rounded-full">Members</span>
+              </Link>
+              {session ? (
+                <button
+                  onClick={handleLogout}
+                  className="text-xl font-serif text-wellinder-dark/40 hover:text-wellinder-dark transition-colors"
+                >Sign Out</button>
+              ) : (
+                <Link
+                  to="/lounge"
+                  onClick={() => setIsOpen(false)}
+                  className="text-xl font-serif text-wellinder-dark/40 hover:text-wellinder-dark transition-colors"
+                >Member Login</Link>
+              )}
               <div className="pt-4 border-t border-wellinder-dark/5 flex justify-center gap-6">
                 <Instagram className="w-5 h-5 opacity-50" />
                 <Send className="w-5 h-5 opacity-50" />
