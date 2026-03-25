@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { supabase } from './lib/supabase';
+import AdminPage from './pages/AdminPage';
 
 function cn(...inputs) {
   return twMerge(clsx(inputs));
@@ -574,6 +575,7 @@ export default function App() {
             <Route path="/" element={<ApplyPage />} />
             <Route path="/apply" element={<ApplicationPage />} />
             <Route path="/portal" element={<PortalPage />} />
+            <Route path="/admin" element={<AdminPage />} />
           </Routes>
         </main>
         <FooterCTA />
