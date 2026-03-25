@@ -1,12 +1,13 @@
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { Menu, X, Instagram, Send, Gem, Lock, LayoutDashboard, ShoppingBag, Users, Sparkles, Diamond, TrendingUp } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { supabase } from './lib/supabase';
 import AdminPage from './pages/AdminPage';
 import LoungePage from './pages/LoungePage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 
 function cn(...inputs) {
   return twMerge(clsx(inputs));
@@ -565,10 +566,25 @@ const PortalPage = () => {
   );
 };
 
+// --- Auth Redirect Handler ---
+function AuthRedirectHandler() {
+  const navigate = React.useCallback ? null : null;
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        window.location.href = '/reset-password';
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+  return null;
+}
+
 // --- Main App ---
 export default function App() {
   return (
     <Router>
+      <AuthRedirectHandler />
       <div className="relative">
         <Header />
         <main>
@@ -578,6 +594,7 @@ export default function App() {
             <Route path="/portal" element={<PortalPage />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/lounge" element={<LoungePage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
           </Routes>
         </main>
         <FooterCTA />
