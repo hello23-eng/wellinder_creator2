@@ -117,7 +117,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Wellinder Creators <hello@wellinder.co.kr>',
+        from: 'Wellinder Creators <hello@wellinder.club>',
         to: [app.email],
         subject,
         html,
