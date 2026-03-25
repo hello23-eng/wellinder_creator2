@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
@@ -9,7 +9,24 @@ export default function ResetPasswordPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [done, setDone] = useState(false);
+  const [ready, setReady] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // URL 해시에서 Supabase 토큰 처리
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY' || (event === 'SIGNED_IN' && session)) {
+        setReady(true);
+      }
+    });
+
+    // 이미 세션이 있는 경우
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) setReady(true);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleReset = async (e) => {
     e.preventDefault();
@@ -26,7 +43,7 @@ export default function ResetPasswordPage() {
     const { error } = await supabase.auth.updateUser({ password });
     setLoading(false);
     if (error) {
-      setError('오류가 발생했어요. 링크가 만료됐을 수 있어요.');
+      setError('오류가 발생했어요: ' + error.message);
     } else {
       setDone(true);
       setTimeout(() => navigate('/admin'), 2000);
@@ -45,6 +62,10 @@ export default function ResetPasswordPage() {
             <p className="text-2xl mb-3">✓</p>
             <h2 className="text-xl font-serif italic text-wellinder-dark">비밀번호 설정 완료!</h2>
             <p className="text-wellinder-dark/40 text-sm mt-2">어드민 페이지로 이동 중...</p>
+          </div>
+        ) : !ready ? (
+          <div className="text-center">
+            <p className="text-wellinder-dark/40 text-sm">링크 확인 중...</p>
           </div>
         ) : (
           <>

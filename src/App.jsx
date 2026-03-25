@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { Menu, X, Instagram, Send, Gem, Lock, LayoutDashboard, ShoppingBag, Users, Sparkles, Diamond, TrendingUp } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
@@ -568,15 +568,15 @@ const PortalPage = () => {
 
 // --- Auth Redirect Handler ---
 function AuthRedirectHandler() {
-  const navigate = React.useCallback ? null : null;
+  const navigate = useNavigate();
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') {
-        window.location.href = '/reset-password';
+        navigate('/reset-password');
       }
     });
     return () => subscription.unsubscribe();
-  }, []);
+  }, [navigate]);
   return null;
 }
 
