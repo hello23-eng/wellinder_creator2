@@ -73,11 +73,11 @@ const Header = () => {
             className="absolute top-full left-0 w-full bg-white border-b border-wellinder-dark/10 p-8 shadow-xl"
           >
             <nav className="flex flex-col gap-6 text-center">
-              <a
-                href="#apply"
+              <Link
+                to="/apply"
                 onClick={() => setIsOpen(false)}
                 className="text-xl font-serif hover:text-wellinder-gold transition-colors"
-              >Apply</a>
+              >Apply</Link>
               <Link
                 to="/lounge"
                 onClick={() => setIsOpen(false)}
