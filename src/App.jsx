@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { Menu, X, Instagram, Send, Gem, Lock, LayoutDashboard, ShoppingBag, Users, Sparkles, Diamond, TrendingUp } from 'lucide-react';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, createContext, useContext } from 'react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { supabase } from './lib/supabase';
@@ -12,6 +12,183 @@ import ResetPasswordPage from './pages/ResetPasswordPage';
 function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
+
+// --- Language Context ---
+const LangContext = createContext();
+const useLang = () => useContext(LangContext);
+
+const translations = {
+  en: {
+    // Header
+    headerTitle: 'Join Wellinder Creators',
+    headerSub: 'Share your rituals. Inspire others.',
+    navApply: 'Apply',
+    navLounge: 'Lounge',
+    navMembers: 'Members',
+    navSignOut: 'Sign Out',
+    navMemberLogin: 'Member Login',
+    // Footer CTA
+    footerBtn: 'Join the Wellinder Creators',
+    footerSub: 'Currently accepting applications for Singapore',
+    // Hero
+    heroBrand: 'WELLINDER',
+    heroTitle: 'Korean Inner Beauty Collagen',
+    heroSub: '8-Week Creator Challenge — Now Open 🇸🇬',
+    // Philosophy
+    philLabel: 'Our Philosophy',
+    philQuote: '"Wellinder: Wellness in wonder."',
+    philBelieve: 'We believe.',
+    philP1: 'That life is transformed not by grand gestures,\nbut by the power of small daily rituals.',
+    philP2: 'Just as a raw stone is refined into a brilliant jewel,\nhuman beauty begins to radiate through consistent, mindful care.',
+    philP3: 'WELLINDER stands with creators who cherish their own rituals\nand dare to share those stories with the world.',
+    philP4: 'If your ritual can become an inspiration to others,\nwe invite you to begin your brilliant journey with us.',
+    // Tier System
+    tierTitle: 'The Jewellery Tier System',
+    tier1Name: 'The Raw',
+    tier1Status: 'THE ORIGIN',
+    tier1Desc: 'Your journey begins here — a natural origin with boundless potential.',
+    tier2Name: 'The Crystal',
+    tier2Status: 'THE GROWTH',
+    tier2Desc: 'Growth begins to take shape. Radiating clarity and ambition.',
+    tier3Name: 'The Jewel',
+    tier3Status: 'THE MASTERPIECE',
+    tier3Desc: 'The pinnacle of brilliance. A true masterpiece within our community.',
+    // Benefits
+    benefitsTitle: 'Creator Benefits',
+    benefitsSub: 'Our commitment to your growth and brilliance.',
+    b1Title: 'Product Seeding',
+    b1Desc: 'Receive a curated selection of our finest products to experience and share with your audience, free of charge.',
+    b2Title: 'Exclusive Events',
+    b2Desc: 'Get invited to private workshops, launch parties, and creator retreats designed to inspire and connect.',
+    b3Title: 'Growth Support',
+    b3Desc: 'Access our team of experts for personalized guidance on content strategy, audience engagement, and monetization.',
+    b4Title: 'Community & Collaboration',
+    b4Desc: 'Join a vibrant community of like-minded creators. Collaborate on exciting projects and build lasting relationships.',
+    // Application Form
+    appLabel: 'Application',
+    appSub: 'If your daily ritual can inspire others, we invite you to begin your brilliant transformation with us.',
+    appTitle: 'Join the Wellness Collective',
+    fieldName: 'Full Name',
+    fieldNamePH: 'e.g., Tan Wei Kiat',
+    fieldTikTok: 'TikTok Handle',
+    fieldIG: 'Instagram Handle',
+    fieldEmail: 'Email Address',
+    fieldCountry: 'Country',
+    countrySelect: 'Select your country',
+    countrySG: '🇸🇬 Singapore — Now Open',
+    countryKR: '🇰🇷 South Korea — Coming Soon',
+    countryMY: '🇲🇾 Malaysia — Coming Soon',
+    countryJP: '🇯🇵 Japan — Coming Soon',
+    countryTW: '🇹🇼 Taiwan — Coming Soon',
+    countryHK: '🇭🇰 Hong Kong — Coming Soon',
+    countryTH: '🇹🇭 Thailand — Coming Soon',
+    countryID: '🇮🇩 Indonesia — Coming Soon',
+    countryPH: '🇵🇭 Philippines — Coming Soon',
+    countryVN: '🇻🇳 Vietnam — Coming Soon',
+    countryAU: '🇦🇺 Australia — Coming Soon',
+    countryUS: '🇺🇸 United States — Coming Soon',
+    countryGB: '🇬🇧 United Kingdom — Coming Soon',
+    countryCA: '🇨🇦 Canada — Coming Soon',
+    countryFR: '🇫🇷 France — Coming Soon',
+    countrySoonNote: '✦ We\'re launching in your region soon. Stay tuned!',
+    countryDefaultNote: '* Currently accepting applications from Singapore.',
+    termsText: 'I agree to the',
+    termsLink: 'Terms of Service',
+    termsAnd: 'and',
+    privacyLink: 'Privacy Policy',
+    submitBtn: 'Submit Application',
+    submittingBtn: 'Submitting...',
+    errorMsg: 'Something went wrong. Please try again.',
+    successTitle: 'Application Received',
+    successP1: 'Your application has been received.',
+    successP2: 'We\'ll review it and get back to you by email.\nThank you for applying.',
+  },
+  zh: {
+    // Header
+    headerTitle: '加入 Wellinder 创作者',
+    headerSub: '分享你的日常，启发他人。',
+    navApply: '申请',
+    navLounge: '会员专区',
+    navMembers: '会员',
+    navSignOut: '退出登录',
+    navMemberLogin: '会员登录',
+    // Footer CTA
+    footerBtn: '加入 Wellinder 创作者计划',
+    footerSub: '现正接受新加坡地区申请',
+    // Hero
+    heroBrand: 'WELLINDER',
+    heroTitle: '韩国内在美胶原蛋白',
+    heroSub: '8周创作者挑战赛 — 现已开放 🇸🇬',
+    // Philosophy
+    philLabel: '我们的理念',
+    philQuote: '"Wellinder：在惊喜中焕发健康之美。"',
+    philBelieve: '我们相信。',
+    philP1: '生命的改变，不在于宏大的举动，\n而在于微小日常仪式的力量。',
+    philP2: '正如原石被雕琢成璀璨宝石，\n人的美丽也在持续用心的呵护中绽放。',
+    philP3: 'WELLINDER 与珍视自己仪式感、\n勇于向世界分享故事的创作者同行。',
+    philP4: '如果你的日常仪式能够启发他人，\n我们诚邀你与我们一同开启这段璀璨旅程。',
+    // Tier System
+    tierTitle: '珠宝等级体系',
+    tier1Name: '原石',
+    tier1Status: '起源',
+    tier1Desc: '旅程从这里开始——天然本质，潜力无限。',
+    tier2Name: '水晶',
+    tier2Status: '成长',
+    tier2Desc: '成长初现雏形，散发清澈与抱负之光。',
+    tier3Name: '宝石',
+    tier3Status: '杰作',
+    tier3Desc: '璀璨之巅，社群中真正的杰作。',
+    // Benefits
+    benefitsTitle: '创作者福利',
+    benefitsSub: '我们对你成长与卓越的承诺。',
+    b1Title: '产品体验',
+    b1Desc: '免费获得精选优质产品，亲身体验并与你的粉丝分享。',
+    b2Title: '专属活动',
+    b2Desc: '受邀参加私人工作坊、新品发布会及创作者交流营，激发灵感，建立联系。',
+    b3Title: '成长支持',
+    b3Desc: '获取专家团队的个性化指导，涵盖内容策略、粉丝互动与变现方向。',
+    b4Title: '社群与合作',
+    b4Desc: '加入充满活力的同道创作者社群，共同参与精彩项目，建立持久的创作关系。',
+    // Application Form
+    appLabel: '申请',
+    appSub: '如果你的日常仪式能够启发他人，我们诚邀你与我们一同开始这段蜕变之旅。',
+    appTitle: '加入健康创作者集体',
+    fieldName: '姓名',
+    fieldNamePH: '例：陈伟杰',
+    fieldTikTok: 'TikTok 账号',
+    fieldIG: 'Instagram 账号',
+    fieldEmail: '电子邮件',
+    fieldCountry: '国家/地区',
+    countrySelect: '请选择国家/地区',
+    countrySG: '🇸🇬 新加坡 — 现已开放',
+    countryKR: '🇰🇷 韩国 — 即将开放',
+    countryMY: '🇲🇾 马来西亚 — 即将开放',
+    countryJP: '🇯🇵 日本 — 即将开放',
+    countryTW: '🇹🇼 台湾 — 即将开放',
+    countryHK: '🇭🇰 香港 — 即将开放',
+    countryTH: '🇹🇭 泰国 — 即将开放',
+    countryID: '🇮🇩 印度尼西亚 — 即将开放',
+    countryPH: '🇵🇭 菲律宾 — 即将开放',
+    countryVN: '🇻🇳 越南 — 即将开放',
+    countryAU: '🇦🇺 澳大利亚 — 即将开放',
+    countryUS: '🇺🇸 美国 — 即将开放',
+    countryGB: '🇬🇧 英国 — 即将开放',
+    countryCA: '🇨🇦 加拿大 — 即将开放',
+    countryFR: '🇫🇷 法国 — 即将开放',
+    countrySoonNote: '✦ 我们即将在您所在地区开放，敬请期待！',
+    countryDefaultNote: '* 目前仅接受新加坡地区的申请。',
+    termsText: '我同意',
+    termsLink: '服务条款',
+    termsAnd: '和',
+    privacyLink: '隐私政策',
+    submitBtn: '提交申请',
+    submittingBtn: '提交中...',
+    errorMsg: '出现错误，请重试。',
+    successTitle: '申请已收到',
+    successP1: '您的申请已成功提交。',
+    successP2: '我们将审核您的申请，并通过电子邮件与您联系。\n感谢您的申请。',
+  },
+};
 
 // --- Diamond Icon ---
 const DiamondIcon = ({ className }) => (
@@ -35,6 +212,7 @@ const DiamondIcon = ({ className }) => (
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [session, setSession] = useState(null);
+  const { lang, setLang, t } = useLang();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
@@ -52,17 +230,25 @@ const Header = () => {
       <Link to="/" className="flex items-center gap-4 group">
         <DiamondIcon className="w-8 h-8 md:w-10 md:h-10 text-wellinder-dark transition-transform group-hover:rotate-12" />
         <div className="flex flex-col">
-          <span className="text-lg md:text-2xl font-serif tracking-tighter text-wellinder-dark leading-none">Join Wellinder Creators</span>
-          <span className="text-[9px] md:text-[11px] tracking-[0.2em] text-wellinder-dark/50 mt-1 font-medium">Share your rituals. Inspire others.</span>
+          <span className="text-lg md:text-2xl font-serif tracking-tighter text-wellinder-dark leading-none">{t('headerTitle')}</span>
+          <span className="text-[9px] md:text-[11px] tracking-[0.2em] text-wellinder-dark/50 mt-1 font-medium">{t('headerSub')}</span>
         </div>
       </Link>
 
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="p-2 hover:bg-wellinder-dark/5 rounded-full transition-colors"
-      >
-        {isOpen ? <X /> : <Menu />}
-      </button>
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => setLang(lang === 'en' ? 'zh' : 'en')}
+          className="text-xs font-semibold text-wellinder-dark/50 hover:text-wellinder-dark transition-colors border border-wellinder-dark/15 rounded-full px-3 py-1"
+        >
+          {lang === 'en' ? '中文' : 'EN'}
+        </button>
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="p-2 hover:bg-wellinder-dark/5 rounded-full transition-colors"
+        >
+          {isOpen ? <X /> : <Menu />}
+        </button>
+      </div>
 
       <AnimatePresence>
         {isOpen && (
@@ -77,26 +263,26 @@ const Header = () => {
                 to="/apply"
                 onClick={() => setIsOpen(false)}
                 className="text-xl font-serif hover:text-wellinder-gold transition-colors"
-              >Apply</Link>
+              >{t('navApply')}</Link>
               <Link
                 to="/lounge"
                 onClick={() => setIsOpen(false)}
                 className="text-xl font-serif hover:text-wellinder-gold transition-colors flex items-center justify-center gap-2"
               >
-                Lounge
-                <span className="text-[9px] uppercase tracking-widest font-bold text-wellinder-dark/30 border border-wellinder-dark/20 px-2 py-0.5 rounded-full">Members</span>
+                {t('navLounge')}
+                <span className="text-[9px] uppercase tracking-widest font-bold text-wellinder-dark/30 border border-wellinder-dark/20 px-2 py-0.5 rounded-full">{t('navMembers')}</span>
               </Link>
               {session ? (
                 <button
                   onClick={handleLogout}
                   className="text-xl font-serif text-wellinder-dark/40 hover:text-wellinder-dark transition-colors"
-                >Sign Out</button>
+                >{t('navSignOut')}</button>
               ) : (
                 <Link
                   to="/lounge"
                   onClick={() => setIsOpen(false)}
                   className="text-xl font-serif text-wellinder-dark/40 hover:text-wellinder-dark transition-colors"
-                >Member Login</Link>
+                >{t('navMemberLogin')}</Link>
               )}
               <div className="pt-4 border-t border-wellinder-dark/5 flex justify-center gap-6">
                 <Instagram className="w-5 h-5 opacity-50" />
@@ -113,6 +299,7 @@ const Header = () => {
 // --- Footer CTA ---
 const FooterCTA = () => {
   const location = useLocation();
+  const { t } = useLang();
   if (location.pathname !== '/') return null;
 
   return (
@@ -124,11 +311,11 @@ const FooterCTA = () => {
             whileTap={{ scale: 0.98 }}
             className="w-full bg-wellinder-dark text-white py-4 rounded-full font-sans font-semibold tracking-wide shadow-2xl flex items-center justify-center gap-2 cursor-pointer"
           >
-            Join the Wellinder Creators
+            {t('footerBtn')}
           </motion.div>
         </Link>
         <p className="text-center text-[10px] uppercase tracking-widest mt-3 text-wellinder-dark/60 font-medium">
-          Currently accepting applications for Singapore
+          {t('footerSub')}
         </p>
       </div>
     </div>
@@ -137,6 +324,8 @@ const FooterCTA = () => {
 
 // --- Apply Page ---
 const ApplyPage = () => {
+  const { t } = useLang();
+
   return (
     <div className="min-h-screen pb-32">
 
@@ -152,35 +341,23 @@ const ApplyPage = () => {
         </div>
         <div className="absolute inset-0 bg-black/10" />
         <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/60 to-transparent text-white text-center">
-          <p className="text-xs uppercase tracking-[0.3em] font-semibold mb-2 opacity-80">WELLINDER</p>
-          <h1 className="text-2xl md:text-4xl font-serif text-white mb-1">Korean Inner Beauty Collagen</h1>
-          <p className="text-sm md:text-base opacity-80">8-Week Creator Challenge — Now Open 🇸🇬</p>
+          <p className="text-xs uppercase tracking-[0.3em] font-semibold mb-2 opacity-80">{t('heroBrand')}</p>
+          <h1 className="text-2xl md:text-4xl font-serif text-white mb-1">{t('heroTitle')}</h1>
+          <p className="text-sm md:text-base opacity-80">{t('heroSub')}</p>
         </div>
       </section>
 
       {/* Philosophy Section */}
       <section className="py-32 px-6 bg-wellinder-cream">
         <div className="max-w-4xl mx-auto text-center">
-          <span className="text-wellinder-dark uppercase tracking-[0.3em] text-xs font-semibold mb-4 block">Our Philosophy</span>
-          <h2 className="text-3xl md:text-4xl font-serif mb-8 italic text-wellinder-dark">"Wellinder: Wellness in wonder."</h2>
+          <span className="text-wellinder-dark uppercase tracking-[0.3em] text-xs font-semibold mb-4 block">{t('philLabel')}</span>
+          <h2 className="text-3xl md:text-4xl font-serif mb-8 italic text-wellinder-dark">{t('philQuote')}</h2>
           <div className="text-wellinder-dark/70 leading-relaxed text-lg space-y-6">
-            <p className="font-medium text-wellinder-dark">We believe.</p>
-            <p>
-              That life is transformed not by grand gestures,<br />
-              but by the power of small daily rituals.
-            </p>
-            <p>
-              Just as a raw stone is refined into a brilliant jewel,<br />
-              human beauty begins to radiate through consistent, mindful care.
-            </p>
-            <p>
-              WELLINDER stands with creators who cherish their own rituals<br />
-              and dare to share those stories with the world.
-            </p>
-            <p>
-              If your ritual can become an inspiration to others,<br />
-              we invite you to begin your brilliant journey with us.
-            </p>
+            <p className="font-medium text-wellinder-dark">{t('philBelieve')}</p>
+            <p>{t('philP1').split('\n').map((line, i) => <React.Fragment key={i}>{line}{i === 0 && <br />}</React.Fragment>)}</p>
+            <p>{t('philP2').split('\n').map((line, i) => <React.Fragment key={i}>{line}{i === 0 && <br />}</React.Fragment>)}</p>
+            <p>{t('philP3').split('\n').map((line, i) => <React.Fragment key={i}>{line}{i === 0 && <br />}</React.Fragment>)}</p>
+            <p>{t('philP4').split('\n').map((line, i) => <React.Fragment key={i}>{line}{i === 0 && <br />}</React.Fragment>)}</p>
           </div>
         </div>
       </section>
@@ -188,24 +365,24 @@ const ApplyPage = () => {
       {/* Jewellery Tier System */}
       <section className="py-24 px-6 bg-wellinder-cream">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-serif text-center mb-16 text-wellinder-dark">The Jewellery Tier System</h2>
+          <h2 className="text-3xl font-serif text-center mb-16 text-wellinder-dark">{t('tierTitle')}</h2>
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
-                title: 'The Raw',
-                desc: 'Your journey begins here — a natural origin with boundless potential.',
+                title: t('tier1Name'),
+                desc: t('tier1Desc'),
                 icon: <Diamond className="w-8 h-8 text-wellinder-dark" />,
-                status: 'THE ORIGIN'
+                status: t('tier1Status')
               },
               {
-                title: 'The Crystal',
-                desc: 'Growth begins to take shape. Radiating clarity and ambition.',
+                title: t('tier2Name'),
+                desc: t('tier2Desc'),
                 icon: <Sparkles className="w-8 h-8 text-wellinder-dark" />,
-                status: 'THE GROWTH'
+                status: t('tier2Status')
               },
               {
-                title: 'The Jewel',
-                desc: 'The pinnacle of brilliance. A true masterpiece within our community.',
+                title: t('tier3Name'),
+                desc: t('tier3Desc'),
                 icon: (
                   <div className="relative inline-block">
                     <Gem className="w-8 h-8 text-wellinder-dark fill-wellinder-dark/10 drop-shadow-[0_0_12px_rgba(0,0,0,0.15)]" />
@@ -221,7 +398,7 @@ const ApplyPage = () => {
                     >✨</motion.div>
                   </div>
                 ),
-                status: 'THE MASTERPIECE'
+                status: t('tier3Status')
               }
             ].map((tier, i) => (
               <div key={i} className="bg-white p-8 rounded-3xl border border-wellinder-dark/5 hover:border-wellinder-dark/20 transition-all hover:shadow-xl group">
@@ -239,31 +416,15 @@ const ApplyPage = () => {
       <section className="py-24 px-6 bg-white">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-serif text-wellinder-dark mb-4">Creator Benefits</h2>
-            <p className="text-wellinder-dark/60 text-lg">Our commitment to your growth and brilliance.</p>
+            <h2 className="text-3xl font-serif text-wellinder-dark mb-4">{t('benefitsTitle')}</h2>
+            <p className="text-wellinder-dark/60 text-lg">{t('benefitsSub')}</p>
           </div>
           <div className="space-y-10">
             {[
-              {
-                icon: <ShoppingBag className="w-6 h-6 text-wellinder-dark" />,
-                title: 'Product Seeding',
-                desc: 'Receive a curated selection of our finest products to experience and share with your audience, free of charge.'
-              },
-              {
-                icon: <Sparkles className="w-6 h-6 text-wellinder-dark" />,
-                title: 'Exclusive Events',
-                desc: 'Get invited to private workshops, launch parties, and creator retreats designed to inspire and connect.'
-              },
-              {
-                icon: <TrendingUp className="w-6 h-6 text-wellinder-dark" />,
-                title: 'Growth Support',
-                desc: 'Access our team of experts for personalized guidance on content strategy, audience engagement, and monetization.'
-              },
-              {
-                icon: <Users className="w-6 h-6 text-wellinder-dark" />,
-                title: 'Community & Collaboration',
-                desc: 'Join a vibrant community of like-minded creators. Collaborate on exciting projects and build lasting relationships.'
-              }
+              { icon: <ShoppingBag className="w-6 h-6 text-wellinder-dark" />, title: t('b1Title'), desc: t('b1Desc') },
+              { icon: <Sparkles className="w-6 h-6 text-wellinder-dark" />, title: t('b2Title'), desc: t('b2Desc') },
+              { icon: <TrendingUp className="w-6 h-6 text-wellinder-dark" />, title: t('b3Title'), desc: t('b3Desc') },
+              { icon: <Users className="w-6 h-6 text-wellinder-dark" />, title: t('b4Title'), desc: t('b4Desc') },
             ].map((benefit, i) => (
               <div key={i} className="flex items-start gap-6">
                 <div className="w-12 h-12 bg-wellinder-cream rounded-full flex items-center justify-center flex-shrink-0">
@@ -285,6 +446,7 @@ const ApplyPage = () => {
 
 // --- Application Page ---
 const ApplicationPage = () => {
+  const { t } = useLang();
   const [formData, setFormData] = useState({
     fullName: '',
     tiktok: '',
@@ -312,7 +474,7 @@ const ApplicationPage = () => {
 
     setSubmitting(false);
     if (error) {
-      setError('Something went wrong. Please try again.');
+      setError(t('errorMsg'));
     } else {
       setSubmitted(true);
     }
@@ -322,11 +484,9 @@ const ApplicationPage = () => {
     <div className="min-h-screen bg-wellinder-cream pt-24 pb-32 px-6">
       <div className="max-w-md mx-auto">
         <div className="text-center mb-10">
-          <span className="text-wellinder-dark/50 uppercase tracking-[0.3em] text-xs font-semibold mb-4 block">Application</span>
-          <p className="text-wellinder-dark/70 mb-6">
-            If your daily ritual can inspire others, we invite you to begin your brilliant transformation with us.
-          </p>
-          <h2 className="text-3xl md:text-4xl font-serif italic text-wellinder-dark">Join the Wellness Collective</h2>
+          <span className="text-wellinder-dark/50 uppercase tracking-[0.3em] text-xs font-semibold mb-4 block">{t('appLabel')}</span>
+          <p className="text-wellinder-dark/70 mb-6">{t('appSub')}</p>
+          <h2 className="text-3xl md:text-4xl font-serif italic text-wellinder-dark">{t('appTitle')}</h2>
         </div>
 
         {submitted ? (
@@ -336,13 +496,12 @@ const ApplicationPage = () => {
             className="text-center py-16"
           >
             <div className="text-5xl mb-6">✨</div>
-            <h3 className="text-3xl font-serif italic text-wellinder-dark mb-4">Application Received</h3>
+            <h3 className="text-3xl font-serif italic text-wellinder-dark mb-4">{t('successTitle')}</h3>
             <p className="text-wellinder-dark/70 text-base leading-relaxed mb-2">
-              Your application has been received.
+              {t('successP1')}
             </p>
             <p className="text-wellinder-dark/50 text-sm leading-relaxed">
-              We'll review it and get back to you by email.<br />
-              Thank you for applying.
+              {t('successP2').split('\n').map((line, i) => <React.Fragment key={i}>{line}{i === 0 && <br />}</React.Fragment>)}
             </p>
             <div className="mt-10 pt-8 border-t border-wellinder-dark/10">
               <p className="text-[10px] uppercase tracking-[0.3em] text-wellinder-dark/30 font-semibold">Wellinder Creators</p>
@@ -351,17 +510,17 @@ const ApplicationPage = () => {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="text-[10px] uppercase tracking-widest font-bold text-wellinder-dark/50 block mb-2">Full Name</label>
+              <label className="text-[10px] uppercase tracking-widest font-bold text-wellinder-dark/50 block mb-2">{t('fieldName')}</label>
               <input
                 type="text"
-                placeholder="e.g., Tan Wei Kiat"
+                placeholder={t('fieldNamePH')}
                 value={formData.fullName}
                 onChange={e => setFormData({ ...formData, fullName: e.target.value })}
                 className="w-full bg-white border border-wellinder-dark/10 rounded-2xl py-4 px-5 text-wellinder-dark outline-none focus:border-wellinder-dark transition-colors placeholder:text-wellinder-dark/30"
               />
             </div>
             <div>
-              <label className="text-[10px] uppercase tracking-widest font-bold text-wellinder-dark/50 block mb-2">TikTok Handle</label>
+              <label className="text-[10px] uppercase tracking-widest font-bold text-wellinder-dark/50 block mb-2">{t('fieldTikTok')}</label>
               <input
                 type="text"
                 placeholder="@username"
@@ -371,7 +530,7 @@ const ApplicationPage = () => {
               />
             </div>
             <div>
-              <label className="text-[10px] uppercase tracking-widest font-bold text-wellinder-dark/50 block mb-2">Instagram Handle</label>
+              <label className="text-[10px] uppercase tracking-widest font-bold text-wellinder-dark/50 block mb-2">{t('fieldIG')}</label>
               <input
                 type="text"
                 placeholder="@username"
@@ -381,7 +540,7 @@ const ApplicationPage = () => {
               />
             </div>
             <div>
-              <label className="text-[10px] uppercase tracking-widest font-bold text-wellinder-dark/50 block mb-2">Email Address</label>
+              <label className="text-[10px] uppercase tracking-widest font-bold text-wellinder-dark/50 block mb-2">{t('fieldEmail')}</label>
               <input
                 type="email"
                 placeholder="email@example.com"
@@ -391,37 +550,37 @@ const ApplicationPage = () => {
               />
             </div>
             <div>
-              <label className="text-[10px] uppercase tracking-widest font-bold text-wellinder-dark/50 block mb-2">Country</label>
+              <label className="text-[10px] uppercase tracking-widest font-bold text-wellinder-dark/50 block mb-2">{t('fieldCountry')}</label>
               <select
                 value={formData.country}
                 onChange={e => setFormData({ ...formData, country: e.target.value })}
                 className="w-full bg-white border border-wellinder-dark/10 rounded-2xl py-4 px-5 text-wellinder-dark outline-none focus:border-wellinder-dark transition-colors appearance-none"
               >
-                <option value="">Select your country</option>
-                <option value="SG">🇸🇬 Singapore — Now Open</option>
-                <option value="KR" disabled>🇰🇷 South Korea — Coming Soon</option>
-                <option value="MY" disabled>🇲🇾 Malaysia — Coming Soon</option>
-                <option value="JP" disabled>🇯🇵 Japan — Coming Soon</option>
-                <option value="TW" disabled>🇹🇼 Taiwan — Coming Soon</option>
-                <option value="HK" disabled>🇭🇰 Hong Kong — Coming Soon</option>
-                <option value="TH" disabled>🇹🇭 Thailand — Coming Soon</option>
-                <option value="ID" disabled>🇮🇩 Indonesia — Coming Soon</option>
-                <option value="PH" disabled>🇵🇭 Philippines — Coming Soon</option>
-                <option value="VN" disabled>🇻🇳 Vietnam — Coming Soon</option>
-                <option value="AU" disabled>🇦🇺 Australia — Coming Soon</option>
-                <option value="US" disabled>🇺🇸 United States — Coming Soon</option>
-                <option value="GB" disabled>🇬🇧 United Kingdom — Coming Soon</option>
-                <option value="CA" disabled>🇨🇦 Canada — Coming Soon</option>
-                <option value="FR" disabled>🇫🇷 France — Coming Soon</option>
+                <option value="">{t('countrySelect')}</option>
+                <option value="SG">{t('countrySG')}</option>
+                <option value="KR" disabled>{t('countryKR')}</option>
+                <option value="MY" disabled>{t('countryMY')}</option>
+                <option value="JP" disabled>{t('countryJP')}</option>
+                <option value="TW" disabled>{t('countryTW')}</option>
+                <option value="HK" disabled>{t('countryHK')}</option>
+                <option value="TH" disabled>{t('countryTH')}</option>
+                <option value="ID" disabled>{t('countryID')}</option>
+                <option value="PH" disabled>{t('countryPH')}</option>
+                <option value="VN" disabled>{t('countryVN')}</option>
+                <option value="AU" disabled>{t('countryAU')}</option>
+                <option value="US" disabled>{t('countryUS')}</option>
+                <option value="GB" disabled>{t('countryGB')}</option>
+                <option value="CA" disabled>{t('countryCA')}</option>
+                <option value="FR" disabled>{t('countryFR')}</option>
               </select>
               {formData.country && formData.country !== 'SG' && (
                 <p className="text-[11px] text-amber-600 mt-2 px-1 font-medium">
-                  ✦ We're launching in your region soon. Stay tuned!
+                  {t('countrySoonNote')}
                 </p>
               )}
               {!formData.country && (
                 <p className="text-[11px] text-wellinder-dark/40 mt-2 px-1">
-                  * Currently accepting applications from Singapore.
+                  {t('countryDefaultNote')}
                 </p>
               )}
             </div>
@@ -434,7 +593,7 @@ const ApplicationPage = () => {
                 className="mt-1 w-4 h-4 accent-wellinder-dark"
               />
               <label htmlFor="terms" className="text-sm text-wellinder-dark/60 leading-relaxed">
-                I agree to the <span className="underline cursor-pointer">Terms of Service</span> and <span className="underline cursor-pointer">Privacy Policy</span>.
+                {t('termsText')} <span className="underline cursor-pointer">{t('termsLink')}</span> {t('termsAnd')} <span className="underline cursor-pointer">{t('privacyLink')}</span>.
               </label>
             </div>
             {error && <p className="text-red-500 text-sm text-center">{error}</p>}
@@ -448,7 +607,7 @@ const ApplicationPage = () => {
                   : "bg-wellinder-dark/20 text-wellinder-dark/40 cursor-not-allowed"
               )}
             >
-              {submitting ? 'Submitting...' : 'Submit Application'}
+              {submitting ? t('submittingBtn') : t('submitBtn')}
             </button>
           </form>
         )}
@@ -615,23 +774,28 @@ function AuthRedirectHandler() {
 
 // --- Main App ---
 export default function App() {
+  const [lang, setLang] = useState('en');
+  const t = (key) => translations[lang][key] ?? key;
+
   return (
-    <Router>
-      <AuthRedirectHandler />
-      <div className="relative">
-        <Header />
-        <main>
-          <Routes>
-            <Route path="/" element={<ApplyPage />} />
-            <Route path="/apply" element={<ApplicationPage />} />
-            <Route path="/portal" element={<PortalPage />} />
-            <Route path="/admin" element={<AdminPage />} />
-            <Route path="/lounge" element={<LoungePage />} />
-            <Route path="/reset-password" element={<ResetPasswordPage />} />
-          </Routes>
-        </main>
-        <FooterCTA />
-      </div>
-    </Router>
+    <LangContext.Provider value={{ lang, setLang, t }}>
+      <Router>
+        <AuthRedirectHandler />
+        <div className="relative">
+          <Header />
+          <main>
+            <Routes>
+              <Route path="/" element={<ApplyPage />} />
+              <Route path="/apply" element={<ApplicationPage />} />
+              <Route path="/portal" element={<PortalPage />} />
+              <Route path="/admin" element={<AdminPage />} />
+              <Route path="/lounge" element={<LoungePage />} />
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
+            </Routes>
+          </main>
+          <FooterCTA />
+        </div>
+      </Router>
+    </LangContext.Provider>
   );
 }
