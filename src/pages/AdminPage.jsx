@@ -234,8 +234,8 @@ export default function AdminPage() {
                     </div>
                     <div className="flex flex-wrap gap-4 text-sm text-wellinder-dark/60">
                       <span className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" />{app.email}</span>
-                      <span className="flex items-center gap-1.5"><Instagram className="w-3.5 h-3.5" />{app.instagram}</span>
-                      {app.tiktok && <span className="text-wellinder-dark/40">TikTok: {app.tiktok}</span>}
+                      <span className="flex items-center gap-1.5"><Instagram className="w-3.5 h-3.5" />{app.instagram_handle}</span>
+                      {app.tiktok_handle && <span className="text-wellinder-dark/40">TikTok: {app.tiktok_handle}</span>}
                       <span className="text-wellinder-dark/30">{app.country}</span>
                     </div>
                     <p className="text-[11px] text-wellinder-dark/30 mt-2">
