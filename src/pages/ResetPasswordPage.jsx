@@ -68,13 +68,14 @@ export default function ResetPasswordPage() {
         ) : (
           <>
             <div className="text-center mb-8">
-              <p className="text-[10px] uppercase tracking-[0.3em] text-wellinder-dark/40 font-semibold mb-2">Wellinder</p>
-              <h1 className="text-2xl font-serif italic text-wellinder-dark">Set your password</h1>
+              <p className="text-[10px] uppercase tracking-[0.3em] text-wellinder-dark/40 font-semibold mb-2">Wellinder Creators</p>
+              <h1 className="text-2xl font-serif italic text-wellinder-dark">Welcome.</h1>
+              <p className="text-wellinder-dark/50 text-sm mt-2">Create a password to access your account.</p>
             </div>
             <form onSubmit={handleReset} className="space-y-3">
               <input
                 type="password"
-                placeholder="New password"
+                placeholder="Create password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 className="w-full border border-wellinder-dark/10 rounded-2xl py-4 px-5 outline-none focus:border-wellinder-dark transition-colors text-wellinder-dark placeholder:text-wellinder-dark/30"
@@ -92,7 +93,7 @@ export default function ResetPasswordPage() {
                 disabled={loading}
                 className="w-full bg-wellinder-dark text-white py-4 rounded-full font-semibold disabled:opacity-50"
               >
-                {loading ? 'Saving...' : 'Set Password'}
+                {loading ? 'Creating...' : 'Create Account'}
               </button>
             </form>
           </>
