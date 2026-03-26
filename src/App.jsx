@@ -338,11 +338,11 @@ const ApplicationPage = () => {
             <div className="text-5xl mb-6">✨</div>
             <h3 className="text-3xl font-serif italic text-wellinder-dark mb-4">Application Received</h3>
             <p className="text-wellinder-dark/70 text-base leading-relaxed mb-2">
-              신청서가 잘 접수되었습니다.
+              Your application has been received.
             </p>
             <p className="text-wellinder-dark/50 text-sm leading-relaxed">
-              검토 후 이메일로 연락드리겠습니다.<br />
-              조금만 기다려주세요.
+              We'll review it and get back to you by email.<br />
+              Thank you for applying.
             </p>
             <div className="mt-10 pt-8 border-t border-wellinder-dark/10">
               <p className="text-[10px] uppercase tracking-[0.3em] text-wellinder-dark/30 font-semibold">Wellinder Creators</p>
