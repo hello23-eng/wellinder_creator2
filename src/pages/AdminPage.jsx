@@ -160,9 +160,9 @@ export default function AdminPage() {
     );
   }
 
-  const filtered = applications.filter(a => a.status === filter);
+  const filtered = applications.filter(a => (a.status ?? 'pending') === filter);
   const counts = {
-    pending: applications.filter(a => a.status === 'pending').length,
+    pending: applications.filter(a => (a.status ?? 'pending') === 'pending').length,
     approved: applications.filter(a => a.status === 'approved').length,
     rejected: applications.filter(a => a.status === 'rejected').length,
   };
