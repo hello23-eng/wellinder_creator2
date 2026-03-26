@@ -39,10 +39,10 @@ const translations = {
     philLabel: 'Our Philosophy',
     philQuote: '"Wellinder: Wellness in wonder."',
     philBelieve: 'We believe.',
-    philP1: 'That life is transformed not by grand gestures,\nbut by the power of small daily rituals.',
-    philP2: 'Just as a raw stone is refined into a brilliant jewel,\nhuman beauty begins to radiate through consistent, mindful care.',
-    philP3: 'WELLINDER stands with creators who cherish their own rituals\nand dare to share those stories with the world.',
-    philP4: 'If your ritual can become an inspiration to others,\nwe invite you to begin your brilliant journey with us.',
+    philP1: 'That life is transformed not by grand gestures, but by the power of small daily rituals.',
+    philP2: 'Just as a raw stone is refined into a brilliant jewel, human beauty begins to radiate through consistent, mindful care.',
+    philP3: 'WELLINDER stands with creators who cherish their own rituals and dare to share those stories with the world.',
+    philP4: 'If your ritual can become an inspiration to others, we invite you to begin your brilliant journey with us.',
     // Tier System
     tierTitle: 'The Jewellery Tier System',
     tier1Name: 'The Raw',
@@ -124,10 +124,10 @@ const translations = {
     philLabel: '我们的理念',
     philQuote: '"Wellinder：在惊喜中焕发健康之美。"',
     philBelieve: '我们相信。',
-    philP1: '生命的改变，不在于宏大的举动，\n而在于微小日常仪式的力量。',
-    philP2: '正如原石被雕琢成璀璨宝石，\n人的美丽也在持续用心的呵护中绽放。',
-    philP3: 'WELLINDER 与珍视自己仪式感、\n勇于向世界分享故事的创作者同行。',
-    philP4: '如果你的日常仪式能够启发他人，\n我们诚邀你与我们一同开启这段璀璨旅程。',
+    philP1: '生命的改变，不在于宏大的举动，而在于微小日常仪式的力量。',
+    philP2: '正如原石被雕琢成璀璨宝石，人的美丽也在持续用心的呵护中绽放。',
+    philP3: 'WELLINDER 与珍视自己仪式感、勇于向世界分享故事的创作者同行。',
+    philP4: '如果你的日常仪式能够启发他人，我们诚邀你与我们一同开启这段璀璨旅程。',
     // Tier System
     tierTitle: '珠宝等级体系',
     tier1Name: '原石',
@@ -232,7 +232,9 @@ const Header = () => {
         <DiamondIcon className="w-8 h-8 md:w-10 md:h-10 text-wellinder-dark transition-transform group-hover:rotate-12" />
         <div className="flex flex-col">
           <span className="text-lg md:text-2xl font-serif tracking-tighter text-wellinder-dark leading-none">{t('headerTitle')}</span>
-          <span className="text-[9px] md:text-[11px] tracking-[0.2em] text-wellinder-dark/50 mt-1 font-medium">{t('headerSub')}</span>
+          <span className="text-[9px] md:text-[11px] tracking-[0.2em] text-wellinder-dark/50 mt-1 font-medium">
+            Share your rituals.<br />Inspire others.
+          </span>
         </div>
       </Link>
 
@@ -340,24 +342,24 @@ const ApplyPage = () => {
       </section>
 
       {/* Philosophy Section */}
-      <section className="py-32 px-6 bg-wellinder-cream">
-        <div className="max-w-4xl mx-auto text-center">
+      <section className="py-16 px-6 bg-wellinder-cream">
+        <div className="max-w-xl mx-auto text-center">
           <span className="text-wellinder-dark uppercase tracking-[0.3em] text-xs font-semibold mb-4 block">{t('philLabel')}</span>
-          <h2 className="text-3xl md:text-4xl font-serif mb-8 italic text-wellinder-dark">{t('philQuote')}</h2>
-          <div className="text-wellinder-dark/70 leading-relaxed text-lg space-y-6">
+          <h2 className="text-xl md:text-2xl font-serif mb-8 italic text-wellinder-dark whitespace-nowrap">{t('philQuote')}</h2>
+          <div className="text-wellinder-dark/70 leading-loose text-base space-y-4">
             <p className="font-medium text-wellinder-dark">{t('philBelieve')}</p>
-            <p>{t('philP1').split('\n').map((line, i) => <React.Fragment key={i}>{line}{i === 0 && <br />}</React.Fragment>)}</p>
-            <p>{t('philP2').split('\n').map((line, i) => <React.Fragment key={i}>{line}{i === 0 && <br />}</React.Fragment>)}</p>
-            <p>{t('philP3').split('\n').map((line, i) => <React.Fragment key={i}>{line}{i === 0 && <br />}</React.Fragment>)}</p>
-            <p>{t('philP4').split('\n').map((line, i) => <React.Fragment key={i}>{line}{i === 0 && <br />}</React.Fragment>)}</p>
+            <p>{t('philP1')}</p>
+            <p>{t('philP2')}</p>
+            <p>{t('philP3')}</p>
+            <p>{t('philP4')}</p>
           </div>
         </div>
       </section>
 
       {/* Jewellery Tier System */}
-      <section className="py-24 px-6 bg-wellinder-cream">
+      <section className="py-12 px-6 bg-wellinder-cream">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-serif text-center mb-16 text-wellinder-dark">{t('tierTitle')}</h2>
+          <h2 className="text-xl md:text-2xl font-serif text-center mb-10 text-wellinder-dark whitespace-nowrap">{t('tierTitle')}</h2>
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
@@ -394,9 +396,13 @@ const ApplyPage = () => {
               }
             ].map((tier, i) => (
               <div key={i} className="bg-white p-8 rounded-3xl border border-wellinder-dark/5 hover:border-wellinder-dark/20 transition-all hover:shadow-xl group">
-                <div className="mb-6 transform transition-transform group-hover:scale-110 duration-500">{tier.icon}</div>
-                <h3 className="text-xl font-serif mb-2 text-wellinder-dark">{tier.title}</h3>
-                <p className="text-[10px] text-wellinder-dark/40 uppercase tracking-widest font-bold mb-4">{tier.status}</p>
+                <div className="flex items-center gap-4 mb-3">
+                  <div className="flex-shrink-0 transform transition-transform group-hover:scale-110 duration-500">{tier.icon}</div>
+                  <div>
+                    <h3 className="text-xl font-serif text-wellinder-dark">{tier.title}</h3>
+                    <p className="text-[10px] text-wellinder-dark/40 uppercase tracking-widest font-bold">{tier.status}</p>
+                  </div>
+                </div>
                 <p className="text-wellinder-dark/60 text-sm leading-relaxed italic">{tier.desc}</p>
               </div>
             ))}
@@ -405,26 +411,26 @@ const ApplyPage = () => {
       </section>
 
       {/* Creator Benefits */}
-      <section className="py-24 px-6 bg-white">
+      <section className="py-16 px-6 bg-white">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-serif text-wellinder-dark mb-4">{t('benefitsTitle')}</h2>
-            <p className="text-wellinder-dark/60 text-lg">{t('benefitsSub')}</p>
+          <div className="text-center mb-10">
+            <h2 className="text-xl md:text-2xl font-serif text-wellinder-dark mb-2">{t('benefitsTitle')}</h2>
+            <p className="text-wellinder-dark/60 text-sm">{t('benefitsSub')}</p>
           </div>
-          <div className="space-y-10">
+          <div className="space-y-6">
             {[
-              { icon: <ShoppingBag className="w-6 h-6 text-wellinder-dark" />, title: t('b1Title'), desc: t('b1Desc') },
-              { icon: <Sparkles className="w-6 h-6 text-wellinder-dark" />, title: t('b2Title'), desc: t('b2Desc') },
-              { icon: <TrendingUp className="w-6 h-6 text-wellinder-dark" />, title: t('b3Title'), desc: t('b3Desc') },
-              { icon: <Users className="w-6 h-6 text-wellinder-dark" />, title: t('b4Title'), desc: t('b4Desc') },
+              { icon: <ShoppingBag className="w-5 h-5 text-wellinder-dark" />, title: t('b1Title'), desc: t('b1Desc') },
+              { icon: <Sparkles className="w-5 h-5 text-wellinder-dark" />, title: t('b2Title'), desc: t('b2Desc') },
+              { icon: <TrendingUp className="w-5 h-5 text-wellinder-dark" />, title: t('b3Title'), desc: t('b3Desc') },
+              { icon: <Users className="w-5 h-5 text-wellinder-dark" />, title: t('b4Title'), desc: t('b4Desc') },
             ].map((benefit, i) => (
-              <div key={i} className="flex items-start gap-6">
-                <div className="w-12 h-12 bg-wellinder-cream rounded-full flex items-center justify-center flex-shrink-0">
+              <div key={i} className="flex items-start gap-4">
+                <div className="w-9 h-9 bg-wellinder-cream rounded-full flex items-center justify-center flex-shrink-0">
                   {benefit.icon}
                 </div>
                 <div>
-                  <h3 className="text-xl font-serif mb-2 text-wellinder-dark">{benefit.title}</h3>
-                  <p className="text-wellinder-dark/60 leading-relaxed">{benefit.desc}</p>
+                  <h3 className="text-base font-serif mb-1 text-wellinder-dark">{benefit.title}</h3>
+                  <p className="text-wellinder-dark/60 text-sm leading-relaxed">{benefit.desc}</p>
                 </div>
               </div>
             ))}
@@ -477,8 +483,10 @@ const ApplicationPage = () => {
       <div className="max-w-md mx-auto">
         <div className="text-center mb-10">
           <span className="text-wellinder-dark/50 uppercase tracking-[0.3em] text-xs font-semibold mb-4 block">{t('appLabel')}</span>
-          <p className="text-wellinder-dark/70 mb-6">{t('appSub')}</p>
-          <h2 className="text-3xl md:text-4xl font-serif italic text-wellinder-dark">{t('appTitle')}</h2>
+          <p className="text-wellinder-dark/70 mb-6">
+            If your daily ritual can inspire others,<br />we invite you to begin your brilliant transformation with us.
+          </p>
+          <h2 className="text-xl md:text-2xl font-serif italic text-wellinder-dark whitespace-nowrap">{t('appTitle')}</h2>
         </div>
 
         {submitted ? (
@@ -584,7 +592,7 @@ const ApplicationPage = () => {
                 onChange={e => setFormData({ ...formData, agreed: e.target.checked })}
                 className="mt-1 w-4 h-4 accent-wellinder-dark"
               />
-              <label htmlFor="terms" className="text-sm text-wellinder-dark/60 leading-relaxed">
+              <label htmlFor="terms" className="text-xs text-wellinder-dark/60 whitespace-nowrap">
                 {t('termsText')} <span className="underline cursor-pointer">{t('termsLink')}</span> {t('termsAnd')} <span className="underline cursor-pointer">{t('privacyLink')}</span>.
               </label>
             </div>
