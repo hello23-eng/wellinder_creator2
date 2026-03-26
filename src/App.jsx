@@ -5,6 +5,7 @@ import React, { useState, useEffect, createContext, useContext } from 'react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { supabase } from './lib/supabase';
+import heroImg from './assets/hero.png';
 import AdminPage from './pages/AdminPage';
 import LoungePage from './pages/LoungePage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
@@ -235,10 +236,10 @@ const Header = () => {
         </div>
       </Link>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-4">
         <button
           onClick={() => setLang(lang === 'en' ? 'zh' : 'en')}
-          className="text-xs font-semibold text-wellinder-dark/50 hover:text-wellinder-dark transition-colors border border-wellinder-dark/15 rounded-full px-3 py-1"
+          className="text-[10px] tracking-[0.15em] font-medium text-wellinder-dark/35 hover:text-wellinder-dark transition-colors uppercase"
         >
           {lang === 'en' ? '中文' : 'EN'}
         </button>
@@ -330,21 +331,12 @@ const ApplyPage = () => {
     <div className="min-h-screen pb-32">
 
       {/* Hero Section */}
-      <section className="relative w-full bg-wellinder-dark overflow-hidden pt-[72px]">
-        <div className="w-full aspect-video max-h-[90vh]">
-          <img
-            src="https://i.ibb.co/rfNsKKtD/Gemini-Generated-Image-xwsfv7xwsfv7xwsf.png"
-            alt="Wellinder - The Diamond Vault"
-            className="w-full h-full object-cover object-top"
-            referrerPolicy="no-referrer"
-          />
-        </div>
-        <div className="absolute inset-0 bg-black/10" />
-        <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/60 to-transparent text-white text-center">
-          <p className="text-xs uppercase tracking-[0.3em] font-semibold mb-2 opacity-80">{t('heroBrand')}</p>
-          <h1 className="text-2xl md:text-4xl font-serif text-white mb-1">{t('heroTitle')}</h1>
-          <p className="text-sm md:text-base opacity-80">{t('heroSub')}</p>
-        </div>
+      <section className="w-full bg-wellinder-cream pt-[72px] flex justify-center">
+        <img
+          src={heroImg}
+          alt="Wellinder - Korean Inner Beauty Collagen"
+          className="w-full max-w-lg object-contain"
+        />
       </section>
 
       {/* Philosophy Section */}
