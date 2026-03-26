@@ -46,7 +46,7 @@ serve(async (req) => {
     if (action === 'approved') {
       // Supabase Auth 초대 발송 (비밀번호 설정 링크 포함)
       const { error: inviteError } = await supabase.auth.admin.inviteUserByEmail(app.email, {
-        redirectTo: 'https://wellinder.club/lounge',
+        redirectTo: 'https://wellinder.club/reset-password',
       });
 
       if (inviteError) {

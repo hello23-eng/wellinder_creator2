@@ -13,14 +13,12 @@ export default function ResetPasswordPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // URL 해시에서 Supabase 토큰 처리
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'PASSWORD_RECOVERY' || (event === 'SIGNED_IN' && session)) {
         setReady(true);
       }
     });
 
-    // 이미 세션이 있는 경우
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) setReady(true);
     });
@@ -31,11 +29,11 @@ export default function ResetPasswordPage() {
   const handleReset = async (e) => {
     e.preventDefault();
     if (password !== confirm) {
-      setError('비밀번호가 일치하지 않아요.');
+      setError('Passwords do not match.');
       return;
     }
     if (password.length < 6) {
-      setError('비밀번호는 6자 이상이어야 해요.');
+      setError('Password must be at least 6 characters.');
       return;
     }
     setLoading(true);
@@ -43,10 +41,10 @@ export default function ResetPasswordPage() {
     const { error } = await supabase.auth.updateUser({ password });
     setLoading(false);
     if (error) {
-      setError('오류가 발생했어요: ' + error.message);
+      setError('Something went wrong: ' + error.message);
     } else {
       setDone(true);
-      setTimeout(() => navigate('/admin'), 2000);
+      setTimeout(() => navigate('/lounge'), 2000);
     }
   };
 
@@ -60,30 +58,30 @@ export default function ResetPasswordPage() {
         {done ? (
           <div className="text-center">
             <p className="text-2xl mb-3">✓</p>
-            <h2 className="text-xl font-serif italic text-wellinder-dark">비밀번호 설정 완료!</h2>
-            <p className="text-wellinder-dark/40 text-sm mt-2">어드민 페이지로 이동 중...</p>
+            <h2 className="text-xl font-serif italic text-wellinder-dark">Password set!</h2>
+            <p className="text-wellinder-dark/40 text-sm mt-2">Taking you to the Lounge...</p>
           </div>
         ) : !ready ? (
           <div className="text-center">
-            <p className="text-wellinder-dark/40 text-sm">링크 확인 중...</p>
+            <p className="text-wellinder-dark/40 text-sm">Verifying your link...</p>
           </div>
         ) : (
           <>
             <div className="text-center mb-8">
               <p className="text-[10px] uppercase tracking-[0.3em] text-wellinder-dark/40 font-semibold mb-2">Wellinder</p>
-              <h1 className="text-2xl font-serif italic text-wellinder-dark">비밀번호 설정</h1>
+              <h1 className="text-2xl font-serif italic text-wellinder-dark">Set your password</h1>
             </div>
             <form onSubmit={handleReset} className="space-y-3">
               <input
                 type="password"
-                placeholder="새 비밀번호"
+                placeholder="New password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 className="w-full border border-wellinder-dark/10 rounded-2xl py-4 px-5 outline-none focus:border-wellinder-dark transition-colors text-wellinder-dark placeholder:text-wellinder-dark/30"
               />
               <input
                 type="password"
-                placeholder="비밀번호 확인"
+                placeholder="Confirm password"
                 value={confirm}
                 onChange={e => setConfirm(e.target.value)}
                 className="w-full border border-wellinder-dark/10 rounded-2xl py-4 px-5 outline-none focus:border-wellinder-dark transition-colors text-wellinder-dark placeholder:text-wellinder-dark/30"
@@ -94,7 +92,7 @@ export default function ResetPasswordPage() {
                 disabled={loading}
                 className="w-full bg-wellinder-dark text-white py-4 rounded-full font-semibold disabled:opacity-50"
               >
-                {loading ? '저장 중...' : '비밀번호 설정'}
+                {loading ? 'Saving...' : 'Set Password'}
               </button>
             </form>
           </>
