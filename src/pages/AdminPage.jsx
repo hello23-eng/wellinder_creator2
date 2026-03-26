@@ -54,10 +54,11 @@ export default function AdminPage() {
 
   const fetchApplications = async () => {
     setDataLoading(true);
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('applications')
       .select('*')
       .order('created_at', { ascending: false });
+    console.log('fetch result:', { data, error });
     setApplications(data || []);
     setDataLoading(false);
   };
