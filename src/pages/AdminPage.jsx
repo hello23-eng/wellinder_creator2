@@ -243,7 +243,7 @@ export default function AdminPage() {
                     </p>
                   </div>
 
-                  {app.status === 'pending' && (
+                  {(app.status === 'pending' || app.status === null) && (
                     <div className="flex gap-2 flex-shrink-0">
                       <button
                         onClick={() => handleAction(app, 'approved')}
