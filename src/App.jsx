@@ -468,6 +468,7 @@ const ApplicationPage = () => {
       instagram_handle: formData.instagram,
       email: formData.email,
       country: formData.country,
+      status: 'pending',
     }]);
 
     setSubmitting(false);
