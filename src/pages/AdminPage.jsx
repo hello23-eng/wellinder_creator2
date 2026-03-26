@@ -59,6 +59,7 @@ export default function AdminPage() {
       .select('*')
       .order('created_at', { ascending: false });
     console.log('fetch result:', { data, error });
+    if (data) data.forEach(a => console.log('application:', a.id, '| status:', a.status, '| name:', a.full_name));
     setApplications(data || []);
     setDataLoading(false);
   };
