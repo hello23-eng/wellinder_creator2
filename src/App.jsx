@@ -420,7 +420,6 @@ const ApplyPage = () => {
           <div className="space-y-6">
             {[
               { icon: <ShoppingBag className="w-5 h-5 text-wellinder-dark" />, title: t('b1Title'), desc: t('b1Desc') },
-              { icon: <Sparkles className="w-5 h-5 text-wellinder-dark" />, title: t('b2Title'), desc: t('b2Desc') },
               { icon: <TrendingUp className="w-5 h-5 text-wellinder-dark" />, title: t('b3Title'), desc: t('b3Desc') },
               { icon: <Users className="w-5 h-5 text-wellinder-dark" />, title: t('b4Title'), desc: t('b4Desc') },
             ].map((benefit, i) => (
