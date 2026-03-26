@@ -304,8 +304,8 @@ const ApplicationPage = () => {
 
     const { error } = await supabase.from('applications').insert([{
       full_name: formData.fullName,
-      tiktok: formData.tiktok,
-      instagram: formData.instagram,
+      tiktok_handle: formData.tiktok,
+      instagram_handle: formData.instagram,
       email: formData.email,
       country: formData.country,
     }]);
@@ -333,14 +333,20 @@ const ApplicationPage = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center py-12"
+            className="text-center py-16"
           >
-            <div className="text-4xl mb-4">✨</div>
-            <h3 className="text-2xl font-serif italic text-wellinder-dark mb-3">Application Received</h3>
-            <p className="text-wellinder-dark/60">We'll be in touch soon. Welcome to the journey.</p>
-            <Link to="/" className="inline-block mt-8 text-wellinder-dark/40 hover:text-wellinder-dark text-sm transition-colors">
-              ← Return to Home
-            </Link>
+            <div className="text-5xl mb-6">✨</div>
+            <h3 className="text-3xl font-serif italic text-wellinder-dark mb-4">Application Received</h3>
+            <p className="text-wellinder-dark/70 text-base leading-relaxed mb-2">
+              신청서가 잘 접수되었습니다.
+            </p>
+            <p className="text-wellinder-dark/50 text-sm leading-relaxed">
+              검토 후 이메일로 연락드리겠습니다.<br />
+              조금만 기다려주세요.
+            </p>
+            <div className="mt-10 pt-8 border-t border-wellinder-dark/10">
+              <p className="text-[10px] uppercase tracking-[0.3em] text-wellinder-dark/30 font-semibold">Wellinder Creators</p>
+            </div>
           </motion.div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
