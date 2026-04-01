@@ -100,6 +100,7 @@ const translations = {
     submitBtn: 'Submit Application',
     submittingBtn: 'Submitting...',
     errorMsg: 'Something went wrong. Please try again.',
+    rateLimitedMsg: 'Too many submissions from your network. Please try again after 24 hours.',
     successTitle: 'Application Received',
     successP1: 'Your application has been received.',
     successP2: 'We\'ll review it and get back to you by email.\nThank you for applying.',
@@ -185,6 +186,7 @@ const translations = {
     submitBtn: '提交申请',
     submittingBtn: '提交中...',
     errorMsg: '出现错误，请重试。',
+    rateLimitedMsg: '您的网络提交次数过多，请24小时后再试。',
     successTitle: '申请已收到',
     successP1: '您的申请已成功提交。',
     successP2: '我们将审核您的申请，并通过电子邮件与您联系。\n感谢您的申请。',
@@ -461,18 +463,24 @@ const ApplicationPage = () => {
     setSubmitting(true);
     setError(null);
 
-    const { error } = await supabase.from('applications').insert([{
-      full_name: formData.fullName,
-      tiktok_handle: formData.tiktok,
-      instagram_handle: formData.instagram,
-      email: formData.email,
-      country: formData.country,
-      status: 'pending',
-    }]);
+    const { data, error } = await supabase.functions.invoke('submit-application', {
+      body: {
+        full_name: formData.fullName,
+        tiktok_handle: formData.tiktok,
+        instagram_handle: formData.instagram,
+        email: formData.email,
+        country: formData.country,
+      },
+    });
 
     setSubmitting(false);
-    if (error) {
-      setError(t('errorMsg'));
+    if (error || data?.error) {
+      const errCode = data?.error ?? error?.message;
+      if (errCode === 'rate_limited') {
+        setError(t('rateLimitedMsg'));
+      } else {
+        setError(t('errorMsg'));
+      }
     } else {
       setSubmitted(true);
       if (typeof fbq === 'function') fbq('track', 'SubmitApplication');
@@ -600,10 +608,10 @@ const ApplicationPage = () => {
             {error && <p className="text-red-500 text-sm text-center">{error}</p>}
             <button
               type="submit"
-              disabled={!formData.agreed || submitting || formData.country !== 'SG'}
+              disabled={!formData.agreed || submitting || formData.country !== 'SG' || !formData.fullName.trim() || !formData.tiktok.trim() || !formData.instagram.trim() || !formData.email.trim()}
               className={cn(
                 "w-full py-4 rounded-full font-sans font-semibold tracking-wide transition-all mt-4",
-                formData.agreed && !submitting && formData.country === 'SG'
+                formData.agreed && !submitting && formData.country === 'SG' && formData.fullName.trim() && formData.tiktok.trim() && formData.instagram.trim() && formData.email.trim()
                   ? "bg-wellinder-dark text-white shadow-lg hover:bg-wellinder-dark/90"
                   : "bg-wellinder-dark/20 text-wellinder-dark/40 cursor-not-allowed"
               )}
