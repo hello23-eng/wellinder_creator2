@@ -19,7 +19,10 @@ export default function AboutPage() {
       <section className="px-6 py-14 max-w-xl mx-auto space-y-8 text-wellinder-dark/70 text-[15px] leading-[1.9]">
 
         <p>
-          <span className="font-semibold text-wellinder-dark">WELLINDER began in Korea in 2023.</span>{' '}
+          <span className="font-semibold text-wellinder-dark">WELLINDER began in Korea in 2023.</span>
+        </p>
+
+        <p>
           At a time when inner beauty was still often seen as something to simply believe in, we believed that the right ingredients — carefully chosen and precisely formulated — could make a real difference in people's lives.
         </p>
 
@@ -34,11 +37,7 @@ export default function AboutPage() {
         </div>
 
         <p>
-          Every ingredient and every formula at WELLINDER exists for a reason. We consider each formula with great care.
-        </p>
-
-        <p>
-          Because real results don't need explaining — they show up over time.
+          We consider each formula with great care — for changes that become clearer and more meaningful with time.
         </p>
 
       </section>
