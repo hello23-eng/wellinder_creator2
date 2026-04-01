@@ -12,7 +12,7 @@ export default function AboutPage() {
       <section className="px-6 pt-12 pb-16 max-w-xl mx-auto">
         <span className="text-[10px] uppercase tracking-[0.3em] font-semibold text-wellinder-dark/40 block mb-4">About</span>
         <h1 className="text-2xl md:text-3xl font-serif italic text-wellinder-dark leading-tight">
-          {isZh ? <>真实的改变<br />无需多言。</> : <>Real results<br />don't need<br />explaining.</>}
+          {isZh ? <>真实的改变，无需多言。</> : <>Real results don't need explaining.</>}
         </h1>
       </section>
 
