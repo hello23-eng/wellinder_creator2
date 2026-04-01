@@ -18,7 +18,7 @@ function cn(...inputs) {
 }
 
 // --- Language Context ---
-const LangContext = createContext();
+export const LangContext = createContext();
 const useLang = () => useContext(LangContext);
 
 const translations = {
