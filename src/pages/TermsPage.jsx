@@ -65,7 +65,7 @@ export default function TermsPage() {
 
           <section>
             <h2 className="text-base font-semibold text-wellinder-dark uppercase tracking-widest mb-2">10. Contact</h2>
-            <p>For questions regarding these Terms, please contact us at <a href="mailto:hello@wellinder.club" className="underline text-wellinder-dark">hello@wellinder.club</a>.</p>
+            <p>For questions regarding these Terms, please contact us at <a href="mailto:hello@wellinder.co.kr" className="underline text-wellinder-dark">hello@wellinder.co.kr</a>.</p>
           </section>
 
         </div>

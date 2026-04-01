@@ -54,7 +54,7 @@ export default function PrivacyPage() {
               <li>Request correction of inaccurate data.</li>
               <li>Withdraw consent and request deletion of your data.</li>
             </ul>
-            <p className="mt-2">To exercise these rights, contact us at <a href="mailto:hello@wellinder.club" className="underline text-wellinder-dark">hello@wellinder.club</a>.</p>
+            <p className="mt-2">To exercise these rights, contact us at <a href="mailto:hello@wellinder.co.kr" className="underline text-wellinder-dark">hello@wellinder.co.kr</a>.</p>
           </section>
 
           <section>
@@ -74,7 +74,7 @@ export default function PrivacyPage() {
 
           <section>
             <h2 className="text-base font-semibold text-wellinder-dark uppercase tracking-widest mb-2">8. Contact</h2>
-            <p>For privacy-related enquiries, please contact us at <a href="mailto:hello@wellinder.club" className="underline text-wellinder-dark">hello@wellinder.club</a>.</p>
+            <p>For privacy-related enquiries, please contact us at <a href="mailto:hello@wellinder.co.kr" className="underline text-wellinder-dark">hello@wellinder.co.kr</a>.</p>
           </section>
 
         </div>
