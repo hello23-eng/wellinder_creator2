@@ -11,6 +11,7 @@ import LoungePage from './pages/LoungePage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import TermsPage from './pages/TermsPage';
 import PrivacyPage from './pages/PrivacyPage';
+import AboutPage from './pages/AboutPage';
 
 function cn(...inputs) {
   return twMerge(clsx(inputs));
@@ -266,6 +267,11 @@ const Header = () => {
             className="absolute top-full left-0 w-full bg-white border-b border-wellinder-dark/10 p-8 shadow-xl"
           >
             <nav className="flex flex-col gap-6 text-center">
+              <Link
+                to="/about"
+                onClick={() => setIsOpen(false)}
+                className="text-xl font-serif hover:text-wellinder-gold transition-colors"
+              >About</Link>
               <Link
                 to="/apply"
                 onClick={() => setIsOpen(false)}
@@ -804,6 +810,7 @@ export default function App() {
               <Route path="/reset-password" element={<ResetPasswordPage />} />
               <Route path="/terms" element={<TermsPage />} />
               <Route path="/privacy" element={<PrivacyPage />} />
+              <Route path="/about" element={<AboutPage />} />
             </Routes>
           </main>
           <FooterCTA />
