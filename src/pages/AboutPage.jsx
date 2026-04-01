@@ -39,7 +39,7 @@ export default function AboutPage() {
             </p>
 
             <div className="border-l-2 border-wellinder-dark/20 pl-5 py-1">
-              <p className="text-wellinder-dark/60 italic text-[14px] leading-relaxed">
+              <p>
                 我们从不因流行而选择原料。若某种原料无法带来真正的改变，我们会果断舍弃。
               </p>
             </div>
@@ -63,7 +63,7 @@ export default function AboutPage() {
             </p>
 
             <div className="border-l-2 border-wellinder-dark/20 pl-5 py-1">
-              <p className="text-wellinder-dark/60 italic text-[14px] leading-relaxed">
+              <p>
                 We do not choose ingredients because they are trending. If an ingredient cannot support real, tangible change, we leave it out.
               </p>
             </div>
