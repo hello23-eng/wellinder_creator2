@@ -297,10 +297,6 @@ const Header = () => {
                   className="text-xl font-serif text-wellinder-dark/40 hover:text-wellinder-dark transition-colors"
                 >{t('navMemberLogin')}</Link>
               )}
-              <div className="pt-4 border-t border-wellinder-dark/5 flex justify-center gap-6">
-                <Instagram className="w-5 h-5 opacity-50" />
-                <Send className="w-5 h-5 opacity-50" />
-              </div>
             </nav>
           </motion.div>
         )}
