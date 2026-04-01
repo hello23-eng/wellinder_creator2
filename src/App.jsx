@@ -9,6 +9,8 @@ import heroImg from './assets/hero.png';
 import AdminPage from './pages/AdminPage';
 import LoungePage from './pages/LoungePage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
+import TermsPage from './pages/TermsPage';
+import PrivacyPage from './pages/PrivacyPage';
 
 function cn(...inputs) {
   return twMerge(clsx(inputs));
@@ -602,7 +604,7 @@ const ApplicationPage = () => {
                 className="mt-1 w-4 h-4 accent-wellinder-dark"
               />
               <label htmlFor="terms" className="text-xs text-wellinder-dark/60 whitespace-nowrap">
-                {t('termsText')} <span className="underline cursor-pointer">{t('termsLink')}</span> {t('termsAnd')} <span className="underline cursor-pointer">{t('privacyLink')}</span>.
+                {t('termsText')} <Link to="/terms" target="_blank" className="underline hover:text-wellinder-dark transition-colors">{t('termsLink')}</Link> {t('termsAnd')} <Link to="/privacy" target="_blank" className="underline hover:text-wellinder-dark transition-colors">{t('privacyLink')}</Link>.
               </label>
             </div>
             {error && <p className="text-red-500 text-sm text-center">{error}</p>}
@@ -800,6 +802,8 @@ export default function App() {
               <Route path="/admin" element={<AdminPage />} />
               <Route path="/lounge" element={<LoungePage />} />
               <Route path="/reset-password" element={<ResetPasswordPage />} />
+              <Route path="/terms" element={<TermsPage />} />
+              <Route path="/privacy" element={<PrivacyPage />} />
             </Routes>
           </main>
           <FooterCTA />
