@@ -475,6 +475,7 @@ const ApplicationPage = () => {
       setError(t('errorMsg'));
     } else {
       setSubmitted(true);
+      if (typeof fbq === 'function') fbq('track', 'SubmitApplication');
     }
   };
 
