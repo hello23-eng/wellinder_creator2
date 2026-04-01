@@ -38,11 +38,9 @@ export default function AboutPage() {
               压力营养补充剂<span className="font-medium text-wellinder-dark italic">「心之森」</span>的成功上市，印证了这一信念。
             </p>
 
-            <div className="border-l-2 border-wellinder-dark/20 pl-5 py-1">
-              <p>
-                我们从不因流行而选择原料。若某种原料无法带来真正的改变，我们会果断舍弃。
-              </p>
-            </div>
+            <p>
+              我们从不因流行而选择原料。若某种原料无法带来真正的改变，我们会果断舍弃。
+            </p>
 
             <p>
               威琳德的每一种原料、每一个配方，都有其存在的理由。为了让改变随着时间流逝愈加清晰可感，我们每天都在用心打磨每一个配方。
@@ -62,11 +60,9 @@ export default function AboutPage() {
               The successful launch of <span className="font-medium text-wellinder-dark italic">Maum Fore</span>, our stress supplement, reaffirmed that belief.
             </p>
 
-            <div className="border-l-2 border-wellinder-dark/20 pl-5 py-1">
-              <p>
-                We do not choose ingredients because they are trending. If an ingredient cannot support real, tangible change, we leave it out.
-              </p>
-            </div>
+            <p>
+              We do not choose ingredients because they are trending. If an ingredient cannot support real, tangible change, we leave it out.
+            </p>
 
             <p>
               We consider each formula with great care — for changes that become clearer and more meaningful with time.
