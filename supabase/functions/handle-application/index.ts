@@ -44,14 +44,20 @@ serve(async (req) => {
     let html = '';
 
     if (action === 'approved') {
-      // Supabase Auth 초대 발송 (비밀번호 설정 링크 포함)
-      const { error: inviteError } = await supabase.auth.admin.inviteUserByEmail(app.email, {
-        redirectTo: 'https://wellinder.club/reset-password',
-      });
+      // 72시간짜리 커스텀 초대 토큰 생성
+      const token = crypto.randomUUID();
+      const expiresAt = new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString();
 
-      if (inviteError) {
-        console.error('Invite error:', inviteError.message);
+      const { error: inviteInsertError } = await supabase
+        .from('invites')
+        .insert({ token, email: app.email, application_id, expires_at: expiresAt });
+
+      if (inviteInsertError) {
+        console.error('Invite insert error:', inviteInsertError.message);
+        throw new Error('Failed to create invite token');
       }
+
+      const inviteLink = `https://wellinder.club/accept-invite?token=${token}`;
 
       subject = '✨ Welcome to Wellinder Creators — You\'re In!';
       html = `
@@ -67,14 +73,14 @@ serve(async (req) => {
               Your application stood out, and we can't wait to see your journey unfold.
             </p>
             <p>
-              You'll receive a separate email shortly with a link to set up your password and access <strong>The Lounge</strong> — your exclusive space for missions, announcements, and creator resources.
+              Click the button below to set up your password and access <strong>The Lounge</strong> — your exclusive space for missions, announcements, and creator resources.
             </p>
-            <p>
-              Once your password is set, you can log in anytime at:
+            <p style="color: #999; font-size: 13px;">
+              This link expires in <strong>72 hours</strong>. If it expires, please contact us.
             </p>
             <div style="text-align: center; margin: 40px 0;">
-              <a href="https://wellinder.club/lounge" style="background: #1a1a1a; color: white; padding: 16px 40px; border-radius: 999px; text-decoration: none; font-size: 14px; letter-spacing: 0.1em;">
-                Enter the Lounge →
+              <a href="${inviteLink}" style="background: #1a1a1a; color: white; padding: 16px 40px; border-radius: 999px; text-decoration: none; font-size: 14px; letter-spacing: 0.1em;">
+                Accept Your Invitation →
               </a>
             </div>
             <p>Welcome to the collective,<br/><em>Wellinder Team</em></p>

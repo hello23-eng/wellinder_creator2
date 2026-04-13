@@ -12,6 +12,7 @@ import ResetPasswordPage from './pages/ResetPasswordPage';
 import TermsPage from './pages/TermsPage';
 import PrivacyPage from './pages/PrivacyPage';
 import AboutPage from './pages/AboutPage';
+import AcceptInvitePage from './pages/AcceptInvitePage';
 
 function cn(...inputs) {
   return twMerge(clsx(inputs));
@@ -804,6 +805,7 @@ export default function App() {
               <Route path="/admin" element={<AdminPage />} />
               <Route path="/lounge" element={<LoungePage />} />
               <Route path="/reset-password" element={<ResetPasswordPage />} />
+              <Route path="/accept-invite" element={<AcceptInvitePage />} />
               <Route path="/terms" element={<TermsPage />} />
               <Route path="/privacy" element={<PrivacyPage />} />
               <Route path="/about" element={<AboutPage />} />
