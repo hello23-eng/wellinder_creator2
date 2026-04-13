@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { supabase } from '../lib/supabase';
 
 export default function AcceptInvitePage() {
   const [searchParams] = useSearchParams();
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const token = searchParams.get('token');
@@ -17,15 +18,16 @@ export default function AcceptInvitePage() {
 
     const verify = async () => {
       const { data, error: fnError } = await supabase.functions.invoke('accept-invite', {
-        body: { token },
+        body: { token, preview: true },
       });
 
-      if (fnError || !data?.url) {
+      if (fnError || !data?.valid) {
         setError(data?.error || 'Something went wrong. Please try again or contact us.');
         return;
       }
 
-      window.location.href = data.url;
+      // 유효한 토큰 → 동의서 페이지로 이동
+      navigate(`/consent?token=${token}`);
     };
 
     verify();

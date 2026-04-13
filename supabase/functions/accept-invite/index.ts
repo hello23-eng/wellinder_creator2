@@ -15,7 +15,7 @@ serve(async (req) => {
   }
 
   try {
-    const { token } = await req.json();
+    const { token, preview } = await req.json();
 
     if (!token) {
       return new Response(JSON.stringify({ error: 'Missing token' }), {
@@ -56,7 +56,14 @@ serve(async (req) => {
       });
     }
 
-    // Supabase 로그인 링크 생성 (이메일 발송 없이)
+    // preview 모드: 유효성만 확인하고 토큰 소비 안 함
+    if (preview) {
+      return new Response(JSON.stringify({ valid: true, email: invite.email }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // 실제 가입 처리: Supabase 로그인 링크 생성
     const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
       type: 'invite',
       email: invite.email,
@@ -70,10 +77,13 @@ serve(async (req) => {
       throw new Error('Failed to generate login link');
     }
 
-    // 토큰 사용 처리
+    // 토큰 사용 처리 + 동의 시각 기록
     await supabase
       .from('invites')
-      .update({ used_at: new Date().toISOString() })
+      .update({
+        used_at: new Date().toISOString(),
+        consented_at: new Date().toISOString(),
+      })
       .eq('token', token);
 
     return new Response(JSON.stringify({ url: linkData.properties.action_link }), {

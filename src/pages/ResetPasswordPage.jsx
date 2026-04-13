@@ -58,7 +58,7 @@ export default function ResetPasswordPage() {
         {done ? (
           <div className="text-center">
             <p className="text-2xl mb-3">✓</p>
-            <h2 className="text-xl font-serif italic text-wellinder-dark">Password set!</h2>
+            <h2 className="text-xl font-serif italic text-wellinder-dark">Welcome to Wellinder!</h2>
             <p className="text-wellinder-dark/40 text-sm mt-2">Taking you to the Lounge...</p>
           </div>
         ) : !ready ? (
@@ -69,8 +69,8 @@ export default function ResetPasswordPage() {
           <>
             <div className="text-center mb-8">
               <p className="text-[10px] uppercase tracking-[0.3em] text-wellinder-dark/40 font-semibold mb-2">Wellinder Creators</p>
-              <h1 className="text-2xl font-serif italic text-wellinder-dark">Welcome.</h1>
-              <p className="text-wellinder-dark/50 text-sm mt-2">Create a password to access your account.</p>
+              <h1 className="text-2xl font-serif italic text-wellinder-dark">Create Your Account</h1>
+              <p className="text-wellinder-dark/50 text-sm mt-2">Set a password to complete your sign-up.</p>
             </div>
             <form onSubmit={handleReset} className="space-y-3">
               <input
@@ -93,7 +93,7 @@ export default function ResetPasswordPage() {
                 disabled={loading}
                 className="w-full bg-wellinder-dark text-white py-4 rounded-full font-semibold disabled:opacity-50"
               >
-                {loading ? 'Creating...' : 'Create Account'}
+                {loading ? 'Signing up...' : 'Sign Up'}
               </button>
             </form>
           </>
