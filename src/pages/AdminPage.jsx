@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { CheckCircle, XCircle, Mail, Instagram, LogOut, Trash2 } from 'lucide-react';
+import { CheckCircle, XCircle, Mail, Instagram, LogOut, Trash2, ExternalLink } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 const ADMIN_EMAIL = 'hello@wellinder.co.kr';
@@ -42,6 +42,10 @@ export default function AdminPage() {
   const [postSubmitting, setPostSubmitting] = useState(false);
   const [deletingPost, setDeletingPost] = useState(null);
 
+  // Video submissions
+  const [videoSubmissions, setVideoSubmissions] = useState([]);
+  const [videoSubmissionsLoading, setVideoSubmissionsLoading] = useState(false);
+
   const showToast = (msg, type = 'success') => {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 3000);
@@ -62,6 +66,7 @@ export default function AdminPage() {
     if (session?.user?.email === ADMIN_EMAIL) {
       fetchApplications();
       fetchPosts();
+      fetchVideoSubmissions();
     }
   }, [session]);
 
@@ -88,6 +93,16 @@ export default function AdminPage() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+  };
+
+  const fetchVideoSubmissions = async () => {
+    setVideoSubmissionsLoading(true);
+    const { data } = await supabase
+      .from('video_submissions')
+      .select('*, lounge_posts(title, type)')
+      .order('submitted_at', { ascending: false });
+    setVideoSubmissions(data || []);
+    setVideoSubmissionsLoading(false);
   };
 
   const fetchPosts = async () => {
@@ -230,8 +245,12 @@ export default function AdminPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-8">
-          {[{ key: 'applications', label: 'Applications' }, { key: 'lounge', label: 'Lounge Posts' }].map(tab => (
+        <div className="flex gap-2 mb-8 flex-wrap">
+          {[
+            { key: 'applications', label: 'Applications' },
+            { key: 'lounge', label: 'Lounge Posts' },
+            { key: 'videos', label: `Video Submissions${videoSubmissions.length > 0 ? ` (${videoSubmissions.length})` : ''}` },
+          ].map(tab => (
             <button key={tab.key} onClick={() => setActiveTab(tab.key)}
               className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
                 activeTab === tab.key ? 'bg-wellinder-dark text-white' : 'bg-white text-wellinder-dark/50 border border-wellinder-dark/10 hover:border-wellinder-dark/30'
@@ -326,6 +345,57 @@ export default function AdminPage() {
           </div>
         )}
         </>)}
+
+        {/* ── Video Submissions Tab ── */}
+        {activeTab === 'videos' && (
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-[10px] uppercase tracking-[0.25em] font-semibold text-wellinder-dark/40">
+                {videoSubmissions.length} submission{videoSubmissions.length !== 1 ? 's' : ''}
+              </p>
+              <button onClick={fetchVideoSubmissions}
+                className="text-xs text-wellinder-dark/40 hover:text-wellinder-dark transition-colors">
+                Refresh
+              </button>
+            </div>
+            {videoSubmissionsLoading ? (
+              <p className="text-center text-wellinder-dark/40 py-10">Loading...</p>
+            ) : videoSubmissions.length === 0 ? (
+              <div className="text-center py-16 text-wellinder-dark/30">
+                <p className="font-serif italic">No submissions yet.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {videoSubmissions.map(sub => (
+                  <motion.div key={sub.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                    className="bg-white rounded-2xl p-5 border border-wellinder-dark/5">
+                    <div className="flex items-start justify-between gap-4 mb-3">
+                      <div>
+                        <p className="text-sm font-medium text-wellinder-dark">{sub.user_email}</p>
+                        <p className="text-xs text-wellinder-dark/40 mt-0.5">
+                          {new Date(sub.submitted_at).toLocaleDateString('en-SG', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                      </div>
+                      {sub.lounge_posts && (
+                        <span className="text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-widest bg-blue-50 text-blue-600 flex-shrink-0">
+                          {sub.lounge_posts.type}
+                        </span>
+                      )}
+                    </div>
+                    {sub.lounge_posts && (
+                      <p className="text-xs text-wellinder-dark/60 mb-2 font-medium">{sub.lounge_posts.title}</p>
+                    )}
+                    <a href={sub.video_url} target="_blank" rel="noopener noreferrer"
+                      className="text-xs text-wellinder-dark hover:opacity-70 transition-opacity break-all flex items-start gap-1.5">
+                      <ExternalLink className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
+                      {sub.video_url}
+                    </a>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* ── Lounge Posts Tab ── */}
         {activeTab === 'lounge' && (

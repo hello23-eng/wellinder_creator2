@@ -48,6 +48,10 @@ const T = {
     participate: 'Participate',
     done: 'Done',
     guide: 'Content Guide',
+    submitVideo: 'Submit',
+    videoPlaceholder: 'Paste your TikTok video link...',
+    videoSubmitted: 'Video submitted',
+    videoSubmitError: 'Please enter a valid TikTok link.',
     shippingSection: 'Shipping & Survey',
     shippingName: 'Full Name',
     shippingAddress: 'Address (including unit number)',
@@ -97,6 +101,10 @@ const T = {
     participate: '参与',
     done: '已完成',
     guide: '内容指南',
+    submitVideo: '提交',
+    videoPlaceholder: '粘贴 TikTok 视频链接...',
+    videoSubmitted: '视频已提交',
+    videoSubmitError: '请输入有效的 TikTok 链接。',
     shippingSection: '配送信息与调查',
     shippingName: '姓名',
     shippingAddress: '地址（含门牌号）',
@@ -208,6 +216,11 @@ export default function LoungePage() {
   const [posts, setPosts] = useState([]);
   const [participated, setParticipated] = useState([]);
 
+  const [videoSubmissions, setVideoSubmissions] = useState({});
+  const [videoInputs, setVideoInputs] = useState({});
+  const [submittingVideo, setSubmittingVideo] = useState(null);
+  const [videoError, setVideoError] = useState(null);
+
   const [shippingInfo, setShippingInfo] = useState(undefined);
   const [shpName, setShpName] = useState('');
   const [shpAddress, setShpAddress] = useState('');
@@ -240,14 +253,41 @@ export default function LoungePage() {
   };
 
   const fetchData = async () => {
-    const [postsRes, partRes, shipRes] = await Promise.all([
+    const [postsRes, partRes, shipRes, vsRes] = await Promise.all([
       supabase.from('lounge_posts').select('*').order('created_at', { ascending: false }),
       supabase.from('mission_participations').select('post_id').eq('user_id', session.user.id),
       supabase.from('shipping_info').select('*').eq('user_id', session.user.id).maybeSingle(),
+      supabase.from('video_submissions').select('post_id, video_url, submitted_at').eq('user_id', session.user.id),
     ]);
     setPosts(postsRes.data || []);
     setParticipated((partRes.data || []).map(d => d.post_id));
     setShippingInfo(shipRes.data ?? null);
+    const vsMap = {};
+    (vsRes.data || []).forEach(s => { vsMap[s.post_id] = s; });
+    setVideoSubmissions(vsMap);
+  };
+
+  const handleVideoSubmit = async (postId) => {
+    const url = videoInputs[postId]?.trim();
+    if (!url) return;
+    setVideoError(null);
+    setSubmittingVideo(postId);
+    const { error } = await supabase.from('video_submissions').insert([{
+      user_id: session.user.id,
+      user_email: session.user.email,
+      post_id: postId,
+      video_url: url,
+    }]);
+    if (error) {
+      setVideoError(postId);
+    } else {
+      setVideoSubmissions(prev => ({ ...prev, [postId]: { video_url: url, submitted_at: new Date().toISOString() } }));
+      if (!participated.includes(postId)) {
+        await supabase.from('mission_participations').insert([{ user_id: session.user.id, post_id: postId }]);
+        setParticipated(prev => [...prev, postId]);
+      }
+    }
+    setSubmittingVideo(null);
   };
 
   const handleParticipate = async (postId) => {
@@ -480,6 +520,41 @@ export default function LoungePage() {
                         <CheckCircle className="w-3.5 h-3.5" />
                         {done ? t.done : t.participate}
                       </button>
+                    </div>
+                    {/* TikTok Video Link Submission */}
+                    <div className="mt-4 pt-4 border-t border-wellinder-dark/5">
+                      {videoSubmissions[post.id] ? (
+                        <div className="flex items-start gap-2">
+                          <CheckCircle className="w-3.5 h-3.5 text-green-500 flex-shrink-0 mt-0.5" />
+                          <div className="min-w-0">
+                            <p className="text-xs text-green-600 font-medium">{t.videoSubmitted}</p>
+                            <a href={videoSubmissions[post.id].video_url} target="_blank" rel="noopener noreferrer"
+                              className="text-[11px] text-wellinder-dark/40 hover:text-wellinder-dark truncate block mt-0.5 transition-colors">
+                              {videoSubmissions[post.id].video_url}
+                            </a>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex gap-2">
+                          <input
+                            type="url"
+                            placeholder={t.videoPlaceholder}
+                            value={videoInputs[post.id] || ''}
+                            onChange={e => setVideoInputs(prev => ({ ...prev, [post.id]: e.target.value }))}
+                            className="flex-1 min-w-0 border border-wellinder-dark/10 rounded-2xl py-2.5 px-4 text-sm outline-none focus:border-wellinder-dark transition-colors placeholder:text-wellinder-dark/30"
+                          />
+                          <button
+                            onClick={() => handleVideoSubmit(post.id)}
+                            disabled={submittingVideo === post.id || !videoInputs[post.id]?.trim()}
+                            className="flex-shrink-0 px-4 py-2.5 bg-wellinder-dark text-white rounded-full text-xs font-semibold disabled:opacity-40 transition-opacity"
+                          >
+                            {submittingVideo === post.id ? '...' : t.submitVideo}
+                          </button>
+                        </div>
+                      )}
+                      {videoError === post.id && (
+                        <p className="text-red-400 text-xs mt-1.5">{t.videoSubmitError}</p>
+                      )}
                     </div>
                   </motion.div>
                 );
