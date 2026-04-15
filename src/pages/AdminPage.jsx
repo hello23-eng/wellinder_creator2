@@ -1,9 +1,19 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { CheckCircle, XCircle, Mail, Instagram, LogOut, Trash2, ExternalLink } from 'lucide-react';
+import { CheckCircle, XCircle, Mail, Instagram, LogOut, Trash2, ExternalLink, ChevronDown, ChevronUp, Package, User } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 const ADMIN_EMAIL = 'hello@wellinder.co.kr';
+
+const SPEAKER_LABELS = {
+  brand_pro: 'Brand professional (K-beauty creator collab)',
+  collab_creator: 'Creator with brand partnership experience',
+  shortform_creator: 'Short-form content creator (Reels, TikTok)',
+  hook_creator: 'Content planning & hooks creator',
+  sea_marketer: 'Singapore & SEA market marketer',
+  actionable_speaker: 'Actionable advice for early-stage creators',
+  other: 'Other',
+};
 
 const statusColors = {
   pending: 'bg-amber-50 text-amber-700 border-amber-200',
@@ -46,6 +56,15 @@ export default function AdminPage() {
   const [videoSubmissions, setVideoSubmissions] = useState([]);
   const [videoSubmissionsLoading, setVideoSubmissionsLoading] = useState(false);
 
+  // Creators
+  const [creators, setCreators] = useState([]);
+  const [creatorsLoading, setCreatorsLoading] = useState(false);
+  const [expandedCreator, setExpandedCreator] = useState(null);
+
+  // Shipping
+  const [shippingList, setShippingList] = useState([]);
+  const [shippingLoading, setShippingLoading] = useState(false);
+
   const showToast = (msg, type = 'success') => {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 3000);
@@ -67,6 +86,8 @@ export default function AdminPage() {
       fetchApplications();
       fetchPosts();
       fetchVideoSubmissions();
+      fetchCreators();
+      fetchShipping();
     }
   }, [session]);
 
@@ -93,6 +114,36 @@ export default function AdminPage() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+  };
+
+  const fetchCreators = async () => {
+    setCreatorsLoading(true);
+    const [appsRes, invitesRes, profilesRes] = await Promise.all([
+      supabase.from('applications').select('*').eq('status', 'approved').order('created_at', { ascending: false }),
+      supabase.from('invites').select('email, consented_at, used_at'),
+      supabase.from('creator_profiles').select('*'),
+    ]);
+    const inviteMap = {};
+    (invitesRes.data || []).forEach(inv => { inviteMap[inv.email] = inv; });
+    const profileMap = {};
+    (profilesRes.data || []).forEach(p => { if (p.email) profileMap[p.email] = p; });
+    const list = (appsRes.data || []).map(app => ({
+      ...app,
+      invite: inviteMap[app.email] || null,
+      profile: profileMap[app.email] || null,
+    }));
+    setCreators(list);
+    setCreatorsLoading(false);
+  };
+
+  const fetchShipping = async () => {
+    setShippingLoading(true);
+    const { data } = await supabase
+      .from('shipping_info')
+      .select('*')
+      .order('submitted_at', { ascending: false });
+    setShippingList(data || []);
+    setShippingLoading(false);
   };
 
   const fetchVideoSubmissions = async () => {
@@ -248,8 +299,10 @@ export default function AdminPage() {
         <div className="flex gap-2 mb-8 flex-wrap">
           {[
             { key: 'applications', label: 'Applications' },
+            { key: 'creators', label: `Creators${creators.length > 0 ? ` (${creators.length})` : ''}` },
+            { key: 'shipping', label: `Shipping${shippingList.length > 0 ? ` (${shippingList.length})` : ''}` },
+            { key: 'videos', label: `Videos${videoSubmissions.length > 0 ? ` (${videoSubmissions.length})` : ''}` },
             { key: 'lounge', label: 'Lounge Posts' },
-            { key: 'videos', label: `Video Submissions${videoSubmissions.length > 0 ? ` (${videoSubmissions.length})` : ''}` },
           ].map(tab => (
             <button key={tab.key} onClick={() => setActiveTab(tab.key)}
               className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
@@ -345,6 +398,174 @@ export default function AdminPage() {
           </div>
         )}
         </>)}
+
+        {/* ── Creators Tab ── */}
+        {activeTab === 'creators' && (
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-[10px] uppercase tracking-[0.25em] font-semibold text-wellinder-dark/40">
+                {creators.length} creator{creators.length !== 1 ? 's' : ''}
+              </p>
+              <button onClick={fetchCreators} className="text-xs text-wellinder-dark/40 hover:text-wellinder-dark transition-colors">Refresh</button>
+            </div>
+            {creatorsLoading ? (
+              <p className="text-center text-wellinder-dark/40 py-10">Loading...</p>
+            ) : creators.length === 0 ? (
+              <div className="text-center py-16 text-wellinder-dark/30">
+                <p className="font-serif italic">No approved creators yet.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {creators.map(c => {
+                  const isExpanded = expandedCreator === c.id;
+                  const signedUp = !!c.invite?.used_at;
+                  return (
+                    <motion.div key={c.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                      className="bg-white rounded-2xl border border-wellinder-dark/5 overflow-hidden">
+                      {/* Header row */}
+                      <div className="p-5">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="font-serif text-wellinder-dark">{c.full_name}</h3>
+                              <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-widest flex-shrink-0 ${
+                                signedUp ? 'bg-green-50 text-green-600' : 'bg-amber-50 text-amber-600'
+                              }`}>
+                                {signedUp ? 'Signed up' : 'Invited'}
+                              </span>
+                            </div>
+                            <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-wellinder-dark/50 mt-1">
+                              <span className="flex items-center gap-1"><Mail className="w-3 h-3" />{c.email}</span>
+                              <span className="flex items-center gap-1"><Instagram className="w-3 h-3" />{c.instagram_handle}</span>
+                              {c.tiktok_handle && <span>TikTok: {c.tiktok_handle}</span>}
+                              <span className="text-wellinder-dark/30">{c.country}</span>
+                            </div>
+                            <div className="flex flex-wrap gap-x-4 gap-y-0.5 mt-2 text-[11px] text-wellinder-dark/30">
+                              <span>Applied: {new Date(c.created_at).toLocaleDateString('en-SG', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                              {c.invite?.consented_at && (
+                                <span>Consented: {new Date(c.invite.consented_at).toLocaleDateString('en-SG', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                              )}
+                              {c.invite?.used_at && (
+                                <span>Signed up: {new Date(c.invite.used_at).toLocaleDateString('en-SG', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                              )}
+                            </div>
+                          </div>
+                          {c.profile && (
+                            <button
+                              onClick={() => setExpandedCreator(isExpanded ? null : c.id)}
+                              className="flex-shrink-0 p-2 text-wellinder-dark/30 hover:text-wellinder-dark transition-colors"
+                            >
+                              {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      {/* Survey accordion */}
+                      {isExpanded && c.profile && (
+                        <div className="border-t border-wellinder-dark/5 px-5 py-4 bg-wellinder-dark/[0.02] space-y-4">
+                          <div>
+                            <p className="text-[10px] uppercase tracking-widest font-bold text-wellinder-dark/40 mb-2">A. Why did you join?</p>
+                            {c.profile.survey_a_reasons?.length > 0 ? (
+                              <ul className="space-y-1">
+                                {c.profile.survey_a_reasons.map((r, i) => (
+                                  <li key={i} className="text-xs text-wellinder-dark/70 flex items-start gap-1.5">
+                                    <span className="text-wellinder-dark/30 flex-shrink-0 mt-0.5">·</span>{r}
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : <p className="text-xs text-wellinder-dark/30">—</p>}
+                            {c.profile.survey_a_other && (
+                              <p className="text-xs text-wellinder-dark/50 mt-1.5 italic">"{c.profile.survey_a_other}"</p>
+                            )}
+                          </div>
+                          <div>
+                            <p className="text-[10px] uppercase tracking-widest font-bold text-wellinder-dark/40 mb-2">B. 8-week goals</p>
+                            {c.profile.survey_b_goals?.length > 0 ? (
+                              <ul className="space-y-1">
+                                {c.profile.survey_b_goals.map((g, i) => (
+                                  <li key={i} className="text-xs text-wellinder-dark/70 flex items-start gap-1.5">
+                                    <span className="text-wellinder-dark/30 flex-shrink-0 mt-0.5">·</span>{g}
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : <p className="text-xs text-wellinder-dark/30">—</p>}
+                            {c.profile.survey_b_other && (
+                              <p className="text-xs text-wellinder-dark/50 mt-1.5 italic">"{c.profile.survey_b_other}"</p>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </motion.div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── Shipping Tab ── */}
+        {activeTab === 'shipping' && (
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-[10px] uppercase tracking-[0.25em] font-semibold text-wellinder-dark/40">
+                {shippingList.length} submission{shippingList.length !== 1 ? 's' : ''}
+              </p>
+              <button onClick={fetchShipping} className="text-xs text-wellinder-dark/40 hover:text-wellinder-dark transition-colors">Refresh</button>
+            </div>
+            {shippingLoading ? (
+              <p className="text-center text-wellinder-dark/40 py-10">Loading...</p>
+            ) : shippingList.length === 0 ? (
+              <div className="text-center py-16 text-wellinder-dark/30">
+                <p className="font-serif italic">No shipping info submitted yet.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {shippingList.map(s => (
+                  <motion.div key={s.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                    className="bg-white rounded-2xl p-5 border border-wellinder-dark/5">
+                    <div className="flex items-start gap-3 mb-4">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-wellinder-dark/5 flex items-center justify-center">
+                        <Package className="w-4 h-4 text-wellinder-dark/40" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-wellinder-dark">{s.recipient_name}</p>
+                        {s.email && <p className="text-xs text-wellinder-dark/40 mt-0.5">{s.email}</p>}
+                        <p className="text-[11px] text-wellinder-dark/30 mt-0.5">
+                          {new Date(s.submitted_at).toLocaleDateString('en-SG', { year: 'numeric', month: 'short', day: 'numeric' })}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="space-y-2 text-sm text-wellinder-dark/70">
+                      <div className="bg-wellinder-dark/[0.02] rounded-xl px-4 py-3">
+                        <p className="text-[10px] uppercase tracking-widest font-bold text-wellinder-dark/30 mb-1">Address</p>
+                        <p className="text-sm text-wellinder-dark/80 leading-relaxed">{s.address}</p>
+                      </div>
+                      <div className="bg-wellinder-dark/[0.02] rounded-xl px-4 py-3">
+                        <p className="text-[10px] uppercase tracking-widest font-bold text-wellinder-dark/30 mb-1">Phone</p>
+                        <p className="text-sm text-wellinder-dark/80">{s.phone}</p>
+                      </div>
+                    </div>
+                    {s.speaker_preferences?.length > 0 && (
+                      <div className="mt-3">
+                        <p className="text-[10px] uppercase tracking-widest font-bold text-wellinder-dark/30 mb-2">Speaker Preferences</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {s.speaker_preferences.map(pref => (
+                            <span key={pref} className="text-[10px] px-2.5 py-1 bg-wellinder-dark/5 text-wellinder-dark/60 rounded-full">
+                              {SPEAKER_LABELS[pref] || pref}
+                            </span>
+                          ))}
+                        </div>
+                        {s.speaker_other && (
+                          <p className="text-xs text-wellinder-dark/50 mt-2 italic">"{s.speaker_other}"</p>
+                        )}
+                      </div>
+                    )}
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* ── Video Submissions Tab ── */}
         {activeTab === 'videos' && (

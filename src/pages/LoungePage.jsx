@@ -313,6 +313,7 @@ export default function LoungePage() {
     setShpLoading(true);
     const { data, error } = await supabase.from('shipping_info').insert([{
       user_id: session.user.id,
+      email: session.user.email,
       recipient_name: shpName.trim(),
       address: shpAddress.trim(),
       phone: shpPhone.trim(),
