@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 
 export default function AdminResetPage() {
@@ -11,15 +11,19 @@ export default function AdminResetPage() {
   const [done, setDone] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
-    // URL 해시에 Supabase 복구 토큰이 없으면 즉시 차단
-    const hash = window.location.hash;
-    const hasToken = hash.includes('access_token') && hash.includes('type=recovery');
-    if (!hasToken) {
+    // 정상 복구 흐름(AuthRedirectHandler에서 state 전달)이 아니면 차단
+    if (!location.state?.fromRecovery) {
       navigate('/admin');
       return;
     }
+
+    // 이미 복구 세션이 있으면 바로 준비
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) setReady(true);
+    });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if ((event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') && session) {

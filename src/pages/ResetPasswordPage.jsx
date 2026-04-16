@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from '../lib/supabase';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 // ─── Content ───────────────────────────────────────────────────────────────
 
@@ -142,17 +142,24 @@ export default function ResetPasswordPage() {
   const [done, setDone] = useState(false);
   const [ready, setReady] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const t = content[lang];
 
   useEffect(() => {
-    // URL 해시에 Supabase 초대/복구 토큰이 없으면 즉시 차단
-    const hash = window.location.hash;
-    const hasToken = hash.includes('access_token') && (hash.includes('type=invite') || hash.includes('type=recovery') || hash.includes('type=signup'));
-    if (!hasToken) {
+    // 정상 초대/복구 흐름(AuthRedirectHandler에서 state 전달)이 아니면 차단
+    if (!location.state?.fromRecovery) {
       navigate('/');
       return;
     }
+
+    // 이미 세션이 있으면 바로 준비
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        setReady(true);
+        setEmail(session.user.email ?? '');
+      }
+    });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if ((event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') && session) {

@@ -783,9 +783,15 @@ function AuthRedirectHandler() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'PASSWORD_RECOVERY') {
         if (session?.user?.email === ADMIN_EMAIL) {
-          navigate('/admin-reset');
+          navigate('/admin-reset', { state: { fromRecovery: true } });
         } else {
-          navigate('/reset-password');
+          navigate('/reset-password', { state: { fromRecovery: true } });
+        }
+      } else if (event === 'SIGNED_IN' && session) {
+        // 초대 링크로 가입하는 크리에이터
+        const path = window.location.pathname;
+        if (path !== '/reset-password' && path !== '/admin-reset') {
+          navigate('/reset-password', { state: { fromRecovery: true } });
         }
       }
     });
