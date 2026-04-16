@@ -146,15 +146,16 @@ export default function ResetPasswordPage() {
   const t = content[lang];
 
   useEffect(() => {
+    // URL 해시에 Supabase 초대/복구 토큰이 없으면 즉시 차단
+    const hash = window.location.hash;
+    const hasToken = hash.includes('access_token') && (hash.includes('type=invite') || hash.includes('type=recovery') || hash.includes('type=signup'));
+    if (!hasToken) {
+      navigate('/');
+      return;
+    }
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if ((event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') && session) {
-        setReady(true);
-        setEmail(session.user.email ?? '');
-      }
-    });
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
         setReady(true);
         setEmail(session.user.email ?? '');
       }

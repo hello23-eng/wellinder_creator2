@@ -13,15 +13,18 @@ export default function AdminResetPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // PASSWORD_RECOVERY 이벤트 또는 이미 세션 있으면 준비 완료
+    // URL 해시에 Supabase 복구 토큰이 없으면 즉시 차단
+    const hash = window.location.hash;
+    const hasToken = hash.includes('access_token') && hash.includes('type=recovery');
+    if (!hasToken) {
+      navigate('/admin');
+      return;
+    }
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if ((event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') && session) {
         setReady(true);
       }
-    });
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) setReady(true);
     });
 
     return () => subscription.unsubscribe();
