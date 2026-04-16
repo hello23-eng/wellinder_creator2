@@ -7,6 +7,7 @@ import { twMerge } from 'tailwind-merge';
 import { supabase } from './lib/supabase';
 import heroImg from './assets/hero.png';
 import AdminPage from './pages/AdminPage';
+import AdminResetPage from './pages/AdminResetPage';
 import LoungePage from './pages/LoungePage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import TermsPage from './pages/TermsPage';
@@ -774,12 +775,18 @@ const PortalPage = () => {
 };
 
 // --- Auth Redirect Handler ---
+const ADMIN_EMAIL = 'hello@wellinder.co.kr';
+
 function AuthRedirectHandler() {
   const navigate = useNavigate();
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'PASSWORD_RECOVERY') {
-        navigate('/reset-password');
+        if (session?.user?.email === ADMIN_EMAIL) {
+          navigate('/admin-reset');
+        } else {
+          navigate('/reset-password');
+        }
       }
     });
     return () => subscription.unsubscribe();
@@ -806,6 +813,7 @@ export default function App() {
               <Route path="/admin" element={<AdminPage />} />
               <Route path="/lounge" element={<LoungePage />} />
               <Route path="/reset-password" element={<ResetPasswordPage />} />
+              <Route path="/admin-reset" element={<AdminResetPage />} />
               <Route path="/accept-invite" element={<AcceptInvitePage />} />
               <Route path="/consent" element={<ConsentPage />} />
               <Route path="/terms" element={<TermsPage />} />
