@@ -63,6 +63,13 @@ serve(async (req) => {
       throw new Error('Failed to save profile: ' + profileError.message);
     }
 
+    // 초대 토큰 사용 완료 처리
+    await adminSupabase
+      .from('invites')
+      .update({ used_at: new Date().toISOString() })
+      .eq('email', user.email)
+      .is('used_at', null);
+
     // 운영자 이메일 알림 발송
     const reasonsList = (survey_a_reasons ?? []).map((r: string) => `<li>${r}</li>`).join('');
     const goalsList = (survey_b_goals ?? []).map((g: string) => `<li>${g}</li>`).join('');

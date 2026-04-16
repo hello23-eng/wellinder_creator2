@@ -193,6 +193,7 @@ export default function AdminPage() {
     try {
       const { error } = await supabase.functions.invoke('handle-application', {
         body: { application_id: app.id, action },
+        headers: { Authorization: `Bearer ${session.access_token}` },
       });
       if (error) throw error;
       showToast(action === 'approved'

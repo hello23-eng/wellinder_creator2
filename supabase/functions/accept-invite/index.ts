@@ -40,14 +40,6 @@ serve(async (req) => {
       });
     }
 
-    // 이미 사용된 토큰
-    if (invite.used_at) {
-      return new Response(JSON.stringify({ error: 'This invitation has already been used.' }), {
-        status: 410,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
     // 만료 확인
     if (new Date(invite.expires_at) < new Date()) {
       return new Response(JSON.stringify({ error: 'This invitation has expired. Please contact us.' }), {
@@ -77,14 +69,13 @@ serve(async (req) => {
       throw new Error('Failed to generate login link');
     }
 
-    // 토큰 사용 처리 + 동의 시각 기록
-    await supabase
-      .from('invites')
-      .update({
-        used_at: new Date().toISOString(),
-        consented_at: new Date().toISOString(),
-      })
-      .eq('token', token);
+    // 최초 클릭 시 동의 시각 기록 (used_at은 가입 완료 후 complete-signup에서 기록)
+    if (!invite.consented_at) {
+      await supabase
+        .from('invites')
+        .update({ consented_at: new Date().toISOString() })
+        .eq('token', token);
+    }
 
     return new Response(JSON.stringify({ url: linkData.properties.action_link }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
