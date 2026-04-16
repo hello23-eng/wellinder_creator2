@@ -787,12 +787,6 @@ function AuthRedirectHandler() {
         } else {
           navigate('/reset-password', { state: { fromRecovery: true } });
         }
-      } else if (event === 'SIGNED_IN' && session) {
-        // 초대 링크로 가입하는 크리에이터만 (URL 해시에 type=invite 있을 때만)
-        const hash = window.location.hash;
-        if (hash.includes('type=invite') || hash.includes('type=signup')) {
-          navigate('/reset-password', { state: { fromRecovery: true } });
-        }
       }
     });
     return () => subscription.unsubscribe();

@@ -147,13 +147,14 @@ export default function ResetPasswordPage() {
   const t = content[lang];
 
   useEffect(() => {
-    // 정상 초대/복구 흐름(AuthRedirectHandler에서 state 전달)이 아니면 차단
-    if (!location.state?.fromRecovery) {
+    // URL 해시에 Supabase 초대 토큰 없고, router state도 없으면 차단
+    const hash = window.location.hash;
+    const hasInviteHash = hash.includes('access_token') && (hash.includes('type=invite') || hash.includes('type=signup') || hash.includes('type=recovery'));
+    if (!hasInviteHash && !location.state?.fromRecovery) {
       navigate('/');
       return;
     }
 
-    // 이미 세션이 있으면 바로 준비
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         setReady(true);
