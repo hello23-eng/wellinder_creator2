@@ -228,12 +228,13 @@ export default function AdminPage() {
             <p className="text-[10px] uppercase tracking-[0.3em] text-wellinder-dark/40 font-semibold mb-2">Wellinder</p>
             <h1 className="text-2xl font-serif italic text-wellinder-dark">Admin</h1>
           </div>
-          <form onSubmit={handleLogin} className="space-y-3">
+          <form onSubmit={handleLogin} className="space-y-3" autoComplete="off">
             <input
               type="email"
               placeholder="Email"
               value={email}
               onChange={e => setEmail(e.target.value)}
+              autoComplete="username"
               className="w-full border border-wellinder-dark/10 rounded-2xl py-4 px-5 outline-none focus:border-wellinder-dark transition-colors text-wellinder-dark placeholder:text-wellinder-dark/30"
             />
             <input
@@ -241,6 +242,7 @@ export default function AdminPage() {
               placeholder="Password"
               value={password}
               onChange={e => setPassword(e.target.value)}
+              autoComplete="current-password"
               className="w-full border border-wellinder-dark/10 rounded-2xl py-4 px-5 outline-none focus:border-wellinder-dark transition-colors text-wellinder-dark placeholder:text-wellinder-dark/30"
             />
             {authError && <p className="text-red-500 text-xs text-center">{authError}</p>}
