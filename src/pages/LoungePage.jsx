@@ -616,12 +616,10 @@ export default function LoungePage() {
         {/* Shipping & Survey */}
         <section className="mb-8">
           <SectionHeader>{t.shippingSection}</SectionHeader>
-          {shippingInfo !== undefined && (
-            <div className="bg-wellinder-dark text-white rounded-2xl px-5 py-4 mb-4 space-y-2">
-              <p className="text-sm font-semibold">⏰ {t.shippingDeadline}</p>
-              <p className="text-sm text-white/70">{t.shippingDiscord} <a href="https://discord.gg/hHDUf6Uv" target="_blank" rel="noopener noreferrer" className="underline text-white hover:text-white/80">discord.gg/hHDUf6Uv</a></p>
-            </div>
-          )}
+          <div className="bg-wellinder-dark text-white rounded-2xl px-5 py-4 mb-4 space-y-2">
+            <p className="text-sm font-semibold">⏰ {t.shippingDeadline}</p>
+            <p className="text-sm text-white/70">{t.shippingDiscord} <a href="https://discord.gg/hHDUf6Uv" target="_blank" rel="noopener noreferrer" className="underline text-white hover:text-white/80">discord.gg/hHDUf6Uv</a></p>
+          </div>
           {shippingInfo ? (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
               className="bg-white rounded-3xl border border-wellinder-dark/8 shadow-sm p-10 text-center">
