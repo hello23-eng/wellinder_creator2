@@ -50,7 +50,6 @@ serve(async (req) => {
       .from('creator_profiles')
       .upsert({
         id: user.id,
-        email: user.email,
         name,
         country,
         survey_a_reasons: survey_a_reasons ?? [],
