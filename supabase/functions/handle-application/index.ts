@@ -96,7 +96,7 @@ serve(async (req) => {
               This link expires in <strong>72 hours</strong>. If it expires, please contact us.
             </p>
             <div style="text-align: center; margin: 40px 0;">
-              <a href="${inviteLink}" style="background: #1a1a1a; color: white; padding: 16px 40px; border-radius: 999px; text-decoration: none; font-size: 14px; letter-spacing: 0.1em;">
+              <a href="${inviteLink}" style="display: inline-block; background: #1a1a1a; color: white; padding: 16px 40px; border-radius: 999px; text-decoration: none; font-size: 14px; letter-spacing: 0.1em; white-space: nowrap;">
                 Accept Your Invitation →
               </a>
             </div>

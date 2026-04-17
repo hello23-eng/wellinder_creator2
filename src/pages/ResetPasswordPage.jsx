@@ -250,7 +250,7 @@ export default function ResetPasswordPage() {
   // ── Main form ──────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-wellinder-cream py-16 px-6">
+    <div className="min-h-screen bg-wellinder-cream pt-24 pb-16 px-6">
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}

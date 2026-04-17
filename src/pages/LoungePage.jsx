@@ -71,6 +71,8 @@ const T = {
     videoSubmitted: 'Video submitted',
     videoSubmitError: 'Please enter a valid TikTok link.',
     shippingSection: 'Shipping & Survey',
+    shippingDeadline: 'Please complete by April 21',
+    shippingDiscord: 'Also, join our Discord community:',
     shippingName: 'Full Name',
     shippingAddress: 'Address (including unit number)',
     shippingPhone: 'Contact Number',
@@ -124,6 +126,8 @@ const T = {
     videoSubmitted: '视频已提交',
     videoSubmitError: '请输入有效的 TikTok 链接。',
     shippingSection: '配送信息与调查',
+    shippingDeadline: '请于 4 月 21 日前填写',
+    shippingDiscord: '同时，请加入我们的 Discord 社群：',
     shippingName: '姓名',
     shippingAddress: '地址（含门牌号）',
     shippingPhone: '联系电话',
@@ -227,8 +231,8 @@ function ViralKingSection({ uploads }) {
   return (
     <section className="mb-8">
       <div className="flex items-center justify-between mb-4">
-        <p className="text-[10px] uppercase tracking-[0.25em] font-semibold text-wellinder-dark/40">틱톡 바이럴 킹 👑</p>
-        <span className="text-[10px] text-wellinder-dark/30">영상 누적 조회수 기준</span>
+        <p className="text-[10px] uppercase tracking-[0.25em] font-semibold text-wellinder-dark/40">TikTok Viral King 👑</p>
+        <span className="text-[10px] text-wellinder-dark/30">by cumulative video views</span>
       </div>
       <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
         {top3.map((video, i) => (
@@ -238,7 +242,7 @@ function ViralKingSection({ uploads }) {
                 <img src={video.thumbnail} alt="" className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
-                  <span className="text-wellinder-dark/15 text-[11px]">썸네일</span>
+                  <span className="text-wellinder-dark/15 text-[11px]">thumbnail</span>
                 </div>
               )}
               <span className={`absolute top-2 left-2 text-[10px] font-bold ${rankColors[i]} bg-white/90 backdrop-blur-sm rounded-full px-2 py-0.5 shadow-sm`}>
@@ -250,7 +254,7 @@ function ViralKingSection({ uploads }) {
               {video.handle}
             </a>
             <p className="text-rose-400 font-bold text-sm mt-0.5">{formatCount(video.views)}</p>
-            <p className="text-[10px] text-wellinder-dark/30">조회수</p>
+            <p className="text-[10px] text-wellinder-dark/30">views</p>
           </div>
         ))}
       </div>
@@ -289,10 +293,10 @@ function LeaderboardSection({ uploads }) {
 
   return (
     <section className="mb-8">
-      <p className="text-[10px] uppercase tracking-[0.25em] font-semibold text-wellinder-dark/40 mb-4">리더보드 🏆</p>
+      <p className="text-[10px] uppercase tracking-[0.25em] font-semibold text-wellinder-dark/40 mb-4">Leaderboard 🏆</p>
       <div className="grid grid-cols-2 gap-3">
-        <RankTable title="조회수 Top 5" sub="전체 조회수 합계 기준" rows={viewsTop5} valueLabel="" />
-        <RankTable title="업로드 Top 5" sub="전체 업로드 횟수 기준" rows={uploadsTop5} valueLabel="회" />
+        <RankTable title="Top 5 Views" sub="by total views" rows={viewsTop5} valueLabel="" />
+        <RankTable title="Top 5 Uploads" sub="by upload count" rows={uploadsTop5} valueLabel="" />
       </div>
     </section>
   );
@@ -305,7 +309,7 @@ function UploadTrackerSection({ uploads }) {
 
   return (
     <section className="mb-8">
-      <p className="text-[10px] uppercase tracking-[0.25em] font-semibold text-wellinder-dark/40 mb-4">전체 업로드 현황</p>
+      <p className="text-[10px] uppercase tracking-[0.25em] font-semibold text-wellinder-dark/40 mb-4">All Uploads</p>
       <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
         {['all', ...weeks].map(w => (
           <button key={w} onClick={() => setActiveWeek(String(w))}
@@ -314,7 +318,7 @@ function UploadTrackerSection({ uploads }) {
                 ? 'bg-wellinder-dark text-white'
                 : 'bg-white border border-wellinder-dark/10 text-wellinder-dark/40 hover:text-wellinder-dark'
             }`}>
-            {w === 'all' ? '전체' : `${w}주차`}
+            {w === 'all' ? 'All' : `Wk ${w}`}
           </button>
         ))}
       </div>
@@ -323,12 +327,12 @@ function UploadTrackerSection({ uploads }) {
           <table className="w-full text-xs">
             <thead>
               <tr className="border-b border-wellinder-dark/5 bg-wellinder-cream/30">
-                <th className="text-left px-4 py-3 text-wellinder-dark/40 font-semibold whitespace-nowrap">계정</th>
-                <th className="text-left px-4 py-3 text-wellinder-dark/40 font-semibold whitespace-nowrap">업로드 일자</th>
-                <th className="text-right px-4 py-3 text-wellinder-dark/40 font-semibold whitespace-nowrap">조회수</th>
-                <th className="text-right px-4 py-3 text-wellinder-dark/40 font-semibold whitespace-nowrap">좋아요</th>
-                <th className="text-right px-4 py-3 text-wellinder-dark/40 font-semibold whitespace-nowrap">저장</th>
-                <th className="text-center px-4 py-3 text-wellinder-dark/40 font-semibold whitespace-nowrap">링크</th>
+                <th className="text-left px-4 py-3 text-wellinder-dark/40 font-semibold whitespace-nowrap">Account</th>
+                <th className="text-left px-4 py-3 text-wellinder-dark/40 font-semibold whitespace-nowrap">Date</th>
+                <th className="text-right px-4 py-3 text-wellinder-dark/40 font-semibold whitespace-nowrap">Views</th>
+                <th className="text-right px-4 py-3 text-wellinder-dark/40 font-semibold whitespace-nowrap">Likes</th>
+                <th className="text-right px-4 py-3 text-wellinder-dark/40 font-semibold whitespace-nowrap">Saves</th>
+                <th className="text-center px-4 py-3 text-wellinder-dark/40 font-semibold whitespace-nowrap">Link</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-wellinder-dark/5">
@@ -342,7 +346,7 @@ function UploadTrackerSection({ uploads }) {
                   <td className="px-4 py-3 text-center">
                     <a href={u.video_url} target="_blank" rel="noopener noreferrer"
                       className="text-rose-400 font-semibold hover:text-rose-500 transition-colors">
-                      보기 ↗
+                      View ↗
                     </a>
                   </td>
                 </tr>
@@ -403,19 +407,19 @@ export default function LoungePage() {
 
   const checkApproval = async () => {
     // 1. 가입 완료한 유저 (creator_profiles 있음)
-    const { data: profile } = await supabase
-      .from('creator_profiles').select('id').eq('id', session.user.id).maybeSingle();
-    if (profile) { setIsApproved(true); return; }
+    const { data: profiles } = await supabase
+      .from('creator_profiles').select('id').eq('id', session.user.id).limit(1);
+    if (profiles?.length > 0) { setIsApproved(true); return; }
 
     // 2. 초대받은 유저 (invites 있음 = 어드민이 승인함)
-    const { data: invite } = await supabase
-      .from('invites').select('id').eq('email', session.user.email).maybeSingle();
-    if (invite) { setIsApproved(true); return; }
+    const { data: invites } = await supabase
+      .from('invites').select('id').eq('email', session.user.email).limit(1);
+    if (invites?.length > 0) { setIsApproved(true); return; }
 
     // 3. fallback: applications 테이블
-    const { data: app } = await supabase
-      .from('applications').select('status').eq('email', session.user.email).maybeSingle();
-    setIsApproved(app?.status === 'approved');
+    const { data: apps } = await supabase
+      .from('applications').select('status').eq('email', session.user.email).limit(1);
+    setIsApproved(apps?.[0]?.status === 'approved');
   };
 
   const fetchData = async () => {
@@ -573,21 +577,21 @@ export default function LoungePage() {
       <div className="max-w-2xl mx-auto">
 
         {/* Header */}
-        <div className="flex items-start justify-between mb-10">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <p className="text-[10px] uppercase tracking-[0.3em] text-wellinder-dark/40 font-semibold">{t.badge}</p>
+        <div className="mb-10">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[10px] uppercase tracking-[0.3em] text-wellinder-dark/40 font-semibold">{t.badge}</p>
+            <div className="flex items-center gap-3">
               <div className="flex items-center bg-white border border-wellinder-dark/10 rounded-full overflow-hidden text-[10px] font-semibold">
                 <button onClick={() => setLang('en')} className={`px-3 py-1.5 transition-colors ${lang === 'en' ? 'bg-wellinder-dark text-white' : 'text-wellinder-dark/40 hover:text-wellinder-dark'}`}>EN</button>
                 <button onClick={() => setLang('zh')} className={`px-3 py-1.5 transition-colors ${lang === 'zh' ? 'bg-wellinder-dark text-white' : 'text-wellinder-dark/40 hover:text-wellinder-dark'}`}>中文</button>
               </div>
+              <button onClick={handleLogout} className="flex items-center gap-1.5 text-wellinder-dark/30 hover:text-wellinder-dark text-sm transition-colors">
+                <LogOut className="w-4 h-4" />{t.signOut}
+              </button>
             </div>
-            <h1 className="text-3xl font-serif italic text-wellinder-dark">{t.challengeTitle}</h1>
-            <p className="text-wellinder-dark/40 text-sm mt-1">{t.weekLabel(currentWeek)}</p>
           </div>
-          <button onClick={handleLogout} className="flex items-center gap-2 text-wellinder-dark/30 hover:text-wellinder-dark text-sm transition-colors mt-1">
-            <LogOut className="w-4 h-4" />{t.signOut}
-          </button>
+          <h1 className="text-3xl font-serif italic text-wellinder-dark">{t.challengeTitle}</h1>
+          <p className="text-wellinder-dark/40 text-sm mt-1">{t.weekLabel(currentWeek)}</p>
         </div>
 
         {/* Announcements */}
@@ -608,6 +612,57 @@ export default function LoungePage() {
             ))}
           </section>
         )}
+
+        {/* Shipping & Survey */}
+        <section className="mb-8">
+          <SectionHeader>{t.shippingSection}</SectionHeader>
+          {shippingInfo ? (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+              className="bg-white rounded-3xl border border-wellinder-dark/8 shadow-sm p-10 text-center">
+              <p className="text-3xl mb-3">✓</p>
+              <h3 className="font-serif italic text-wellinder-dark text-lg mb-1">{t.submittedLabel}</h3>
+              <p className="text-wellinder-dark/40 text-sm">{t.submittedNote}</p>
+            </motion.div>
+          ) : shippingInfo === undefined ? null : (
+            <>
+              <div className="bg-wellinder-dark text-white rounded-2xl px-5 py-4 mb-4 space-y-2">
+                <p className="text-sm font-semibold">⏰ {t.shippingDeadline}</p>
+                <p className="text-sm text-white/70">{t.shippingDiscord} <a href="https://discord.gg/hHDUf6Uv" target="_blank" rel="noopener noreferrer" className="underline text-white hover:text-white/80">discord.gg/hHDUf6Uv</a></p>
+              </div>
+              <form onSubmit={handleShippingSubmit}
+                className="bg-white rounded-3xl border border-wellinder-dark/8 shadow-sm overflow-hidden">
+                <div className="divide-y divide-wellinder-dark/5">
+                  <input type="text" placeholder={t.shippingName} value={shpName} onChange={e => setShpName(e.target.value)}
+                    className="w-full px-6 py-4 outline-none text-sm text-wellinder-dark placeholder:text-wellinder-dark/30 bg-transparent" />
+                  <textarea placeholder={t.shippingAddress} value={shpAddress} onChange={e => setShpAddress(e.target.value)}
+                    rows={3} className="w-full px-6 py-4 outline-none text-sm text-wellinder-dark placeholder:text-wellinder-dark/30 bg-transparent resize-none" />
+                  <input type="tel" placeholder={t.shippingPhone} value={shpPhone} onChange={e => setShpPhone(e.target.value)}
+                    className="w-full px-6 py-4 outline-none text-sm text-wellinder-dark placeholder:text-wellinder-dark/30 bg-transparent" />
+                </div>
+                <div className="px-6 py-6 border-t border-wellinder-dark/5">
+                  <p className="text-[11px] uppercase tracking-[0.15em] font-semibold text-wellinder-dark mb-4 leading-relaxed">{t.speakerQ}</p>
+                  <div className="space-y-0.5">
+                    {SPEAKER_OPTIONS.map(opt => (
+                      <Checkbox key={opt.value} checked={speakerPrefs.has(opt.value)} onChange={() => toggleSpeaker(opt.value)} label={opt[lang]} />
+                    ))}
+                  </div>
+                  {speakerPrefs.has('other') && (
+                    <input type="text" placeholder={t.speakerOtherPlaceholder} value={speakerOther} onChange={e => setSpeakerOther(e.target.value)}
+                      className="mt-3 w-full border border-wellinder-dark/10 rounded-2xl py-3 px-4 text-sm text-wellinder-dark placeholder:text-wellinder-dark/30 outline-none focus:border-wellinder-dark transition-colors bg-wellinder-cream/40" />
+                  )}
+                </div>
+                <div className="px-6 pb-6">
+                  <p className="text-[11px] text-wellinder-dark/35 leading-relaxed mb-4">{t.privacyNote}</p>
+                  {shpError && <p className="text-red-500 text-xs text-center mb-3">{shpError}</p>}
+                  <button type="submit" disabled={shpLoading}
+                    className="w-full bg-wellinder-dark text-white py-4 rounded-full font-semibold text-sm disabled:opacity-40 transition-opacity">
+                    {shpLoading ? t.submitting : t.submit}
+                  </button>
+                </div>
+              </form>
+            </>
+          )}
+        </section>
 
         {/* Challenge Schedule */}
         <section className="mb-8">
@@ -819,51 +874,6 @@ export default function LoungePage() {
               </div>
             ))}
           </div>
-        </section>
-
-        {/* Shipping & Survey */}
-        <section className="mb-8">
-          <SectionHeader>{t.shippingSection}</SectionHeader>
-          {shippingInfo ? (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-              className="bg-white rounded-3xl border border-wellinder-dark/8 shadow-sm p-10 text-center">
-              <p className="text-3xl mb-3">✓</p>
-              <h3 className="font-serif italic text-wellinder-dark text-lg mb-1">{t.submittedLabel}</h3>
-              <p className="text-wellinder-dark/40 text-sm">{t.submittedNote}</p>
-            </motion.div>
-          ) : shippingInfo === undefined ? null : (
-            <form onSubmit={handleShippingSubmit}
-              className="bg-white rounded-3xl border border-wellinder-dark/8 shadow-sm overflow-hidden">
-              <div className="divide-y divide-wellinder-dark/5">
-                <input type="text" placeholder={t.shippingName} value={shpName} onChange={e => setShpName(e.target.value)}
-                  className="w-full px-6 py-4 outline-none text-sm text-wellinder-dark placeholder:text-wellinder-dark/30 bg-transparent" />
-                <textarea placeholder={t.shippingAddress} value={shpAddress} onChange={e => setShpAddress(e.target.value)}
-                  rows={3} className="w-full px-6 py-4 outline-none text-sm text-wellinder-dark placeholder:text-wellinder-dark/30 bg-transparent resize-none" />
-                <input type="tel" placeholder={t.shippingPhone} value={shpPhone} onChange={e => setShpPhone(e.target.value)}
-                  className="w-full px-6 py-4 outline-none text-sm text-wellinder-dark placeholder:text-wellinder-dark/30 bg-transparent" />
-              </div>
-              <div className="px-6 py-6 border-t border-wellinder-dark/5">
-                <p className="text-[11px] uppercase tracking-[0.15em] font-semibold text-wellinder-dark mb-4 leading-relaxed">{t.speakerQ}</p>
-                <div className="space-y-0.5">
-                  {SPEAKER_OPTIONS.map(opt => (
-                    <Checkbox key={opt.value} checked={speakerPrefs.has(opt.value)} onChange={() => toggleSpeaker(opt.value)} label={opt[lang]} />
-                  ))}
-                </div>
-                {speakerPrefs.has('other') && (
-                  <input type="text" placeholder={t.speakerOtherPlaceholder} value={speakerOther} onChange={e => setSpeakerOther(e.target.value)}
-                    className="mt-3 w-full border border-wellinder-dark/10 rounded-2xl py-3 px-4 text-sm text-wellinder-dark placeholder:text-wellinder-dark/30 outline-none focus:border-wellinder-dark transition-colors bg-wellinder-cream/40" />
-                )}
-              </div>
-              <div className="px-6 pb-6">
-                <p className="text-[11px] text-wellinder-dark/35 leading-relaxed mb-4">{t.privacyNote}</p>
-                {shpError && <p className="text-red-500 text-xs text-center mb-3">{shpError}</p>}
-                <button type="submit" disabled={shpLoading}
-                  className="w-full bg-wellinder-dark text-white py-4 rounded-full font-semibold text-sm disabled:opacity-40 transition-opacity">
-                  {shpLoading ? t.submitting : t.submit}
-                </button>
-              </div>
-            </form>
-          )}
         </section>
 
         {/* FAQ */}

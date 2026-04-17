@@ -21,6 +21,11 @@ export default function AcceptInvitePage() {
         body: { token, preview: true },
       });
 
+      if (data?.already_registered) {
+        navigate('/lounge');
+        return;
+      }
+
       if (fnError || !data?.valid) {
         setError(data?.error || 'Something went wrong. Please try again or contact us.');
         return;
