@@ -9,6 +9,24 @@ const TOTAL_WEEKS = 8;
 const REQUIRED_UPLOADS_TOTAL = 5;
 const REQUIRED_SESSIONS_TOTAL = 3;
 
+// ─── TikTok mock data (나중에 DB로 교체) ────────────────────────────────────
+const MOCK_TIKTOK_UPLOADS = [
+  { id: 1, handle: '@creator.sg', video_url: 'https://www.tiktok.com', thumbnail: null, views: 52000, likes: 3200, saves: 180, uploaded_at: '2026-04-14', week: 2 },
+  { id: 2, handle: '@beauty.daily', video_url: 'https://www.tiktok.com', thumbnail: null, views: 38500, likes: 2100, saves: 95, uploaded_at: '2026-04-13', week: 2 },
+  { id: 3, handle: '@glow.sg', video_url: 'https://www.tiktok.com', thumbnail: null, views: 27000, likes: 1750, saves: 67, uploaded_at: '2026-04-12', week: 1 },
+  { id: 4, handle: '@skincare.routine', video_url: 'https://www.tiktok.com', thumbnail: null, views: 15200, likes: 890, saves: 42, uploaded_at: '2026-04-11', week: 1 },
+  { id: 5, handle: '@creator.sg', video_url: 'https://www.tiktok.com', thumbnail: null, views: 12300, likes: 780, saves: 35, uploaded_at: '2026-04-10', week: 1 },
+  { id: 6, handle: '@glow.sg', video_url: 'https://www.tiktok.com', thumbnail: null, views: 9800, likes: 560, saves: 23, uploaded_at: '2026-04-09', week: 1 },
+  { id: 7, handle: '@beauty.daily', video_url: 'https://www.tiktok.com', thumbnail: null, views: 7300, likes: 420, saves: 18, uploaded_at: '2026-04-08', week: 1 },
+  { id: 8, handle: '@wellinder.picks', video_url: 'https://www.tiktok.com', thumbnail: null, views: 5100, likes: 280, saves: 9, uploaded_at: '2026-04-07', week: 1 },
+];
+
+function formatCount(n) {
+  if (n >= 10000) return (n / 10000).toFixed(1).replace('.0', '') + '만';
+  if (n >= 1000) return (n / 1000).toFixed(1).replace('.0', '') + '천';
+  return n.toString();
+}
+
 // ─── Speaker options ────────────────────────────────────────────────────────
 const SPEAKER_OPTIONS = [
   { value: 'brand_pro', en: 'A brand professional who has experience collaborating with K-beauty creators', zh: '拥有与 K-beauty 创作者合作经验的品牌专业人士' },
@@ -198,6 +216,142 @@ function Checkbox({ checked, onChange, label }) {
       </div>
       <span className="text-sm text-wellinder-dark/70 leading-snug select-none">{label}</span>
     </label>
+  );
+}
+
+// ─── TikTok sections ──────────────────────────────────────────────────────────
+function ViralKingSection({ uploads }) {
+  const top3 = [...uploads].sort((a, b) => b.views - a.views).slice(0, 3);
+  const rankColors = ['text-amber-400', 'text-gray-400', 'text-amber-700'];
+
+  return (
+    <section className="mb-8">
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-[10px] uppercase tracking-[0.25em] font-semibold text-wellinder-dark/40">틱톡 바이럴 킹 👑</p>
+        <span className="text-[10px] text-wellinder-dark/30">영상 누적 조회수 기준</span>
+      </div>
+      <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
+        {top3.map((video, i) => (
+          <div key={video.id} className="flex-shrink-0 w-44">
+            <div className="relative aspect-[9/16] bg-wellinder-dark/5 rounded-2xl overflow-hidden mb-2 border border-wellinder-dark/5">
+              {video.thumbnail ? (
+                <img src={video.thumbnail} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <span className="text-wellinder-dark/15 text-[11px]">썸네일</span>
+                </div>
+              )}
+              <span className={`absolute top-2 left-2 text-[10px] font-bold ${rankColors[i]} bg-white/90 backdrop-blur-sm rounded-full px-2 py-0.5 shadow-sm`}>
+                #{i + 1}
+              </span>
+            </div>
+            <a href={video.video_url} target="_blank" rel="noopener noreferrer"
+              className="text-xs font-semibold text-wellinder-dark hover:opacity-60 transition-opacity block truncate">
+              {video.handle}
+            </a>
+            <p className="text-rose-400 font-bold text-sm mt-0.5">{formatCount(video.views)}</p>
+            <p className="text-[10px] text-wellinder-dark/30">조회수</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function LeaderboardSection({ uploads }) {
+  const viewsMap = {};
+  const uploadsMap = {};
+  uploads.forEach(u => {
+    viewsMap[u.handle] = (viewsMap[u.handle] || 0) + u.views;
+    uploadsMap[u.handle] = (uploadsMap[u.handle] || 0) + 1;
+  });
+  const viewsTop5 = Object.entries(viewsMap).sort(([, a], [, b]) => b - a).slice(0, 5);
+  const uploadsTop5 = Object.entries(uploadsMap).sort(([, a], [, b]) => b - a).slice(0, 5);
+  const medal = (i) => i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : null;
+
+  const RankTable = ({ title, sub, rows, valueLabel }) => (
+    <div className="bg-white rounded-2xl border border-wellinder-dark/8 shadow-sm p-4">
+      <p className="text-[11px] font-semibold text-wellinder-dark mb-0.5">{title}</p>
+      <p className="text-[9px] text-wellinder-dark/30 mb-3">{sub}</p>
+      <div className="space-y-2.5">
+        {rows.map(([handle, val], i) => (
+          <div key={handle} className="flex items-center gap-2">
+            <span className="w-5 text-center flex-shrink-0">
+              {medal(i) ? <span className="text-sm">{medal(i)}</span> : <span className="text-[11px] font-bold text-wellinder-dark/25">{i + 1}</span>}
+            </span>
+            <span className="text-xs text-wellinder-dark/70 flex-1 truncate">{handle}</span>
+            <span className="text-xs font-semibold text-wellinder-dark flex-shrink-0">{typeof val === 'number' && val >= 1000 ? formatCount(val) : val}{valueLabel}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  return (
+    <section className="mb-8">
+      <p className="text-[10px] uppercase tracking-[0.25em] font-semibold text-wellinder-dark/40 mb-4">리더보드 🏆</p>
+      <div className="grid grid-cols-2 gap-3">
+        <RankTable title="조회수 Top 5" sub="전체 조회수 합계 기준" rows={viewsTop5} valueLabel="" />
+        <RankTable title="업로드 Top 5" sub="전체 업로드 횟수 기준" rows={uploadsTop5} valueLabel="회" />
+      </div>
+    </section>
+  );
+}
+
+function UploadTrackerSection({ uploads }) {
+  const [activeWeek, setActiveWeek] = useState('all');
+  const weeks = Array.from(new Set(uploads.map(u => u.week))).sort();
+  const filtered = activeWeek === 'all' ? uploads : uploads.filter(u => u.week === Number(activeWeek));
+
+  return (
+    <section className="mb-8">
+      <p className="text-[10px] uppercase tracking-[0.25em] font-semibold text-wellinder-dark/40 mb-4">전체 업로드 현황</p>
+      <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
+        {['all', ...weeks].map(w => (
+          <button key={w} onClick={() => setActiveWeek(String(w))}
+            className={`flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+              String(activeWeek) === String(w)
+                ? 'bg-wellinder-dark text-white'
+                : 'bg-white border border-wellinder-dark/10 text-wellinder-dark/40 hover:text-wellinder-dark'
+            }`}>
+            {w === 'all' ? '전체' : `${w}주차`}
+          </button>
+        ))}
+      </div>
+      <div className="bg-white rounded-2xl border border-wellinder-dark/8 shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="border-b border-wellinder-dark/5 bg-wellinder-cream/30">
+                <th className="text-left px-4 py-3 text-wellinder-dark/40 font-semibold whitespace-nowrap">계정</th>
+                <th className="text-left px-4 py-3 text-wellinder-dark/40 font-semibold whitespace-nowrap">업로드 일자</th>
+                <th className="text-right px-4 py-3 text-wellinder-dark/40 font-semibold whitespace-nowrap">조회수</th>
+                <th className="text-right px-4 py-3 text-wellinder-dark/40 font-semibold whitespace-nowrap">좋아요</th>
+                <th className="text-right px-4 py-3 text-wellinder-dark/40 font-semibold whitespace-nowrap">저장</th>
+                <th className="text-center px-4 py-3 text-wellinder-dark/40 font-semibold whitespace-nowrap">링크</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-wellinder-dark/5">
+              {filtered.map(u => (
+                <tr key={u.id} className="hover:bg-wellinder-cream/20 transition-colors">
+                  <td className="px-4 py-3 font-medium text-wellinder-dark whitespace-nowrap">{u.handle}</td>
+                  <td className="px-4 py-3 text-wellinder-dark/50 whitespace-nowrap">{u.uploaded_at}</td>
+                  <td className="px-4 py-3 text-right font-semibold text-wellinder-dark">{formatCount(u.views)}</td>
+                  <td className="px-4 py-3 text-right text-wellinder-dark/60">{formatCount(u.likes)}</td>
+                  <td className="px-4 py-3 text-right text-wellinder-dark/60">{u.saves}</td>
+                  <td className="px-4 py-3 text-center">
+                    <a href={u.video_url} target="_blank" rel="noopener noreferrer"
+                      className="text-rose-400 font-semibold hover:text-rose-500 transition-colors">
+                      보기 ↗
+                    </a>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -478,6 +632,15 @@ export default function LoungePage() {
             <ProgressRow label={t.requiredSessions} done={sessionsDone} total={REQUIRED_SESSIONS_TOTAL} />
           </div>
         </section>
+
+        {/* TikTok Viral King */}
+        <ViralKingSection uploads={MOCK_TIKTOK_UPLOADS} />
+
+        {/* Leaderboard */}
+        <LeaderboardSection uploads={MOCK_TIKTOK_UPLOADS} />
+
+        {/* Upload Tracker */}
+        <UploadTrackerSection uploads={MOCK_TIKTOK_UPLOADS} />
 
         {/* Required Missions */}
         <section className="mb-8">
