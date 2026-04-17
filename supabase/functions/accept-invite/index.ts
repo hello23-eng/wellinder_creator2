@@ -55,9 +55,14 @@ serve(async (req) => {
       });
     }
 
-    // 실제 가입 처리: Supabase 로그인 링크 생성
+    // 실제 가입 처리: 유저가 이미 존재할 수 있으므로 upsert 후 magiclink 생성
+    await supabase.auth.admin.createUser({
+      email: invite.email,
+      email_confirm: true,
+    });
+
     const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
-      type: 'invite',
+      type: 'magiclink',
       email: invite.email,
       options: {
         redirectTo: 'https://wellinder.club/reset-password',

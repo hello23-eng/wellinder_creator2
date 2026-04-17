@@ -149,8 +149,10 @@ export default function ResetPasswordPage() {
   useEffect(() => {
     // URL 해시에 Supabase 초대 토큰 없고, router state도 없으면 차단
     const hash = window.location.hash;
-    const hasInviteHash = hash.includes('access_token') && (hash.includes('type=invite') || hash.includes('type=signup') || hash.includes('type=recovery'));
-    if (!hasInviteHash && !location.state?.fromRecovery) {
+    const params = new URLSearchParams(window.location.search);
+    const hasInviteHash = hash.includes('access_token') && (hash.includes('type=invite') || hash.includes('type=signup') || hash.includes('type=recovery') || hash.includes('type=magiclink'));
+    const hasPkceCode = params.has('code');
+    if (!hasInviteHash && !hasPkceCode && !location.state?.fromRecovery) {
       navigate('/');
       return;
     }
