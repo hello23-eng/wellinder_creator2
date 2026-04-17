@@ -402,20 +402,19 @@ export default function LoungePage() {
   }, [session]);
 
   const checkApproval = async () => {
-    // 가입 완료한 유저(creator_profiles 있음)는 바로 입장
+    // 1. 가입 완료한 유저 (creator_profiles 있음)
     const { data: profile } = await supabase
-      .from('creator_profiles')
-      .select('id')
-      .eq('id', session.user.id)
-      .maybeSingle();
+      .from('creator_profiles').select('id').eq('id', session.user.id).maybeSingle();
     if (profile) { setIsApproved(true); return; }
 
-    // fallback: applications 테이블에서 확인
+    // 2. 초대받은 유저 (invites 있음 = 어드민이 승인함)
+    const { data: invite } = await supabase
+      .from('invites').select('id').eq('email', session.user.email).maybeSingle();
+    if (invite) { setIsApproved(true); return; }
+
+    // 3. fallback: applications 테이블
     const { data: app } = await supabase
-      .from('applications')
-      .select('status')
-      .eq('email', session.user.email)
-      .maybeSingle();
+      .from('applications').select('status').eq('email', session.user.email).maybeSingle();
     setIsApproved(app?.status === 'approved');
   };
 
