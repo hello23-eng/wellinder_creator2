@@ -191,11 +191,20 @@ export default function AdminPage() {
   const handleAction = async (app, action) => {
     setActionLoading(app.id);
     try {
-      const { error } = await supabase.functions.invoke('handle-application', {
-        body: { application_id: app.id, action },
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      });
-      if (error) throw error;
+      const { data: { session: freshSession } } = await supabase.auth.getSession();
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/handle-application`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${freshSession.access_token}`,
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ application_id: app.id, action }),
+        }
+      );
+      if (!res.ok) throw new Error(`${res.status}`);
       showToast(action === 'approved'
         ? `✓ Approved & email sent to ${app.email}`
         : `✕ Rejected & email sent to ${app.email}`
