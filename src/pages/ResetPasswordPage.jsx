@@ -191,21 +191,10 @@ export default function ResetPasswordPage() {
 
     setLoading(true);
 
-    // 1. 비밀번호 + 이름 업데이트
-    const { error: authError } = await supabase.auth.updateUser({
-      password,
-      data: { full_name: name.trim() },
-    });
-
-    if (authError) {
-      setError('Something went wrong: ' + authError.message);
-      setLoading(false);
-      return;
-    }
-
-    // 2. 프로필 + 설문 저장 & 이메일 알림
+    // 비밀번호 설정 + 프로필 저장을 Edge Function에서 admin API로 처리
     const { error: fnError } = await supabase.functions.invoke('complete-signup', {
       body: {
+        password,
         name: name.trim(),
         country,
         survey_a_reasons: [...surveyA],

@@ -38,10 +38,11 @@ serve(async (req) => {
       });
     }
 
-    const { name, country, survey_a_reasons, survey_a_other, survey_b_goals, survey_b_other } = await req.json();
+    const { password, name, country, survey_a_reasons, survey_a_other, survey_b_goals, survey_b_other } = await req.json();
 
-    // 유저 메타데이터에 이름 저장
+    // admin API로 비밀번호 + 이름 설정 (magic link 세션에서도 동작)
     await adminSupabase.auth.admin.updateUserById(user.id, {
+      password,
       user_metadata: { full_name: name },
     });
 
