@@ -402,8 +402,21 @@ export default function LoungePage() {
   }, [session]);
 
   const checkApproval = async () => {
-    const { data } = await supabase.from('applications').select('status').eq('email', session.user.email).single();
-    setIsApproved(data?.status === 'approved');
+    // 가입 완료한 유저(creator_profiles 있음)는 바로 입장
+    const { data: profile } = await supabase
+      .from('creator_profiles')
+      .select('id')
+      .eq('id', session.user.id)
+      .maybeSingle();
+    if (profile) { setIsApproved(true); return; }
+
+    // fallback: applications 테이블에서 확인
+    const { data: app } = await supabase
+      .from('applications')
+      .select('status')
+      .eq('email', session.user.email)
+      .maybeSingle();
+    setIsApproved(app?.status === 'approved');
   };
 
   const fetchData = async () => {
