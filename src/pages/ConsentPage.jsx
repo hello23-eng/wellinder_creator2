@@ -89,7 +89,6 @@ export default function ConsentPage() {
       return;
     }
 
-    sessionStorage.setItem('wellinder_signup_flow', '1');
     window.location.href = data.url;
   };
 
