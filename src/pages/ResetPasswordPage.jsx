@@ -144,6 +144,10 @@ export default function ResetPasswordPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  useEffect(() => {
+    if (error) document.getElementById('form-error')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, [error]);
+
   const t = content[lang];
 
   useEffect(() => {
@@ -436,7 +440,7 @@ export default function ResetPasswordPage() {
 
           {/* Error */}
           {error && (
-            <p className="text-red-500 text-xs text-center">{error}</p>
+            <p id="form-error" className="text-red-500 text-sm text-center font-medium bg-red-50 border border-red-200 rounded-2xl py-3 px-4">{error}</p>
           )}
 
           {/* Submit */}
