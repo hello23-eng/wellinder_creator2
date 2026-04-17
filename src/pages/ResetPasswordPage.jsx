@@ -144,17 +144,25 @@ export default function ResetPasswordPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // 렌더 시점에 바로 캡처 — Supabase JS가 URL을 비동기로 지우기 전에 읽음
+  const [_initialHash] = useState(() => window.location.hash);
+  const [_initialSearch] = useState(() => window.location.search);
+  const [_inSignupFlow] = useState(() => {
+    const v = sessionStorage.getItem('wellinder_signup_flow') === '1';
+    sessionStorage.removeItem('wellinder_signup_flow');
+    return v;
+  });
+
   const t = content[lang];
 
   useEffect(() => {
-    // URL 해시에 Supabase 초대 토큰 없고, router state도 없으면 차단
-    const hash = window.location.hash;
-    const params = new URLSearchParams(window.location.search);
-    const hasInviteHash = hash.includes('access_token') && (hash.includes('type=invite') || hash.includes('type=signup') || hash.includes('type=recovery') || hash.includes('type=magiclink'));
-    const hasPkceCode = params.has('code');
-    const inSignupFlow = sessionStorage.getItem('wellinder_signup_flow') === '1';
-    sessionStorage.removeItem('wellinder_signup_flow');
-    if (!hasInviteHash && !hasPkceCode && !inSignupFlow && !location.state?.fromRecovery) {
+    const hasInviteHash = _initialHash.includes('access_token') && (
+      _initialHash.includes('type=invite') || _initialHash.includes('type=signup') ||
+      _initialHash.includes('type=recovery') || _initialHash.includes('type=magiclink')
+    );
+    const hasPkceCode = new URLSearchParams(_initialSearch).has('code');
+
+    if (!hasInviteHash && !hasPkceCode && !_inSignupFlow && !location.state?.fromRecovery) {
       navigate('/');
       return;
     }
