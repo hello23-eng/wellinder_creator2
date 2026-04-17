@@ -152,7 +152,9 @@ export default function ResetPasswordPage() {
     const params = new URLSearchParams(window.location.search);
     const hasInviteHash = hash.includes('access_token') && (hash.includes('type=invite') || hash.includes('type=signup') || hash.includes('type=recovery') || hash.includes('type=magiclink'));
     const hasPkceCode = params.has('code');
-    if (!hasInviteHash && !hasPkceCode && !location.state?.fromRecovery) {
+    const inSignupFlow = sessionStorage.getItem('wellinder_signup_flow') === '1';
+    sessionStorage.removeItem('wellinder_signup_flow');
+    if (!hasInviteHash && !hasPkceCode && !inSignupFlow && !location.state?.fromRecovery) {
       navigate('/');
       return;
     }
