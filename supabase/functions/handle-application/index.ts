@@ -78,7 +78,12 @@ serve(async (req) => {
 
       subject = '✨ Welcome to Wellinder Creators — You\'re In!';
       html = `
-        <div style="font-family: 'Georgia', serif; max-width: 560px; margin: 0 auto; color: #1a1a1a; padding: 48px 32px;">
+        <div style="font-family: 'Georgia', serif; max-width: 560px; margin: 0 auto; color: #1a1a1a;">
+          <div style="text-align: center; padding: 48px 0 32px;">
+            <p style="font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: #999; margin: 0 0 16px;">Wellinder Creators</p>
+            <h1 style="font-size: 32px; font-weight: 400; margin: 0; font-style: italic;">You're officially in.</h1>
+          </div>
+          <div style="padding: 0 32px 48px;">
           <p>Dear ${app.full_name},</p>
           <p>You've been selected for the Wellinder Creator Challenge — congratulations!</p>
           <p>Click the button below to set your password and access <strong>The Lounge</strong>, where it all begins.</p>
@@ -89,6 +94,7 @@ serve(async (req) => {
           </div>
           <p style="color: #999; font-size: 13px;">This link expires in <strong>72 hours</strong>. If registration is not completed within that time, your invitation will be automatically cancelled.</p>
           <p>Welcome to the collective,<br/><em>Wellinder Team</em></p>
+          </div>
         </div>
       `;
 
