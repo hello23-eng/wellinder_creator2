@@ -78,30 +78,17 @@ serve(async (req) => {
 
       subject = '✨ Welcome to Wellinder Creators — You\'re In!';
       html = `
-        <div style="font-family: 'Georgia', serif; max-width: 560px; margin: 0 auto; color: #1a1a1a;">
-          <div style="text-align: center; padding: 48px 0 32px;">
-            <p style="font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: #999; margin: 0 0 16px;">Wellinder Creators</p>
-            <h1 style="font-size: 32px; font-weight: 400; margin: 0; font-style: italic;">You're officially in.</h1>
+        <div style="font-family: 'Georgia', serif; max-width: 560px; margin: 0 auto; color: #1a1a1a; padding: 48px 32px;">
+          <p>Dear ${app.full_name},</p>
+          <p>You've been selected for the Wellinder Creator Challenge — congratulations!</p>
+          <p>Click the button below to set your password and access <strong>The Lounge</strong>, where it all begins.</p>
+          <div style="text-align: center; margin: 40px 0;">
+            <a href="${inviteLink}" style="display: inline-block; background: #1a1a1a; color: white; padding: 16px 40px; border-radius: 999px; text-decoration: none; font-size: 14px; letter-spacing: 0.1em; white-space: nowrap;">
+              Accept Your Invitation →
+            </a>
           </div>
-          <div style="padding: 0 32px 48px; line-height: 1.8; color: #444;">
-            <p>Dear ${app.full_name},</p>
-            <p>
-              We're thrilled to welcome you to the <strong>Wellinder Creators</strong> community.
-              We can't wait to see your journey unfold with us.
-            </p>
-            <p>
-              Click the button below to set up your password and access <strong>The Lounge</strong> — your exclusive space for missions, announcements, and creator resources.
-            </p>
-            <p style="color: #999; font-size: 13px;">
-              This link expires in <strong>72 hours</strong>. If it expires, please contact us.
-            </p>
-            <div style="text-align: center; margin: 40px 0;">
-              <a href="${inviteLink}" style="display: inline-block; background: #1a1a1a; color: white; padding: 16px 40px; border-radius: 999px; text-decoration: none; font-size: 14px; letter-spacing: 0.1em; white-space: nowrap;">
-                Accept Your Invitation →
-              </a>
-            </div>
-            <p>Welcome to the collective,<br/><em>Wellinder Team</em></p>
-          </div>
+          <p style="color: #999; font-size: 13px;">This link expires in <strong>72 hours</strong>. If registration is not completed within that time, your invitation will be automatically cancelled.</p>
+          <p>Welcome to the collective,<br/><em>Wellinder Team</em></p>
         </div>
       `;
 
