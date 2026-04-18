@@ -92,7 +92,7 @@ serve(async (req) => {
               Accept Your Invitation →
             </a>
           </div>
-          <p style="color: #999; font-size: 13px;">This link expires in <strong>72 hours</strong>. If registration is not completed within that time, your invitation will be automatically cancelled.</p>
+          <p style="color: #999; font-size: 13px; margin-top: 32px; padding-top: 24px; border-top: 1px solid #eee;">This link expires in <strong>72 hours</strong>. If registration is not completed within that time, your invitation will be automatically cancelled.</p>
           <p>Welcome to the collective,<br/><em>Wellinder Team</em></p>
           </div>
         </div>
