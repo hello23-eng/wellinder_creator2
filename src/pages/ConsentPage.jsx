@@ -101,8 +101,8 @@ export default function ConsentPage() {
         className="max-w-2xl mx-auto"
       >
         {/* Header */}
-        <div className="text-center mb-10">
-          <div className="flex items-center justify-center gap-3 mb-4">
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-5">
             <p className="text-[10px] uppercase tracking-[0.3em] text-wellinder-dark/40 font-semibold">
               {t.badge}
             </p>
@@ -129,7 +129,7 @@ export default function ConsentPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.2 }}
-              className="text-2xl font-serif italic text-wellinder-dark mb-4"
+              className="text-2xl font-serif italic text-wellinder-dark mb-3"
             >
               {t.title}
             </motion.h1>
