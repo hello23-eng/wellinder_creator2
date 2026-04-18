@@ -48,14 +48,8 @@ serve(async (req) => {
       });
     }
 
-    // 이미 가입 완료된 유저인지 확인
-    const { data: existingProfile } = await supabase
-      .from('creator_profiles')
-      .select('id')
-      .eq('id', (await supabase.auth.admin.getUserByEmail(invite.email)).data?.user?.id ?? '')
-      .maybeSingle();
-
-    if (existingProfile) {
+    // 이미 가입 완료된 유저인지 확인 (used_at이 기록된 경우)
+    if (invite.used_at) {
       return new Response(JSON.stringify({ already_registered: true }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });

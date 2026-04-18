@@ -87,7 +87,7 @@ serve(async (req) => {
             <p>Dear ${app.full_name},</p>
             <p>
               We're thrilled to welcome you to the <strong>Wellinder Creators</strong> community.
-              Your application stood out, and we can't wait to see your journey unfold.
+              We can't wait to see your journey unfold with us.
             </p>
             <p>
               Click the button below to set up your password and access <strong>The Lounge</strong> — your exclusive space for missions, announcements, and creator resources.
