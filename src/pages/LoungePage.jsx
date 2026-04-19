@@ -73,6 +73,7 @@ const T = {
     shippingSection: 'Shipping & Survey',
     shippingDeadline: 'Please complete by April 21',
     shippingDiscord: 'Also, join our Discord community:',
+    shippingNote: 'We\'ll use this address to ship your Wellinder products.',
     shippingName: 'Full Name',
     shippingAddress: 'Address (including unit number)',
     shippingPhone: 'Contact Number',
@@ -128,6 +129,7 @@ const T = {
     shippingSection: '配送信息与调查',
     shippingDeadline: '请于 4 月 21 日前填写',
     shippingDiscord: '同时，请加入我们的 Discord 社群：',
+    shippingNote: '我们将使用此地址为您寄送 Wellinder 产品。',
     shippingName: '姓名',
     shippingAddress: '地址（含门牌号）',
     shippingPhone: '联系电话',
@@ -382,7 +384,7 @@ export default function LoungePage() {
   const [shippingInfo, setShippingInfo] = useState(undefined);
   const [shpName, setShpName] = useState('');
   const [shpAddress, setShpAddress] = useState('');
-  const [shpPhone, setShpPhone] = useState('');
+  const [shpPhone, setShpPhone] = useState('+65 ');
   const [speakerPrefs, setSpeakerPrefs] = useState(new Set());
   const [speakerOther, setSpeakerOther] = useState('');
   const [shpLoading, setShpLoading] = useState(false);
@@ -629,6 +631,7 @@ export default function LoungePage() {
             </motion.div>
           ) : shippingInfo === undefined ? null : (
             <>
+              <p className="text-sm text-wellinder-dark/50 mb-3">{t.shippingNote}</p>
               <form onSubmit={handleShippingSubmit}
                 className="bg-white rounded-3xl border border-wellinder-dark/8 shadow-sm overflow-hidden">
                 <div className="divide-y divide-wellinder-dark/5">

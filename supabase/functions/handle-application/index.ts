@@ -94,6 +94,7 @@ serve(async (req) => {
           </div>
           <p style="color: #999; font-size: 13px; margin-top: 32px; padding-top: 24px; border-top: 1px solid #eee;">This link expires in <strong>72 hours</strong>. If registration is not completed within that time, your invitation will be automatically cancelled.</p>
           <p>Welcome to the collective,<br/><em>Wellinder Team</em></p>
+          <p style="color: #999; font-size: 13px;">If you have any questions, feel free to reach out at <a href="mailto:hello@wellinder.co.kr" style="color: #1a1a1a;">hello@wellinder.co.kr</a></p>
           </div>
         </div>
       `;
@@ -120,6 +121,7 @@ serve(async (req) => {
               Keep creating, keep shining, and we hope our paths cross again soon. ✨
             </p>
             <p>With warmth,<br/><em>Wellinder Team</em></p>
+            <p style="color: #999; font-size: 13px;">If you have any questions, feel free to reach out at <a href="mailto:hello@wellinder.co.kr" style="color: #1a1a1a;">hello@wellinder.co.kr</a></p>
           </div>
         </div>
       `;
