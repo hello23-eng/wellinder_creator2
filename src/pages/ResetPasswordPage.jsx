@@ -151,12 +151,16 @@ export default function ResetPasswordPage() {
   const t = content[lang];
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        setReady(true);
-        setEmail(session.user.email ?? '');
-      }
-    });
+    const hasMagicLink = window.location.hash.includes('access_token=');
+
+    if (!hasMagicLink) {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) {
+          setReady(true);
+          setEmail(session.user.email ?? '');
+        }
+      });
+    }
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if ((event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') && session) {
@@ -208,6 +212,7 @@ export default function ResetPasswordPage() {
     // 비밀번호 설정 + 프로필 저장을 Edge Function에서 admin API로 처리
     const { data, error: fnError } = await supabase.functions.invoke('complete-signup', {
       body: {
+        email: session.user.email,
         password,
         name: name.trim(),
         country,

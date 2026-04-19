@@ -38,7 +38,15 @@ serve(async (req) => {
       });
     }
 
-    const { password, name, country, survey_a_reasons, survey_a_other, survey_b_goals, survey_b_other } = await req.json();
+    const { password, name, country, email: bodyEmail, survey_a_reasons, survey_a_other, survey_b_goals, survey_b_other } = await req.json();
+
+    // body의 email이 JWT의 email과 일치하는지 추가 검증
+    if (bodyEmail && bodyEmail !== user.email) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     // admin API로 비밀번호 + 이름 설정 (magic link 세션에서도 동작)
     await adminSupabase.auth.admin.updateUserById(user.id, {
