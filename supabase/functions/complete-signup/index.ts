@@ -123,19 +123,22 @@ serve(async (req) => {
       </div>
     `;
 
-    await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${RESEND_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: 'Wellinder Creators <hello@wellinder.club>',
-        to: [NOTIFY_EMAIL],
-        subject: `New creator sign-up: ${name} (${email})`,
-        html: emailHtml,
-      }),
-    });
+    // 알림 이메일 실패해도 가입은 성공 처리
+    try {
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${RESEND_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: 'Wellinder Creators <hello@wellinder.club>',
+          to: [NOTIFY_EMAIL],
+          subject: `New creator sign-up: ${name} (${email})`,
+          html: emailHtml,
+        }),
+      });
+    } catch (_) { /* 알림 실패해도 가입은 완료 */ }
 
     return new Response(JSON.stringify({ success: true }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
