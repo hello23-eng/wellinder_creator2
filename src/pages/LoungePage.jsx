@@ -481,7 +481,7 @@ export default function LoungePage() {
     setShpError('');
     if (!shpName.trim()) { setShpError(t.errName); return; }
     if (!shpAddress.trim()) { setShpError(t.errAddress); return; }
-    if (!shpPhone.trim()) { setShpError(t.errPhone); return; }
+    if (!shpPhone.trim() || shpPhone.trim() === '+65') { setShpError(t.errPhone); return; }
     setShpLoading(true);
     const { data, error } = await supabase.from('shipping_info').insert([{
       user_id: session.user.id,
