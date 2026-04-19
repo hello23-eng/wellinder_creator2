@@ -199,11 +199,7 @@ export default function ResetPasswordPage() {
 
     setLoading(true);
 
-    // 세션 강제 갱신 후 함수 호출
-    await supabase.auth.refreshSession();
-    const { data: { session } } = await supabase.auth.getSession();
-
-    if (!session) {
+    if (!email) {
       setLoading(false);
       setError('Session expired. Please use your invitation link again.');
       return;
@@ -212,7 +208,7 @@ export default function ResetPasswordPage() {
     // 비밀번호 설정 + 프로필 저장을 Edge Function에서 admin API로 처리
     const { data, error: fnError } = await supabase.functions.invoke('complete-signup', {
       body: {
-        email: session.user.email,
+        email,
         password,
         name: name.trim(),
         country,
