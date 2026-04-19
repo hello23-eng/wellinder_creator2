@@ -211,7 +211,7 @@ export default function ResetPasswordPage() {
     setLoading(false);
 
     if (fnError) {
-      setError('Something went wrong. Please try again.');
+      setError(fnError.message || 'Something went wrong. Please try again.');
       return;
     }
 
