@@ -71,8 +71,8 @@ const T = {
     videoSubmitted: 'Video submitted',
     videoSubmitError: 'Please enter a valid TikTok link.',
     shippingSection: 'Shipping & Survey',
-    shippingDeadline: 'Please complete by April 21',
-    shippingDiscord: 'Also, join our Discord community:',
+    shippingDeadline: 'Please complete within 2 days of signing up',
+    shippingDiscord: 'Also, join our WhatsApp community:',
     shippingNote: 'We\'ll use this address to ship your Wellinder products.',
     shippingName: 'Full Name',
     shippingAddress: 'Address (including unit number)',
@@ -127,8 +127,8 @@ const T = {
     videoSubmitted: '视频已提交',
     videoSubmitError: '请输入有效的 TikTok 链接。',
     shippingSection: '配送信息与调查',
-    shippingDeadline: '请于 4 月 21 日前填写',
-    shippingDiscord: '同时，请加入我们的 Discord 社群：',
+    shippingDeadline: '请于注册后 2 天内填写',
+    shippingDiscord: '同时，请加入我们的 WhatsApp 社群：',
     shippingNote: '我们将使用此地址为您寄送 Wellinder 产品。',
     shippingName: '姓名',
     shippingAddress: '地址（含门牌号）',
@@ -620,7 +620,7 @@ export default function LoungePage() {
           <SectionHeader>{t.shippingSection}</SectionHeader>
           <div className="bg-wellinder-dark text-white rounded-2xl px-5 py-4 mb-4 space-y-2">
             <p className="text-sm font-semibold">⏰ {t.shippingDeadline}</p>
-            <p className="text-sm text-white/70">{t.shippingDiscord} <a href="https://discord.gg/hHDUf6Uv" target="_blank" rel="noopener noreferrer" className="underline text-white hover:text-white/80">discord.gg/hHDUf6Uv</a></p>
+            <p className="text-sm text-white/70">{t.shippingDiscord} <a href="https://chat.whatsapp.com/FYPZfZJrh7EFOvbv6BMoGp" target="_blank" rel="noopener noreferrer" className="underline text-white hover:text-white/80">Join WhatsApp Group</a></p>
           </div>
           {shippingInfo ? (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
