@@ -620,7 +620,7 @@ export default function LoungePage() {
           <SectionHeader>{t.shippingSection}</SectionHeader>
           <div className="bg-wellinder-dark text-white rounded-2xl px-5 py-4 mb-4 space-y-2">
             <p className="text-sm font-semibold">⏰ {t.shippingDeadline}</p>
-            <p className="text-sm text-white/70">{t.shippingDiscord} <a href="https://chat.whatsapp.com/FYPZfZJrh7EFOvbv6BMoGp" target="_blank" rel="noopener noreferrer" className="underline text-white hover:text-white/80">Join WhatsApp Group</a></p>
+            <p className="text-sm text-white/70">{t.shippingDiscord} <a href="https://chat.whatsapp.com/F1rmPc2wWIvCHDAzKN1h75?mode=gi_t" target="_blank" rel="noopener noreferrer" className="underline text-white hover:text-white/80">Join WhatsApp Group</a></p>
           </div>
           {shippingInfo ? (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
