@@ -60,6 +60,7 @@ export default function AdminPage() {
   const [creators, setCreators] = useState([]);
   const [creatorsLoading, setCreatorsLoading] = useState(false);
   const [expandedCreator, setExpandedCreator] = useState(null);
+  const [resendLoading, setResendLoading] = useState(null);
 
   // Shipping
   const [shippingList, setShippingList] = useState([]);
@@ -186,6 +187,31 @@ export default function AdminPage() {
     setPosts(prev => prev.filter(p => p.id !== postId));
     setDeletingPost(null);
     showToast('Post deleted');
+  };
+
+  const handleResendInvite = async (creator) => {
+    setResendLoading(creator.id);
+    try {
+      const { data: { session: freshSession } } = await supabase.auth.getSession();
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/resend-invite`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${freshSession.access_token}`,
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ application_id: creator.id }),
+        }
+      );
+      if (!res.ok) throw new Error(`${res.status}`);
+      showToast(`Invite resent to ${creator.email}`);
+      fetchCreators();
+    } catch {
+      showToast('Failed to resend. Try again.', 'error');
+    }
+    setResendLoading(null);
   };
 
   const handleAction = async (app, action) => {
@@ -462,14 +488,26 @@ export default function AdminPage() {
                               )}
                             </div>
                           </div>
-                          {c.profile && (
-                            <button
-                              onClick={() => setExpandedCreator(isExpanded ? null : c.id)}
-                              className="flex-shrink-0 p-2 text-wellinder-dark/30 hover:text-wellinder-dark transition-colors"
-                            >
-                              {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                            </button>
-                          )}
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            {!signedUp && (
+                              <button
+                                onClick={() => handleResendInvite(c)}
+                                disabled={resendLoading === c.id}
+                                className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-full text-xs font-medium hover:bg-blue-100 transition-colors disabled:opacity-50"
+                              >
+                                <Mail className="w-3.5 h-3.5" />
+                                {resendLoading === c.id ? 'Sending...' : 'Resend Invite'}
+                              </button>
+                            )}
+                            {c.profile && (
+                              <button
+                                onClick={() => setExpandedCreator(isExpanded ? null : c.id)}
+                                className="p-2 text-wellinder-dark/30 hover:text-wellinder-dark transition-colors"
+                              >
+                                {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </div>
                       {/* Survey accordion */}
