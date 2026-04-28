@@ -99,6 +99,26 @@ const translations = {
     countryFR: '🇫🇷 France — Coming Soon',
     countrySoonNote: '✦ We\'re launching in your region soon. Stay tuned!',
     countryDefaultNote: '* Currently accepting applications from Singapore.',
+    // Application Type
+    appTypeLabel: 'How would you like to join?',
+    appTypeCreatorPool: 'Creator Pool',
+    appTypeCreatorPoolDesc: 'Join our growing creator community.',
+    appTypeChallenge: '8-Week Creator Challenge',
+    appTypeChallengeDesc: 'Applications closed for this season.',
+    // Platform
+    platformLabel: 'Which platform is this?',
+    platformSub: 'Choose your main SNS platform (select all that apply)',
+    // Content Type
+    contentLabel: 'What kind of content do you enjoy creating most?',
+    contentSub: 'Select all that apply',
+    // Rate Card
+    rateCardLabel: 'If you have a rate card, please share it with us',
+    rateCardPH: 'e.g., Nano influencer, $200 per story post...',
+    rateCardOptional: 'Optional',
+    // Other placeholder
+    otherPH: 'Please specify...',
+    // Privacy
+    privacyNote: 'All information provided will be kept confidential and used solely for our internal creator pool.',
     termsText: 'I agree to the',
     termsLink: 'Terms of Service',
     termsAnd: 'and',
@@ -185,6 +205,26 @@ const translations = {
     countryFR: '🇫🇷 法国 — 即将开放',
     countrySoonNote: '✦ 我们即将在您所在地区开放，敬请期待！',
     countryDefaultNote: '* 目前仅接受新加坡地区的申请。',
+    // Application Type
+    appTypeLabel: '您希望以哪种方式加入？',
+    appTypeCreatorPool: '创作者池',
+    appTypeCreatorPoolDesc: '加入我们不断壮大的创作者社群。',
+    appTypeChallenge: '8周创作者挑战赛',
+    appTypeChallengeDesc: '本季申请已截止。',
+    // Platform
+    platformLabel: '您使用哪个平台？',
+    platformSub: '选择您的主要社交媒体平台（可多选）',
+    // Content Type
+    contentLabel: '您最喜欢创作哪类内容？',
+    contentSub: '可多选',
+    // Rate Card
+    rateCardLabel: '如您有报价单，欢迎与我们分享',
+    rateCardPH: '例：纳米达人，每条Stories 200新元...',
+    rateCardOptional: '选填',
+    // Other placeholder
+    otherPH: '请注明...',
+    // Privacy
+    privacyNote: '所提供的所有信息将严格保密，仅用于我们内部创作者筛选目的。',
     termsText: '我同意',
     termsLink: '服务条款',
     termsAnd: '和',
@@ -460,10 +500,33 @@ const ApplicationPage = () => {
     email: '',
     country: '',
     agreed: false,
+    platforms: [],
+    platformOther: '',
+    contentTypes: [],
+    contentTypeOther: '',
+    rateCard: '',
   });
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState(null);
+
+  const togglePlatform = (platform) => {
+    setFormData(prev => ({
+      ...prev,
+      platforms: prev.platforms.includes(platform)
+        ? prev.platforms.filter(p => p !== platform)
+        : [...prev.platforms, platform],
+    }));
+  };
+
+  const toggleContentType = (type) => {
+    setFormData(prev => ({
+      ...prev,
+      contentTypes: prev.contentTypes.includes(type)
+        ? prev.contentTypes.filter(c => c !== type)
+        : [...prev.contentTypes, type],
+    }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -477,6 +540,12 @@ const ApplicationPage = () => {
         instagram_handle: formData.instagram,
         email: formData.email,
         country: formData.country,
+        application_type: 'creator_pool',
+        platforms: formData.platforms,
+        platforms_other: formData.platformOther || null,
+        content_types: formData.contentTypes,
+        content_type_other: formData.contentTypeOther || null,
+        rate_card: formData.rateCard || null,
       },
     });
 
@@ -524,83 +593,198 @@ const ApplicationPage = () => {
             </div>
           </motion.div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-6">
+
+            {/* Application Type Selector */}
             <div>
-              <label className="text-[10px] uppercase tracking-widest font-bold text-wellinder-dark/50 block mb-2">{t('fieldName')}</label>
-              <input
-                type="text"
-                placeholder={t('fieldNamePH')}
-                value={formData.fullName}
-                onChange={e => setFormData({ ...formData, fullName: e.target.value })}
-                className="w-full bg-white border border-wellinder-dark/10 rounded-2xl py-4 px-5 text-wellinder-dark outline-none focus:border-wellinder-dark transition-colors placeholder:text-wellinder-dark/30"
+              <label className="text-[10px] uppercase tracking-widest font-bold text-wellinder-dark/50 block mb-3">{t('appTypeLabel')}</label>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="border-2 border-wellinder-dark rounded-2xl p-4 bg-wellinder-dark text-white">
+                  <p className="font-semibold text-sm">{t('appTypeCreatorPool')}</p>
+                  <p className="text-[11px] opacity-70 mt-1">{t('appTypeCreatorPoolDesc')}</p>
+                </div>
+                <div className="border border-wellinder-dark/15 rounded-2xl p-4 bg-wellinder-dark/5 cursor-not-allowed relative overflow-hidden">
+                  <p className="font-semibold text-sm text-wellinder-dark/35">{t('appTypeChallenge')}</p>
+                  <p className="text-[11px] text-wellinder-dark/30 mt-1">{t('appTypeChallengeDesc')}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Basic Info */}
+            <div className="space-y-4">
+              <div>
+                <label className="text-[10px] uppercase tracking-widest font-bold text-wellinder-dark/50 block mb-2">{t('fieldName')}</label>
+                <input
+                  type="text"
+                  placeholder={t('fieldNamePH')}
+                  value={formData.fullName}
+                  onChange={e => setFormData({ ...formData, fullName: e.target.value })}
+                  className="w-full bg-white border border-wellinder-dark/10 rounded-2xl py-4 px-5 text-wellinder-dark outline-none focus:border-wellinder-dark transition-colors placeholder:text-wellinder-dark/30"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] uppercase tracking-widest font-bold text-wellinder-dark/50 block mb-2">{t('fieldTikTok')}</label>
+                <input
+                  type="text"
+                  placeholder="@username"
+                  value={formData.tiktok}
+                  onChange={e => setFormData({ ...formData, tiktok: e.target.value })}
+                  className="w-full bg-white border border-wellinder-dark/10 rounded-2xl py-4 px-5 text-wellinder-dark outline-none focus:border-wellinder-dark transition-colors placeholder:text-wellinder-dark/30"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] uppercase tracking-widest font-bold text-wellinder-dark/50 block mb-2">{t('fieldIG')}</label>
+                <input
+                  type="text"
+                  placeholder="@username"
+                  value={formData.instagram}
+                  onChange={e => setFormData({ ...formData, instagram: e.target.value })}
+                  className="w-full bg-white border border-wellinder-dark/10 rounded-2xl py-4 px-5 text-wellinder-dark outline-none focus:border-wellinder-dark transition-colors placeholder:text-wellinder-dark/30"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] uppercase tracking-widest font-bold text-wellinder-dark/50 block mb-2">{t('fieldEmail')}</label>
+                <input
+                  type="email"
+                  placeholder="email@example.com"
+                  value={formData.email}
+                  onChange={e => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full bg-white border border-wellinder-dark/10 rounded-2xl py-4 px-5 text-wellinder-dark outline-none focus:border-wellinder-dark transition-colors placeholder:text-wellinder-dark/30"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] uppercase tracking-widest font-bold text-wellinder-dark/50 block mb-2">{t('fieldCountry')}</label>
+                <select
+                  value={formData.country}
+                  onChange={e => setFormData({ ...formData, country: e.target.value })}
+                  className="w-full bg-white border border-wellinder-dark/10 rounded-2xl py-4 px-5 text-wellinder-dark outline-none focus:border-wellinder-dark transition-colors appearance-none"
+                >
+                  <option value="">{t('countrySelect')}</option>
+                  <option value="SG">{t('countrySG')}</option>
+                  <option value="KR" disabled>{t('countryKR')}</option>
+                  <option value="MY" disabled>{t('countryMY')}</option>
+                  <option value="JP" disabled>{t('countryJP')}</option>
+                  <option value="TW" disabled>{t('countryTW')}</option>
+                  <option value="HK" disabled>{t('countryHK')}</option>
+                  <option value="TH" disabled>{t('countryTH')}</option>
+                  <option value="ID" disabled>{t('countryID')}</option>
+                  <option value="PH" disabled>{t('countryPH')}</option>
+                  <option value="VN" disabled>{t('countryVN')}</option>
+                  <option value="AU" disabled>{t('countryAU')}</option>
+                  <option value="US" disabled>{t('countryUS')}</option>
+                  <option value="GB" disabled>{t('countryGB')}</option>
+                  <option value="CA" disabled>{t('countryCA')}</option>
+                  <option value="FR" disabled>{t('countryFR')}</option>
+                </select>
+                {formData.country && formData.country !== 'SG' && (
+                  <p className="text-[11px] text-amber-600 mt-2 px-1 font-medium">{t('countrySoonNote')}</p>
+                )}
+                {!formData.country && (
+                  <p className="text-[11px] text-wellinder-dark/40 mt-2 px-1">{t('countryDefaultNote')}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Platform Selection */}
+            <div className="bg-white border border-wellinder-dark/10 rounded-2xl p-5">
+              <label className="text-[10px] uppercase tracking-widest font-bold text-wellinder-dark/50 block mb-1">{t('platformLabel')}</label>
+              <p className="text-[10px] text-wellinder-dark/40 mb-4">{t('platformSub')}</p>
+              <div className="space-y-3">
+                {['Instagram', 'TikTok', 'YouTube', 'Facebook', 'X (Twitter)'].map(platform => (
+                  <label key={platform} className="flex items-center gap-3 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      checked={formData.platforms.includes(platform)}
+                      onChange={() => togglePlatform(platform)}
+                      className="w-4 h-4 accent-wellinder-dark flex-shrink-0"
+                    />
+                    <span className="text-sm text-wellinder-dark group-hover:text-wellinder-dark/70 transition-colors">{platform}</span>
+                  </label>
+                ))}
+                <label className="flex items-center gap-3 cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    checked={formData.platforms.includes('Other')}
+                    onChange={() => togglePlatform('Other')}
+                    className="w-4 h-4 accent-wellinder-dark flex-shrink-0"
+                  />
+                  <span className="text-sm text-wellinder-dark group-hover:text-wellinder-dark/70 transition-colors">Other</span>
+                </label>
+                {formData.platforms.includes('Other') && (
+                  <input
+                    type="text"
+                    placeholder={t('otherPH')}
+                    value={formData.platformOther}
+                    onChange={e => setFormData({ ...formData, platformOther: e.target.value })}
+                    className="w-full bg-wellinder-cream border border-wellinder-dark/10 rounded-xl py-3 px-4 text-wellinder-dark outline-none focus:border-wellinder-dark transition-colors placeholder:text-wellinder-dark/30 text-sm ml-7"
+                    style={{ width: 'calc(100% - 1.75rem)' }}
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* Content Type */}
+            <div className="bg-white border border-wellinder-dark/10 rounded-2xl p-5">
+              <label className="text-[10px] uppercase tracking-widest font-bold text-wellinder-dark/50 block mb-1">{t('contentLabel')}</label>
+              <p className="text-[10px] text-wellinder-dark/40 mb-4">{t('contentSub')}</p>
+              <div className="space-y-3">
+                {['Beauty', 'Lifestyle', 'Food', 'Parenting'].map(type => (
+                  <label key={type} className="flex items-center gap-3 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      checked={formData.contentTypes.includes(type)}
+                      onChange={() => toggleContentType(type)}
+                      className="w-4 h-4 accent-wellinder-dark flex-shrink-0"
+                    />
+                    <span className="text-sm text-wellinder-dark group-hover:text-wellinder-dark/70 transition-colors">{type}</span>
+                  </label>
+                ))}
+                <label className="flex items-center gap-3 cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    checked={formData.contentTypes.includes('Other')}
+                    onChange={() => toggleContentType('Other')}
+                    className="w-4 h-4 accent-wellinder-dark flex-shrink-0"
+                  />
+                  <span className="text-sm text-wellinder-dark group-hover:text-wellinder-dark/70 transition-colors">Other</span>
+                </label>
+                {formData.contentTypes.includes('Other') && (
+                  <input
+                    type="text"
+                    placeholder={t('otherPH')}
+                    value={formData.contentTypeOther}
+                    onChange={e => setFormData({ ...formData, contentTypeOther: e.target.value })}
+                    className="w-full bg-wellinder-cream border border-wellinder-dark/10 rounded-xl py-3 px-4 text-wellinder-dark outline-none focus:border-wellinder-dark transition-colors placeholder:text-wellinder-dark/30 text-sm ml-7"
+                    style={{ width: 'calc(100% - 1.75rem)' }}
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* Rate Card */}
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <label className="text-[10px] uppercase tracking-widest font-bold text-wellinder-dark/50">{t('rateCardLabel')}</label>
+                <span className="text-[9px] uppercase tracking-widest text-wellinder-dark/30 border border-wellinder-dark/20 rounded-full px-2 py-0.5">{t('rateCardOptional')}</span>
+              </div>
+              <textarea
+                placeholder={t('rateCardPH')}
+                value={formData.rateCard}
+                onChange={e => setFormData({ ...formData, rateCard: e.target.value })}
+                rows={3}
+                className="w-full bg-white border border-wellinder-dark/10 rounded-2xl py-4 px-5 text-wellinder-dark outline-none focus:border-wellinder-dark transition-colors placeholder:text-wellinder-dark/30 text-sm resize-none"
               />
             </div>
-            <div>
-              <label className="text-[10px] uppercase tracking-widest font-bold text-wellinder-dark/50 block mb-2">{t('fieldTikTok')}</label>
-              <input
-                type="text"
-                placeholder="@username"
-                value={formData.tiktok}
-                onChange={e => setFormData({ ...formData, tiktok: e.target.value })}
-                className="w-full bg-white border border-wellinder-dark/10 rounded-2xl py-4 px-5 text-wellinder-dark outline-none focus:border-wellinder-dark transition-colors placeholder:text-wellinder-dark/30"
-              />
+
+            {/* Privacy Notice */}
+            <div className="bg-wellinder-cream rounded-2xl px-5 py-4">
+              <p className="text-[11px] text-wellinder-dark/50 leading-relaxed">
+                🔒 {t('privacyNote')}
+              </p>
             </div>
-            <div>
-              <label className="text-[10px] uppercase tracking-widest font-bold text-wellinder-dark/50 block mb-2">{t('fieldIG')}</label>
-              <input
-                type="text"
-                placeholder="@username"
-                value={formData.instagram}
-                onChange={e => setFormData({ ...formData, instagram: e.target.value })}
-                className="w-full bg-white border border-wellinder-dark/10 rounded-2xl py-4 px-5 text-wellinder-dark outline-none focus:border-wellinder-dark transition-colors placeholder:text-wellinder-dark/30"
-              />
-            </div>
-            <div>
-              <label className="text-[10px] uppercase tracking-widest font-bold text-wellinder-dark/50 block mb-2">{t('fieldEmail')}</label>
-              <input
-                type="email"
-                placeholder="email@example.com"
-                value={formData.email}
-                onChange={e => setFormData({ ...formData, email: e.target.value })}
-                className="w-full bg-white border border-wellinder-dark/10 rounded-2xl py-4 px-5 text-wellinder-dark outline-none focus:border-wellinder-dark transition-colors placeholder:text-wellinder-dark/30"
-              />
-            </div>
-            <div>
-              <label className="text-[10px] uppercase tracking-widest font-bold text-wellinder-dark/50 block mb-2">{t('fieldCountry')}</label>
-              <select
-                value={formData.country}
-                onChange={e => setFormData({ ...formData, country: e.target.value })}
-                className="w-full bg-white border border-wellinder-dark/10 rounded-2xl py-4 px-5 text-wellinder-dark outline-none focus:border-wellinder-dark transition-colors appearance-none"
-              >
-                <option value="">{t('countrySelect')}</option>
-                <option value="SG">{t('countrySG')}</option>
-                <option value="KR" disabled>{t('countryKR')}</option>
-                <option value="MY" disabled>{t('countryMY')}</option>
-                <option value="JP" disabled>{t('countryJP')}</option>
-                <option value="TW" disabled>{t('countryTW')}</option>
-                <option value="HK" disabled>{t('countryHK')}</option>
-                <option value="TH" disabled>{t('countryTH')}</option>
-                <option value="ID" disabled>{t('countryID')}</option>
-                <option value="PH" disabled>{t('countryPH')}</option>
-                <option value="VN" disabled>{t('countryVN')}</option>
-                <option value="AU" disabled>{t('countryAU')}</option>
-                <option value="US" disabled>{t('countryUS')}</option>
-                <option value="GB" disabled>{t('countryGB')}</option>
-                <option value="CA" disabled>{t('countryCA')}</option>
-                <option value="FR" disabled>{t('countryFR')}</option>
-              </select>
-              {formData.country && formData.country !== 'SG' && (
-                <p className="text-[11px] text-amber-600 mt-2 px-1 font-medium">
-                  {t('countrySoonNote')}
-                </p>
-              )}
-              {!formData.country && (
-                <p className="text-[11px] text-wellinder-dark/40 mt-2 px-1">
-                  {t('countryDefaultNote')}
-                </p>
-              )}
-            </div>
-            <div className="flex items-start gap-3 pt-2">
+
+            {/* Terms */}
+            <div className="flex items-start gap-3">
               <input
                 type="checkbox"
                 id="terms"
@@ -612,13 +796,14 @@ const ApplicationPage = () => {
                 {t('termsText')} <Link to="/terms" target="_blank" className="underline hover:text-wellinder-dark transition-colors">{t('termsLink')}</Link> {t('termsAnd')} <Link to="/privacy" target="_blank" className="underline hover:text-wellinder-dark transition-colors">{t('privacyLink')}</Link>.
               </label>
             </div>
+
             {error && <p className="text-red-500 text-sm text-center">{error}</p>}
             <button
               type="submit"
-              disabled={!formData.agreed || submitting || formData.country !== 'SG' || !formData.fullName.trim() || !formData.tiktok.trim() || !formData.instagram.trim() || !formData.email.trim()}
+              disabled={!formData.agreed || submitting || formData.country !== 'SG' || !formData.fullName.trim() || !formData.instagram.trim() || !formData.email.trim() || formData.platforms.length === 0}
               className={cn(
-                "w-full py-4 rounded-full font-sans font-semibold tracking-wide transition-all mt-4",
-                formData.agreed && !submitting && formData.country === 'SG' && formData.fullName.trim() && formData.tiktok.trim() && formData.instagram.trim() && formData.email.trim()
+                "w-full py-4 rounded-full font-sans font-semibold tracking-wide transition-all",
+                formData.agreed && !submitting && formData.country === 'SG' && formData.fullName.trim() && formData.instagram.trim() && formData.email.trim() && formData.platforms.length > 0
                   ? "bg-wellinder-dark text-white shadow-lg hover:bg-wellinder-dark/90"
                   : "bg-wellinder-dark/20 text-wellinder-dark/40 cursor-not-allowed"
               )}

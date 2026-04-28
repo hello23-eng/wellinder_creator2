@@ -40,7 +40,11 @@ serve(async (req) => {
   }
 
   const body = await req.json();
-  const { full_name, tiktok_handle, instagram_handle, email, country } = body;
+  const {
+    full_name, tiktok_handle, instagram_handle, email, country,
+    application_type, platforms, platforms_other,
+    content_types, content_type_other, rate_card,
+  } = body;
 
   // 신청서 저장
   const { error: insertError } = await supabase.from('applications').insert([{
@@ -50,6 +54,12 @@ serve(async (req) => {
     email,
     country,
     status: 'pending',
+    application_type: application_type || 'creator_pool',
+    platforms: platforms || [],
+    platforms_other: platforms_other || null,
+    content_types: content_types || [],
+    content_type_other: content_type_other || null,
+    rate_card: rate_card || null,
   }]);
 
   if (insertError) {
