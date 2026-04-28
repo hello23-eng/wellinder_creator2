@@ -9,17 +9,6 @@ const TOTAL_WEEKS = 8;
 const REQUIRED_UPLOADS_TOTAL = 5;
 const REQUIRED_SESSIONS_TOTAL = 3;
 
-// ─── TikTok mock data (나중에 DB로 교체) ────────────────────────────────────
-const MOCK_TIKTOK_UPLOADS = [
-  { id: 1, handle: '@creator.sg', video_url: 'https://www.tiktok.com', thumbnail: null, views: 52000, likes: 3200, saves: 180, uploaded_at: '2026-04-14', week: 2 },
-  { id: 2, handle: '@beauty.daily', video_url: 'https://www.tiktok.com', thumbnail: null, views: 38500, likes: 2100, saves: 95, uploaded_at: '2026-04-13', week: 2 },
-  { id: 3, handle: '@glow.sg', video_url: 'https://www.tiktok.com', thumbnail: null, views: 27000, likes: 1750, saves: 67, uploaded_at: '2026-04-12', week: 1 },
-  { id: 4, handle: '@skincare.routine', video_url: 'https://www.tiktok.com', thumbnail: null, views: 15200, likes: 890, saves: 42, uploaded_at: '2026-04-11', week: 1 },
-  { id: 5, handle: '@creator.sg', video_url: 'https://www.tiktok.com', thumbnail: null, views: 12300, likes: 780, saves: 35, uploaded_at: '2026-04-10', week: 1 },
-  { id: 6, handle: '@glow.sg', video_url: 'https://www.tiktok.com', thumbnail: null, views: 9800, likes: 560, saves: 23, uploaded_at: '2026-04-09', week: 1 },
-  { id: 7, handle: '@beauty.daily', video_url: 'https://www.tiktok.com', thumbnail: null, views: 7300, likes: 420, saves: 18, uploaded_at: '2026-04-08', week: 1 },
-  { id: 8, handle: '@wellinder.picks', video_url: 'https://www.tiktok.com', thumbnail: null, views: 5100, likes: 280, saves: 9, uploaded_at: '2026-04-07', week: 1 },
-];
 
 function formatCount(n) {
   if (n >= 1000000) return (n / 1000000).toFixed(1).replace('.0', '') + 'M';
@@ -184,6 +173,95 @@ function getCurrentWeekNum() {
   const start = new Date(CHALLENGE_START);
   const now = new Date();
   return Math.min(Math.max(Math.ceil((now - start) / (7 * 24 * 60 * 60 * 1000)), 1), TOTAL_WEEKS);
+}
+
+// ─── Growth Dashboard ────────────────────────────────────────────────────────
+function GrowthDashboardSection({ videos, handle }) {
+  const myVideos = videos
+    .filter(v => v.handle === handle)
+    .sort((a, b) => new Date(a.uploaded_at) - new Date(b.uploaded_at));
+
+  const total = myVideos.length;
+  const totalViews = myVideos.reduce((s, v) => s + v.views, 0);
+  const avgLikes = total > 0 ? Math.round(myVideos.reduce((s, v) => s + v.likes, 0) / total) : 0;
+  const totalSaves = myVideos.reduce((s, v) => s + v.saves, 0);
+  const saveRate = totalViews > 0 ? ((totalSaves / totalViews) * 100).toFixed(1) : '0.0';
+
+  const first3 = myVideos.slice(0, 3);
+  const last3 = myVideos.slice(-3);
+  const first3Avg = first3.length > 0 ? Math.round(first3.reduce((s, v) => s + v.views, 0) / first3.length) : 0;
+  const last3Avg = last3.length > 0 ? Math.round(last3.reduce((s, v) => s + v.views, 0) / last3.length) : 0;
+  const growth = first3Avg > 0 ? (last3Avg / first3Avg).toFixed(1) : null;
+
+  return (
+    <section className="mb-8">
+      <p className="text-[10px] uppercase tracking-[0.25em] font-semibold text-wellinder-dark/40 mb-4">My Growth Dashboard 📈</p>
+
+      {total === 0 ? (
+        <div className="bg-white rounded-2xl p-8 text-center border border-wellinder-dark/5">
+          <p className="text-wellinder-dark/30 text-sm italic">TikTok 데이터 동기화 중입니다. 잠시 후 확인해주세요.</p>
+        </div>
+      ) : (
+        <>
+          {/* 핵심 지표 */}
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            {[
+              { label: '총 업로드', value: total, unit: '개' },
+              { label: '누적 조회수', value: formatCount(totalViews), unit: '' },
+              { label: '평균 좋아요', value: formatCount(avgLikes), unit: '' },
+              { label: '저장율', value: saveRate, unit: '%' },
+            ].map(({ label, value, unit }) => (
+              <div key={label} className="bg-white rounded-2xl p-4 border border-wellinder-dark/8 shadow-sm">
+                <p className="text-[9px] text-wellinder-dark/40 uppercase tracking-widest mb-1">{label}</p>
+                <p className="text-2xl font-semibold text-wellinder-dark">{value}<span className="text-sm font-normal text-wellinder-dark/40 ml-0.5">{unit}</span></p>
+              </div>
+            ))}
+          </div>
+
+          {/* 초기 3영상 vs 최근 3영상 */}
+          {myVideos.length >= 3 && (
+            <div className="bg-white rounded-2xl border border-wellinder-dark/8 shadow-sm overflow-hidden">
+              <div className="grid grid-cols-2 divide-x divide-wellinder-dark/5">
+                <div className="p-4">
+                  <p className="text-[9px] text-wellinder-dark/40 uppercase tracking-widest mb-3">초기 3영상</p>
+                  {first3.map((v, i) => (
+                    <div key={i} className="flex items-center justify-between mb-2">
+                      <p className="text-[11px] text-wellinder-dark/40 truncate flex-1">{v.uploaded_at}</p>
+                      <p className="text-[11px] font-semibold text-wellinder-dark ml-2">{formatCount(v.views)}</p>
+                    </div>
+                  ))}
+                  <div className="mt-3 pt-3 border-t border-wellinder-dark/5">
+                    <p className="text-[9px] text-wellinder-dark/40">평균 조회수</p>
+                    <p className="text-lg font-semibold text-wellinder-dark">{formatCount(first3Avg)}</p>
+                  </div>
+                </div>
+                <div className="p-4">
+                  <p className="text-[9px] text-wellinder-dark/40 uppercase tracking-widest mb-3">최근 3영상</p>
+                  {last3.map((v, i) => (
+                    <div key={i} className="flex items-center justify-between mb-2">
+                      <p className="text-[11px] text-wellinder-dark/40 truncate flex-1">{v.uploaded_at}</p>
+                      <p className="text-[11px] font-semibold text-rose-500 ml-2">{formatCount(v.views)}</p>
+                    </div>
+                  ))}
+                  <div className="mt-3 pt-3 border-t border-wellinder-dark/5">
+                    <p className="text-[9px] text-wellinder-dark/40">평균 조회수</p>
+                    <p className="text-lg font-semibold text-rose-500">{formatCount(last3Avg)}</p>
+                  </div>
+                </div>
+              </div>
+              {growth && (
+                <div className="px-4 py-3 bg-wellinder-cream/50 text-center border-t border-wellinder-dark/5">
+                  <p className="text-sm text-wellinder-dark/60">
+                    성장률 <span className="font-bold text-wellinder-dark">{growth}배</span>{Number(growth) >= 2 ? ' 🚀' : Number(growth) >= 1 ? ' 📈' : ' 📊'}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+        </>
+      )}
+    </section>
+  );
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -376,6 +454,9 @@ export default function LoungePage() {
   const [posts, setPosts] = useState([]);
   const [participated, setParticipated] = useState([]);
 
+  const [tiktokVideos, setTiktokVideos] = useState([]);
+  const [creatorHandle, setCreatorHandle] = useState('');
+
   const [videoSubmissions, setVideoSubmissions] = useState({});
   const [videoInputs, setVideoInputs] = useState({});
   const [submittingVideo, setSubmittingVideo] = useState(null);
@@ -425,11 +506,13 @@ export default function LoungePage() {
   };
 
   const fetchData = async () => {
-    const [postsRes, partRes, shipRes, vsRes] = await Promise.all([
+    const [postsRes, partRes, shipRes, vsRes, tiktokRes, appRes] = await Promise.all([
       supabase.from('lounge_posts').select('*').order('created_at', { ascending: false }),
       supabase.from('mission_participations').select('post_id').eq('user_id', session.user.id),
       supabase.from('shipping_info').select('*').eq('user_id', session.user.id).maybeSingle(),
       supabase.from('video_submissions').select('post_id, video_url, submitted_at').eq('user_id', session.user.id),
+      supabase.from('tiktok_videos').select('*').order('posted_at', { ascending: false }),
+      supabase.from('applications').select('tiktok_handle').eq('email', session.user.email).limit(1),
     ]);
     setPosts(postsRes.data || []);
     setParticipated((partRes.data || []).map(d => d.post_id));
@@ -437,6 +520,21 @@ export default function LoungePage() {
     const vsMap = {};
     (vsRes.data || []).forEach(s => { vsMap[s.post_id] = s; });
     setVideoSubmissions(vsMap);
+
+    const videos = (tiktokRes.data || []).map(v => ({
+      id: v.id,
+      handle: '@' + v.creator_handle,
+      video_url: v.video_url,
+      thumbnail: null,
+      views: v.views,
+      likes: v.likes,
+      saves: v.saves,
+      uploaded_at: v.posted_at ? v.posted_at.split('T')[0] : '',
+    }));
+    setTiktokVideos(videos);
+
+    const rawHandle = appRes.data?.[0]?.tiktok_handle || '';
+    setCreatorHandle(rawHandle ? ('@' + rawHandle.replace('@', '').toLowerCase()) : '');
   };
 
   const handleVideoSubmit = async (postId) => {
@@ -703,14 +801,17 @@ export default function LoungePage() {
           </div>
         </section>
 
+        {/* My Growth Dashboard */}
+        <GrowthDashboardSection videos={tiktokVideos} handle={creatorHandle} />
+
         {/* TikTok Viral King */}
-        <ViralKingSection uploads={MOCK_TIKTOK_UPLOADS} />
+        {tiktokVideos.length > 0 && <ViralKingSection uploads={tiktokVideos} />}
 
         {/* Leaderboard */}
-        <LeaderboardSection uploads={MOCK_TIKTOK_UPLOADS} />
+        {tiktokVideos.length > 0 && <LeaderboardSection uploads={tiktokVideos} />}
 
         {/* Upload Tracker */}
-        <UploadTrackerSection uploads={MOCK_TIKTOK_UPLOADS} />
+        {tiktokVideos.length > 0 && <UploadTrackerSection uploads={tiktokVideos} />}
 
         {/* Required Missions */}
         <section className="mb-8">
