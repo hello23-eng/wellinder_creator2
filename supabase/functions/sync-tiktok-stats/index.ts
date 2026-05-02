@@ -18,26 +18,19 @@ serve(async (req) => {
   try {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    // 승인된 크리에이터들의 TikTok 핸들 가져오기
-    const { data: applications, error: appError } = await supabase
-      .from('applications')
-      .select('tiktok_handle, full_name')
-      .not('tiktok_handle', 'is', null)
-      .neq('tiktok_handle', '');
+    // tracked_creators 테이블에서 핸들 가져오기
+    const { data: creators, error: creatorsError } = await supabase
+      .from('tracked_creators')
+      .select('handle');
 
-    if (appError) throw new Error('Failed to fetch applications: ' + appError.message);
-    if (!applications || applications.length === 0) {
-      return new Response(JSON.stringify({ message: 'No TikTok handles found' }), {
+    if (creatorsError) throw new Error('Failed to fetch tracked_creators: ' + creatorsError.message);
+    if (!creators || creators.length === 0) {
+      return new Response(JSON.stringify({ message: 'No tracked creators found' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // 핸들 정리 (@ 제거, 중복 제거)
-    const handles = [...new Set(
-      applications
-        .map(a => a.tiktok_handle?.replace('@', '').trim().toLowerCase())
-        .filter(Boolean)
-    )];
+    const handles = creators.map((c: { handle: string }) => c.handle.toLowerCase());
 
     // Apify TikTok Scraper 실행
     const runRes = await fetch(
@@ -46,7 +39,7 @@ serve(async (req) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          profiles: handles.map(h => `https://www.tiktok.com/@${h}`),
+          profiles: handles.map((h: string) => `https://www.tiktok.com/@${h}`),
           resultsPerPage: 50,
           proxyConfiguration: { useApifyProxy: true },
         }),
