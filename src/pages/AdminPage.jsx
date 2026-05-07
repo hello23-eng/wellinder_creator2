@@ -83,24 +83,38 @@ export default function AdminPage() {
   }, []);
 
   useEffect(() => {
-    if (session?.user?.email === ADMIN_EMAIL) {
-      fetchApplications();
-      fetchPosts();
-      fetchVideoSubmissions();
-      fetchCreators();
-      fetchShipping();
-    }
+    if (session?.user?.email !== ADMIN_EMAIL) return;
+
+    fetchApplications();
+    fetchPosts();
+    fetchVideoSubmissions();
+    fetchCreators();
+    fetchShipping();
+
+    const channel = supabase
+      .channel('admin-applications')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'applications' }, () => {
+        fetchApplications();
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
   }, [session]);
 
   const fetchApplications = async () => {
     setDataLoading(true);
-    const { data, error } = await supabase
-      .from('applications')
-      .select('*')
-      .order('created_at', { ascending: false });
-    console.log('fetch result:', { data, error });
-    if (data) data.forEach(a => console.log('application:', a.id, '| status:', a.status, '| name:', a.full_name));
-    setApplications(data || []);
+    const { data: { session: s } } = await supabase.auth.getSession();
+    const res = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-applications`,
+      {
+        headers: {
+          'Authorization': `Bearer ${s.access_token}`,
+          'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+        },
+      }
+    );
+    const json = await res.json();
+    setApplications(json.data || []);
     setDataLoading(false);
   };
 
