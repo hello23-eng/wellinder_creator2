@@ -144,7 +144,8 @@ const translations = {
     nlPillar4Title: 'Wellness',
     nlPillar4Desc: 'Sleep, hormones, stress & longevity — the full-body picture behind radiant skin.',
     nlFormTitle: 'Join the letter.',
-    nlFormSub: 'No spam. Just beauty wisdom worth reading.',
+    nlFormSub: 'No spam. Just glow tips worth reading.',
+    nlConsent: 'I agree to receive the Wellinder newsletter and consent to my personal data being used for this purpose. Unsubscribe anytime.',
     nlNamePH: 'Your name',
     nlEmailPH: 'Your email address',
     nlSubmitBtn: 'Subscribe',
@@ -273,7 +274,8 @@ const translations = {
     nlPillar4Title: '全方位健康',
     nlPillar4Desc: '睡眠、激素、压力与抗衰老 — 光彩肌肤背后的全身健康图景。',
     nlFormTitle: '订阅电子报',
-    nlFormSub: '无垃圾邮件，只有值得阅读的美容智慧。',
+    nlFormSub: '无垃圾邮件，只有值得一读的美肌小贴士。',
+    nlConsent: '我同意接收 Wellinder 电子报，并同意我的个人信息用于此目的。可随时取消订阅。',
     nlNamePH: '您的姓名',
     nlEmailPH: '您的电子邮件地址',
     nlSubmitBtn: '立即订阅',
@@ -1015,6 +1017,7 @@ const NewsletterPage = () => {
   const { t } = useLang();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [consented, setConsented] = useState(false);
   const [status, setStatus] = useState('idle'); // idle | submitting | success | error | duplicate
 
   const pillars = [
@@ -1101,6 +1104,21 @@ const NewsletterPage = () => {
               onChange={(e) => setEmail(e.target.value)}
               className="w-full border border-wellinder-dark/15 bg-white px-4 py-3.5 text-sm text-wellinder-dark placeholder-wellinder-dark/30 focus:outline-none focus:border-wellinder-dark/40 transition-colors"
             />
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                required
+                checked={consented}
+                onChange={(e) => setConsented(e.target.checked)}
+                className="mt-0.5 w-4 h-4 accent-wellinder-dark flex-shrink-0"
+              />
+              <span className="text-xs text-wellinder-dark/50 leading-relaxed">
+                {t('nlConsent')}{' '}
+                <Link to="/privacy" className="underline hover:text-wellinder-dark transition-colors">
+                  Privacy Policy
+                </Link>
+              </span>
+            </label>
             {(status === 'error' || status === 'duplicate') && (
               <p className="text-red-500 text-xs text-center">
                 {status === 'duplicate' ? t('nlAlreadyMsg') : t('nlErrorMsg')}
@@ -1108,7 +1126,7 @@ const NewsletterPage = () => {
             )}
             <button
               type="submit"
-              disabled={status === 'submitting'}
+              disabled={status === 'submitting' || !consented}
               className="w-full bg-wellinder-dark text-wellinder-cream py-3.5 text-sm tracking-[0.15em] uppercase font-medium hover:bg-wellinder-dark/85 transition-colors disabled:opacity-50"
             >
               {status === 'submitting' ? t('nlSubmittingBtn') : t('nlSubmitBtn')}
