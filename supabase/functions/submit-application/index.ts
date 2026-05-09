@@ -47,7 +47,7 @@ serve(async (req) => {
   } = body;
 
   // 신청서 저장
-  const { error: insertError } = await supabase.from('applications').insert([{
+  const { error: insertError } = await supabase.from('creator_pool_applications').insert([{
     full_name,
     tiktok_handle,
     instagram_handle,

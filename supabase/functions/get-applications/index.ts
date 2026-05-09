@@ -33,7 +33,7 @@ serve(async (req) => {
   }
 
   const { data, error } = await adminClient
-    .from('applications')
+    .from('creator_pool_applications')
     .select('*')
     .order('created_at', { ascending: false });
 

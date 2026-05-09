@@ -93,7 +93,7 @@ export default function AdminPage() {
 
     const channel = supabase
       .channel('admin-applications')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'applications' }, () => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'creator_pool_applications' }, () => {
         fetchApplications();
       })
       .subscribe();
@@ -134,7 +134,7 @@ export default function AdminPage() {
   const fetchCreators = async () => {
     setCreatorsLoading(true);
     const [appsRes, invitesRes, profilesRes] = await Promise.all([
-      supabase.from('applications').select('*').eq('status', 'approved').order('created_at', { ascending: false }),
+      supabase.from('creator_pool_applications').select('*').eq('status', 'approved').order('created_at', { ascending: false }),
       supabase.from('invites').select('email, consented_at, used_at'),
       supabase.from('creator_profiles').select('*'),
     ]);

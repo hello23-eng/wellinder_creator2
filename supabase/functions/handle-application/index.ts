@@ -39,7 +39,7 @@ serve(async (req) => {
 
     // 신청서 정보 가져오기
     const { data: app, error: fetchError } = await supabase
-      .from('applications')
+      .from('creator_pool_applications')
       .select('*')
       .eq('id', application_id)
       .single();
@@ -53,7 +53,7 @@ serve(async (req) => {
 
     // status 업데이트
     await supabase
-      .from('applications')
+      .from('creator_pool_applications')
       .update({ status: action })
       .eq('id', application_id);
 
