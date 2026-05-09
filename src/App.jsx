@@ -382,11 +382,11 @@ const ApplyPage = () => {
     <div className="min-h-screen pb-32">
 
       {/* Hero Section */}
-      <section className="w-full bg-wellinder-cream pt-[72px] flex justify-center">
+      <section className="w-full bg-wellinder-cream pt-[72px]">
         <img
           src={heroImg}
           alt="Wellinder - Korean Inner Beauty Collagen"
-          className="w-full max-w-lg object-contain"
+          className="w-full block"
         />
       </section>
 
