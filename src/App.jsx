@@ -130,6 +130,29 @@ const translations = {
     successTitle: 'Application Received',
     successP1: 'Your application has been received.',
     successP2: 'We\'ll review it and get back to you by email.\nThank you for applying.',
+    // Newsletter
+    navNewsletter: 'Newsletter',
+    nlLabel: 'THE WELLINDER LETTER',
+    nlHeadline: 'Glow from within.',
+    nlSub: 'Weekly insights on K-beauty, inner beauty & wellness — for those who take their rituals seriously.',
+    nlPillar1Title: 'K-Beauty Intelligence',
+    nlPillar1Desc: 'The latest K-beauty ingredients, trends, and brand discoveries — curated weekly.',
+    nlPillar2Title: 'Inner Beauty',
+    nlPillar2Desc: 'Collagen, adaptogens, and rituals that nourish you from the inside out.',
+    nlPillar3Title: 'Skin & Body',
+    nlPillar3Desc: 'Diet, movement, and body care from a skin-first perspective. Looking good starts with feeling good.',
+    nlPillar4Title: 'Wellness',
+    nlPillar4Desc: 'Sleep, hormones, stress & longevity — the full-body picture behind radiant skin.',
+    nlFormTitle: 'Join the letter.',
+    nlFormSub: 'No spam. Just beauty wisdom worth reading.',
+    nlNamePH: 'Your name',
+    nlEmailPH: 'Your email address',
+    nlSubmitBtn: 'Subscribe',
+    nlSubmittingBtn: 'Subscribing...',
+    nlSuccessTitle: 'You\'re in.',
+    nlSuccessMsg: 'Thank you for subscribing. You\'ll hear from us soon.',
+    nlErrorMsg: 'Something went wrong. Please try again.',
+    nlAlreadyMsg: 'This email is already subscribed.',
   },
   zh: {
     // Header
@@ -236,6 +259,29 @@ const translations = {
     successTitle: '申请已收到',
     successP1: '您的申请已成功提交。',
     successP2: '我们将审核您的申请，并通过电子邮件与您联系。\n感谢您的申请。',
+    // Newsletter
+    navNewsletter: '电子报',
+    nlLabel: 'WELLINDER 电子报',
+    nlHeadline: '由内而外，焕发光彩。',
+    nlSub: '每周精选 K-美容、内在美与健康生活洞察 — 献给认真对待自己仪式感的你。',
+    nlPillar1Title: 'K美容情报',
+    nlPillar1Desc: '最新 K-美容成分、趋势与品牌动态，每周精选呈现。',
+    nlPillar2Title: '内在美',
+    nlPillar2Desc: '胶原蛋白、适应原与由内而外滋养肌肤的日常仪式。',
+    nlPillar3Title: '肌肤与体态管理',
+    nlPillar3Desc: '从护肤视角出发，探讨饮食、运动与身体管理。好看从感觉好开始。',
+    nlPillar4Title: '全方位健康',
+    nlPillar4Desc: '睡眠、激素、压力与抗衰老 — 光彩肌肤背后的全身健康图景。',
+    nlFormTitle: '订阅电子报',
+    nlFormSub: '无垃圾邮件，只有值得阅读的美容智慧。',
+    nlNamePH: '您的姓名',
+    nlEmailPH: '您的电子邮件地址',
+    nlSubmitBtn: '立即订阅',
+    nlSubmittingBtn: '订阅中...',
+    nlSuccessTitle: '订阅成功！',
+    nlSuccessMsg: '感谢订阅，下期电子报将发送至您的邮箱。',
+    nlErrorMsg: '出现错误，请重试。',
+    nlAlreadyMsg: '此邮箱已订阅。',
   },
 };
 
@@ -320,6 +366,11 @@ const Header = () => {
                 onClick={() => setIsOpen(false)}
                 className="text-xl font-serif hover:text-wellinder-gold transition-colors"
               >{t('navApply')}</Link>
+              <Link
+                to="/newsletter"
+                onClick={() => setIsOpen(false)}
+                className="text-xl font-serif hover:text-wellinder-gold transition-colors"
+              >{t('navNewsletter')}</Link>
               <Link
                 to="/lounge"
                 onClick={() => setIsOpen(false)}
@@ -959,6 +1010,116 @@ const PortalPage = () => {
   );
 };
 
+// --- Newsletter Page ---
+const NewsletterPage = () => {
+  const { t } = useLang();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState('idle'); // idle | submitting | success | error | duplicate
+
+  const pillars = [
+    { title: t('nlPillar1Title'), desc: t('nlPillar1Desc') },
+    { title: t('nlPillar2Title'), desc: t('nlPillar2Desc') },
+    { title: t('nlPillar3Title'), desc: t('nlPillar3Desc') },
+    { title: t('nlPillar4Title'), desc: t('nlPillar4Desc') },
+  ];
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setStatus('submitting');
+    const { error } = await supabase
+      .from('newsletter_subscribers')
+      .insert({ name: name.trim(), email: email.trim().toLowerCase() });
+    if (!error) {
+      setStatus('success');
+    } else if (error.code === '23505') {
+      setStatus('duplicate');
+    } else {
+      setStatus('error');
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-wellinder-cream pb-32 pt-[72px]">
+      {/* Hero */}
+      <section className="py-20 px-6 text-center max-w-2xl mx-auto">
+        <span className="text-[10px] uppercase tracking-[0.35em] text-wellinder-dark/40 font-semibold block mb-6">
+          {t('nlLabel')}
+        </span>
+        <h1 className="text-4xl md:text-5xl font-serif italic text-wellinder-dark mb-6 leading-tight">
+          {t('nlHeadline')}
+        </h1>
+        <p className="text-wellinder-dark/60 text-base leading-relaxed max-w-lg mx-auto">
+          {t('nlSub')}
+        </p>
+      </section>
+
+      {/* Pillars */}
+      <section className="px-6 max-w-2xl mx-auto mb-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {pillars.map((p) => (
+            <div key={p.title} className="border border-wellinder-dark/10 p-6 bg-white/50">
+              <span className="text-[9px] uppercase tracking-[0.3em] text-wellinder-dark/30 font-bold block mb-3">✦</span>
+              <h3 className="font-serif text-wellinder-dark text-lg mb-2">{p.title}</h3>
+              <p className="text-wellinder-dark/55 text-sm leading-relaxed">{p.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Form */}
+      <section className="px-6 max-w-md mx-auto">
+        <div className="text-center mb-8">
+          <h2 className="font-serif text-2xl text-wellinder-dark mb-2">{t('nlFormTitle')}</h2>
+          <p className="text-wellinder-dark/45 text-sm">{t('nlFormSub')}</p>
+        </div>
+
+        {status === 'success' ? (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center py-12"
+          >
+            <p className="text-2xl font-serif text-wellinder-dark mb-3">{t('nlSuccessTitle')}</p>
+            <p className="text-wellinder-dark/55 text-sm">{t('nlSuccessMsg')}</p>
+          </motion.div>
+        ) : (
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <input
+              type="text"
+              required
+              placeholder={t('nlNamePH')}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full border border-wellinder-dark/15 bg-white px-4 py-3.5 text-sm text-wellinder-dark placeholder-wellinder-dark/30 focus:outline-none focus:border-wellinder-dark/40 transition-colors"
+            />
+            <input
+              type="email"
+              required
+              placeholder={t('nlEmailPH')}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full border border-wellinder-dark/15 bg-white px-4 py-3.5 text-sm text-wellinder-dark placeholder-wellinder-dark/30 focus:outline-none focus:border-wellinder-dark/40 transition-colors"
+            />
+            {(status === 'error' || status === 'duplicate') && (
+              <p className="text-red-500 text-xs text-center">
+                {status === 'duplicate' ? t('nlAlreadyMsg') : t('nlErrorMsg')}
+              </p>
+            )}
+            <button
+              type="submit"
+              disabled={status === 'submitting'}
+              className="w-full bg-wellinder-dark text-wellinder-cream py-3.5 text-sm tracking-[0.15em] uppercase font-medium hover:bg-wellinder-dark/85 transition-colors disabled:opacity-50"
+            >
+              {status === 'submitting' ? t('nlSubmittingBtn') : t('nlSubmitBtn')}
+            </button>
+          </form>
+        )}
+      </section>
+    </div>
+  );
+};
+
 // --- Auth Redirect Handler ---
 const ADMIN_EMAIL = 'hello@wellinder.co.kr';
 
@@ -1004,6 +1165,7 @@ export default function App() {
               <Route path="/terms" element={<TermsPage />} />
               <Route path="/privacy" element={<PrivacyPage />} />
               <Route path="/about" element={<AboutPage />} />
+              <Route path="/newsletter" element={<NewsletterPage />} />
             </Routes>
           </main>
           <FooterCTA />
