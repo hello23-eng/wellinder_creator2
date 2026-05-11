@@ -1,114 +1,128 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-const RAPIDAPI_KEY = Deno.env.get('RAPIDAPI_KEY')!;
+const APIFY_TOKEN = Deno.env.get('APIFY_TOKEN')!;
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const ACTOR_ID = 'clockworks~tiktok-scraper';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// 핸들로 최근 영상 목록 가져오기 (1 API call per creator)
-async function fetchUserVideos(handle: string) {
-  const username = handle.replace('@', '');
-  const url = `https://tiktok-scraper2.p.rapidapi.com/user/posts?username=${encodeURIComponent(username)}&count=20&cursor=0`;
-
-  console.log(`[${handle}] fetching: ${url}, key set: ${!!RAPIDAPI_KEY}`);
-
-  const res = await fetch(url, {
-    method: 'GET',
-    headers: {
-      'x-rapidapi-host': 'tiktok-scraper2.p.rapidapi.com',
-      'x-rapidapi-key': RAPIDAPI_KEY,
-    },
-  });
-
-  const body = await res.text();
-  console.log(`[${handle}] status: ${res.status}, body: ${body.slice(0, 300)}`);
-  if (!res.ok) throw new Error(`RapidAPI error ${res.status}: ${body.slice(0, 200)}`);
-  return JSON.parse(body);
-}
-
-function parseVideoList(json: any, fallbackHandle: string): any[] {
-  // 다양한 응답 구조 대응
-  const data = json?.data ?? {};
-  const list: any[] = data.aweme_list ?? data.videos ?? data.itemList ?? [];
-  return list;
-}
-
-function mapVideo(v: any, fallbackHandle: string) {
-  const stats = v.statistics ?? v.stats ?? {};
-  const author = v.author ?? {};
-  const createTime = v.create_time ?? v.createTime;
-
-  return {
-    video_id: String(v.aweme_id ?? v.id ?? ''),
-    video_url: v.video?.play_addr?.url_list?.[0]
-      ?? `https://www.tiktok.com/@${fallbackHandle}/video/${v.aweme_id ?? v.id}`,
-    creator_handle: (author.unique_id ?? author.uniqueId ?? fallbackHandle).toLowerCase().replace('@', ''),
-    views: stats.play_count ?? stats.playCount ?? 0,
-    likes: stats.digg_count ?? stats.diggCount ?? 0,
-    saves: stats.collect_count ?? stats.collectCount ?? 0,
-    comments: stats.comment_count ?? stats.commentCount ?? 0,
-    shares: stats.share_count ?? stats.shareCount ?? 0,
-    posted_at: createTime ? new Date(createTime * 1000).toISOString() : null,
-    scraped_at: new Date().toISOString(),
-  };
-}
-
 serve(async (req: Request) => {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
-  }
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
   try {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    // tracked_creators에서 핸들 목록 가져오기
-    const { data: creators, error: creatorsError } = await supabase
+    const { data: creators, error } = await supabase
       .from('tracked_creators')
       .select('handle');
-
-    if (creatorsError) throw new Error('tracked_creators 조회 실패: ' + creatorsError.message);
-    if (!creators || creators.length === 0) {
-      return new Response(JSON.stringify({ message: 'No tracked creators' }), {
+    if (error) throw error;
+    if (!creators?.length) {
+      return new Response(JSON.stringify({ message: 'No creators' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    let totalUpserted = 0;
+    const profiles = creators.map(c =>
+      `https://www.tiktok.com/@${c.handle.replace('@', '').toLowerCase()}`
+    );
+
+    // 3일 전 날짜 계산
+    const threeDaysAgo = new Date();
+    threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+    const oldestDate = threeDaysAgo.toISOString().split('T')[0]; // YYYY-MM-DD
+
+    // Start Apify run — waitForFinish=120s
+    const runRes = await fetch(
+      `https://api.apify.com/v2/acts/${ACTOR_ID}/runs?token=${APIFY_TOKEN}&waitForFinish=120`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          profiles,
+          resultsPerPage: 10,
+          oldestPostDate: oldestDate,
+          shouldDownloadVideos: false,
+          shouldDownloadCovers: false,
+          shouldDownloadAvatars: false,
+          shouldDownloadMusicCovers: false,
+          shouldDownloadSlideshowImages: false,
+          commentsPerPost: 0,
+          maxFollowersPerProfile: 0,
+          maxFollowingPerProfile: 0,
+          maxRepliesPerComment: 0,
+          scrapeRelatedVideos: false,
+          excludePinnedPosts: false,
+        }),
+      }
+    );
+
+    if (!runRes.ok) {
+      const err = await runRes.text();
+      throw new Error(`Apify error: ${err.slice(0, 300)}`);
+    }
+
+    const run = await runRes.json();
+    const runStatus = run?.data?.status;
+    const datasetId = run?.data?.defaultDatasetId;
+
+    if (runStatus !== 'SUCCEEDED') {
+      return new Response(JSON.stringify({
+        success: false,
+        message: `Run still ${runStatus ?? 'running'} — wait a minute then sync again`,
+        run_id: run?.data?.id,
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Fetch results
+    const itemsRes = await fetch(
+      `https://api.apify.com/v2/datasets/${datasetId}/items?token=${APIFY_TOKEN}&clean=true&limit=500`,
+    );
+    if (!itemsRes.ok) throw new Error(`Dataset fetch failed: ${itemsRes.status}`);
+    const items: any[] = await itemsRes.json();
+
+    let upserted = 0;
     const errors: string[] = [];
 
-    for (const creator of creators) {
-      const handle = creator.handle;
-      try {
-        const json = await fetchUserVideos(handle);
-        console.log(`[${handle}] response keys: ${Object.keys(json ?? {}).join(', ')}`);
-        const videoList = parseVideoList(json, handle);
-        console.log(`[${handle}] videoList length: ${videoList.length}`);
+    const cutoff = Date.now() - 3 * 24 * 60 * 60 * 1000;
 
-        for (const v of videoList) {
-          const mapped = mapVideo(v, handle);
-          if (!mapped.video_id) continue;
+    for (const item of items) {
+      const videoId = String(item.id ?? '');
+      if (!videoId) continue;
 
-          const { error } = await supabase
-            .from('tiktok_videos')
-            .upsert(mapped, { onConflict: 'video_id' });
+      // 3일 이내 영상만 저장
+      if (item.createTime && item.createTime * 1000 < cutoff) continue;
 
-          if (error) errors.push(`${handle}/${mapped.video_id}: ${error.message}`);
-          else totalUpserted++;
-        }
-      } catch (e: any) {
-        errors.push(`${handle}: ${e.message}`);
-      }
+      const handle = (item.authorMeta?.name ?? '').toLowerCase().replace('@', '');
+      const { error: upsertErr } = await supabase
+        .from('tiktok_videos')
+        .upsert({
+          video_id: videoId,
+          video_url: item.webVideoUrl ?? `https://www.tiktok.com/@${handle}/video/${videoId}`,
+          creator_handle: handle,
+          views: item.playCount ?? 0,
+          likes: item.diggCount ?? 0,
+          saves: item.collectCount ?? 0,
+          comments: item.commentCount ?? 0,
+          shares: item.shareCount ?? 0,
+          posted_at: item.createTime ? new Date(item.createTime * 1000).toISOString() : null,
+          scraped_at: new Date().toISOString(),
+        }, { onConflict: 'video_id' });
+
+      if (upsertErr) errors.push(`${handle}/${videoId}: ${upsertErr.message}`);
+      else upserted++;
     }
 
     return new Response(JSON.stringify({
       success: true,
       creators_synced: creators.length,
-      videos_upserted: totalUpserted,
+      videos_upserted: upserted,
       errors,
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
