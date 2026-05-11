@@ -676,7 +676,7 @@ export default function AdminPage() {
               <div className={`mb-4 p-3 rounded-xl text-xs ${syncResult.error ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-700'}`}>
                 {syncResult.error
                   ? `Error: ${syncResult.error}`
-                  : `완료: ${syncResult.videos_upserted ?? 0}개 영상 업데이트${syncResult.errors?.length > 0 ? ` (오류 ${syncResult.errors.length}개)` : ''}`
+                  : `완료: ${syncResult.videos_upserted ?? 0}개 업데이트${syncResult.errors?.length > 0 ? ` / 오류: ${syncResult.errors[0]}` : ''}`
                 }
               </div>
             )}
