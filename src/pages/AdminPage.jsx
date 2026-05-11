@@ -55,6 +55,8 @@ export default function AdminPage() {
   // Video submissions
   const [videoSubmissions, setVideoSubmissions] = useState([]);
   const [videoSubmissionsLoading, setVideoSubmissionsLoading] = useState(false);
+  const [syncingTiktok, setSyncingTiktok] = useState(false);
+  const [syncResult, setSyncResult] = useState(null);
 
   // Creators
   const [creators, setCreators] = useState([]);
@@ -169,6 +171,27 @@ export default function AdminPage() {
       .order('submitted_at', { ascending: false });
     setVideoSubmissions(data || []);
     setVideoSubmissionsLoading(false);
+  };
+
+  const handleSyncTiktok = async () => {
+    setSyncingTiktok(true);
+    setSyncResult(null);
+    try {
+      const { data: { session: s } } = await supabase.auth.getSession();
+      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/sync-tiktok-stats`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${s.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ sync_all: true }),
+      });
+      const json = await res.json();
+      setSyncResult(json);
+    } catch (e) {
+      setSyncResult({ error: e.message });
+    }
+    setSyncingTiktok(false);
   };
 
   const fetchPosts = async () => {
@@ -638,11 +661,25 @@ export default function AdminPage() {
               <p className="text-[10px] uppercase tracking-[0.25em] font-semibold text-wellinder-dark/40">
                 {videoSubmissions.length} submission{videoSubmissions.length !== 1 ? 's' : ''}
               </p>
-              <button onClick={fetchVideoSubmissions}
-                className="text-xs text-wellinder-dark/40 hover:text-wellinder-dark transition-colors">
-                Refresh
-              </button>
+              <div className="flex items-center gap-3">
+                <button onClick={fetchVideoSubmissions}
+                  className="text-xs text-wellinder-dark/40 hover:text-wellinder-dark transition-colors">
+                  Refresh
+                </button>
+                <button onClick={handleSyncTiktok} disabled={syncingTiktok}
+                  className="text-xs bg-wellinder-dark text-white px-3 py-1.5 rounded-full disabled:opacity-50 hover:opacity-80 transition-opacity">
+                  {syncingTiktok ? 'Syncing...' : 'Sync TikTok Stats'}
+                </button>
+              </div>
             </div>
+            {syncResult && (
+              <div className={`mb-4 p-3 rounded-xl text-xs ${syncResult.error ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-700'}`}>
+                {syncResult.error
+                  ? `Error: ${syncResult.error}`
+                  : `완료: ${syncResult.processed}개 영상 업데이트${syncResult.errors?.length > 0 ? ` (오류 ${syncResult.errors.length}개)` : ''}`
+                }
+              </div>
+            )}
             {videoSubmissionsLoading ? (
               <p className="text-center text-wellinder-dark/40 py-10">Loading...</p>
             ) : videoSubmissions.length === 0 ? (
