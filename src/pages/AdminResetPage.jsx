@@ -40,11 +40,11 @@ export default function AdminResetPage() {
     setError('');
 
     if (password.length < 8) {
-      setError('비밀번호는 8자 이상이어야 해요.');
+      setError('Password must be at least 8 characters.');
       return;
     }
     if (password !== confirm) {
-      setError('비밀번호가 일치하지 않아요.');
+      setError('Passwords do not match.');
       return;
     }
 
@@ -53,7 +53,7 @@ export default function AdminResetPage() {
     setLoading(false);
 
     if (updateError) {
-      setError('오류가 발생했어요: ' + updateError.message);
+      setError('Something went wrong: ' + updateError.message);
       return;
     }
 
@@ -70,8 +70,8 @@ export default function AdminResetPage() {
           className="text-center"
         >
           <p className="text-4xl mb-4">✓</p>
-          <h2 className="text-xl font-serif italic text-wellinder-dark">비밀번호가 변경됐어요</h2>
-          <p className="text-wellinder-dark/40 text-sm mt-2">{isAdmin ? '어드민 페이지로 이동 중...' : 'Lounge로 이동 중...'}</p>
+          <h2 className="text-xl font-serif italic text-wellinder-dark">Password updated!</h2>
+          <p className="text-wellinder-dark/40 text-sm mt-2">{isAdmin ? 'Redirecting to admin...' : 'Taking you to the Lounge...'}</p>
         </motion.div>
       </div>
     );
@@ -80,7 +80,7 @@ export default function AdminResetPage() {
   if (!ready) {
     return (
       <div className="min-h-screen bg-wellinder-cream flex items-center justify-center px-6">
-        <p className="text-wellinder-dark/40 text-sm">링크 확인 중...</p>
+        <p className="text-wellinder-dark/40 text-sm">Verifying your link...</p>
       </div>
     );
   }
@@ -93,14 +93,14 @@ export default function AdminResetPage() {
         className="bg-white rounded-3xl p-10 w-full max-w-sm shadow-xl border border-wellinder-dark/5"
       >
         <div className="text-center mb-8">
-          <p className="text-[10px] uppercase tracking-[0.3em] text-wellinder-dark/40 font-semibold mb-2">Wellinder</p>
-          <h1 className="text-2xl font-serif italic text-wellinder-dark">새 비밀번호 설정</h1>
+          <p className="text-[10px] uppercase tracking-[0.3em] text-wellinder-dark/40 font-semibold mb-2">Wellinder Creators</p>
+          <h1 className="text-2xl font-serif italic text-wellinder-dark">Set New Password</h1>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-3" autoComplete="off">
           <input
             type="password"
-            placeholder="새 비밀번호 (8자 이상)"
+            placeholder="New password (min. 8 characters)"
             value={password}
             onChange={e => setPassword(e.target.value)}
             autoComplete="new-password"
@@ -109,7 +109,7 @@ export default function AdminResetPage() {
           />
           <input
             type="password"
-            placeholder="비밀번호 확인"
+            placeholder="Confirm new password"
             value={confirm}
             onChange={e => setConfirm(e.target.value)}
             autoComplete="new-password"
@@ -122,7 +122,7 @@ export default function AdminResetPage() {
             disabled={loading}
             className="w-full bg-wellinder-dark text-white py-4 rounded-full font-semibold disabled:opacity-50"
           >
-            {loading ? '변경 중...' : '비밀번호 변경'}
+            {loading ? 'Updating...' : 'Update Password'}
           </button>
         </form>
       </motion.div>
