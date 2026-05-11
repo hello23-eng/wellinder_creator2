@@ -205,7 +205,17 @@ function WeeklyTrendChart({ videos }) {
   if (lastActive < 1) return null;
   const display = weeks.slice(0, lastActive + 1);
 
-  const W = 280, H = 110, pl = 8, pr = 8, pt = 20, pb = 24;
+  // week-over-week growth %
+  display.forEach((w, i) => {
+    if (i === 0 || w.avgViews === null) { w.wow = null; return; }
+    const prev = display.slice(0, i).reverse().find(p => p.avgViews !== null);
+    w.wow = prev ? Math.round(((w.avgViews - prev.avgViews) / prev.avgViews) * 100) : null;
+  });
+
+  // last completed week's growth for the summary badge
+  const lastWow = display.slice().reverse().find(w => w.wow !== null);
+
+  const W = 280, H = 120, pl = 8, pr = 8, pt = 20, pb = 36;
   const vals = display.filter(w => w.avgViews !== null).map(w => w.avgViews);
   const maxV = Math.max(...vals);
   const minV = Math.min(...vals);
@@ -226,7 +236,16 @@ function WeeklyTrendChart({ videos }) {
 
   return (
     <div className="bg-white rounded-2xl border border-wellinder-dark/8 shadow-sm p-4 mt-3">
-      <p className="text-[9px] text-wellinder-dark/40 uppercase tracking-widest mb-1">Weekly Avg Views</p>
+      <div className="flex items-center justify-between mb-1">
+        <p className="text-[9px] text-wellinder-dark/40 uppercase tracking-widest">Weekly Avg Views</p>
+        {lastWow !== null && lastWow !== undefined && (
+          <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+            lastWow.wow >= 0 ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'
+          }`}>
+            {lastWow.wow >= 0 ? '+' : ''}{lastWow.wow}% vs last week
+          </span>
+        )}
+      </div>
       <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible">
         {[0, 0.5, 1].map(t => (
           <line key={t} x1={pl} y1={(pt + t * (H - pt - pb)).toFixed(1)}
@@ -238,16 +257,22 @@ function WeeklyTrendChart({ videos }) {
           const x = xPos(i);
           const anchor = i === 0 ? 'start' : i === display.length - 1 ? 'end' : 'middle';
           if (w.avgViews === null) return (
-            <text key={i} x={x} y={H - 2} textAnchor="middle" fontSize="8" fill="#1a1a1a" fillOpacity="0.2">{w.label}</text>
+            <text key={i} x={x} y={H - 14} textAnchor="middle" fontSize="8" fill="#1a1a1a" fillOpacity="0.2">{w.label}</text>
           );
           const y = yPos(w.avgViews);
+          const wowColor = w.wow === null ? null : w.wow >= 0 ? '#16a34a' : '#ef4444';
           return (
             <g key={i}>
               <circle cx={x} cy={y} r="3" fill="#1a1a1a" />
               <text x={x} y={y - 7} textAnchor={anchor} fontSize="8" fill="#1a1a1a" fillOpacity="0.55" fontWeight="500">
                 {fmt(w.avgViews)}
               </text>
-              <text x={x} y={H - 2} textAnchor="middle" fontSize="8" fill="#1a1a1a" fillOpacity="0.3">{w.label}</text>
+              <text x={x} y={H - 14} textAnchor="middle" fontSize="8" fill="#1a1a1a" fillOpacity="0.3">{w.label}</text>
+              {w.wow !== null && (
+                <text x={x} y={H - 4} textAnchor="middle" fontSize="7.5" fill={wowColor} fillOpacity="0.85" fontWeight="600">
+                  {w.wow >= 0 ? '+' : ''}{w.wow}%
+                </text>
+              )}
               <text x={x} y={H + 9} textAnchor="middle" fontSize="7" fill="#1a1a1a" fillOpacity="0.2">{w.count}v</text>
             </g>
           );
