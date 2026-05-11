@@ -175,6 +175,88 @@ function getCurrentWeekNum() {
   return Math.min(Math.max(Math.ceil((now - start) / (7 * 24 * 60 * 60 * 1000)), 1), TOTAL_WEEKS);
 }
 
+// ─── Weekly Trend Chart ───────────────────────────────────────────────────────
+function WeeklyTrendChart({ videos }) {
+  if (!videos || videos.length < 2) return null;
+
+  const sorted = [...videos].sort((a, b) => new Date(a.uploaded_at) - new Date(b.uploaded_at));
+  const firstDate = new Date(sorted[0].uploaded_at);
+
+  const weeks = Array.from({ length: 8 }, (_, i) => {
+    const start = new Date(firstDate);
+    start.setDate(start.getDate() + i * 7);
+    const end = new Date(start);
+    end.setDate(end.getDate() + 7);
+    const wVids = videos.filter(v => {
+      const d = new Date(v.uploaded_at);
+      return d >= start && d < end;
+    });
+    return {
+      label: `W${i + 1}`,
+      count: wVids.length,
+      avgViews: wVids.length > 0
+        ? Math.round(wVids.reduce((s, v) => s + (v.views || 0), 0) / wVids.length)
+        : null,
+    };
+  });
+
+  let lastActive = -1;
+  weeks.forEach((w, i) => { if (w.count > 0) lastActive = i; });
+  if (lastActive < 1) return null;
+  const display = weeks.slice(0, lastActive + 1);
+
+  const W = 280, H = 110, pl = 8, pr = 8, pt = 20, pb = 24;
+  const vals = display.filter(w => w.avgViews !== null).map(w => w.avgViews);
+  const maxV = Math.max(...vals);
+  const minV = Math.min(...vals);
+  const range = maxV - minV || maxV || 1;
+
+  const xPos = i => pl + (display.length < 2 ? (W - pl - pr) / 2 : (i / (display.length - 1)) * (W - pl - pr));
+  const yPos = v => pt + (1 - (v - minV) / range) * (H - pt - pb);
+  const fmt = v => v >= 1000 ? `${(v / 1000).toFixed(v >= 10000 ? 0 : 1)}K` : String(v);
+
+  let pathD = '';
+  let penUp = true;
+  display.forEach((w, i) => {
+    if (w.avgViews !== null) {
+      pathD += `${penUp ? 'M' : 'L'} ${xPos(i).toFixed(1)} ${yPos(w.avgViews).toFixed(1)} `;
+      penUp = false;
+    } else { penUp = true; }
+  });
+
+  return (
+    <div className="bg-white rounded-2xl border border-wellinder-dark/8 shadow-sm p-4 mt-3">
+      <p className="text-[9px] text-wellinder-dark/40 uppercase tracking-widest mb-1">Weekly Avg Views</p>
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible">
+        {[0, 0.5, 1].map(t => (
+          <line key={t} x1={pl} y1={(pt + t * (H - pt - pb)).toFixed(1)}
+            x2={W - pr} y2={(pt + t * (H - pt - pb)).toFixed(1)}
+            stroke="#1a1a1a" strokeOpacity="0.05" strokeWidth="1" />
+        ))}
+        <path d={pathD} stroke="#1a1a1a" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+        {display.map((w, i) => {
+          const x = xPos(i);
+          const anchor = i === 0 ? 'start' : i === display.length - 1 ? 'end' : 'middle';
+          if (w.avgViews === null) return (
+            <text key={i} x={x} y={H - 2} textAnchor="middle" fontSize="8" fill="#1a1a1a" fillOpacity="0.2">{w.label}</text>
+          );
+          const y = yPos(w.avgViews);
+          return (
+            <g key={i}>
+              <circle cx={x} cy={y} r="3" fill="#1a1a1a" />
+              <text x={x} y={y - 7} textAnchor={anchor} fontSize="8" fill="#1a1a1a" fillOpacity="0.55" fontWeight="500">
+                {fmt(w.avgViews)}
+              </text>
+              <text x={x} y={H - 2} textAnchor="middle" fontSize="8" fill="#1a1a1a" fillOpacity="0.3">{w.label}</text>
+              <text x={x} y={H + 9} textAnchor="middle" fontSize="7" fill="#1a1a1a" fillOpacity="0.2">{w.count}v</text>
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+}
+
 // ─── Growth Dashboard ────────────────────────────────────────────────────────
 function GrowthDashboardSection({ videos, handle }) {
   const myVideos = videos
@@ -217,6 +299,8 @@ function GrowthDashboardSection({ videos, handle }) {
               </div>
             ))}
           </div>
+
+          <WeeklyTrendChart videos={myVideos} />
 
           {/* 초기 3영상 vs 최근 3영상 */}
           {myVideos.length >= 3 && (
