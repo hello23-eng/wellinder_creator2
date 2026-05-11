@@ -15,6 +15,8 @@ async function fetchUserVideos(handle: string) {
   const username = handle.replace('@', '');
   const url = `https://tiktok-scraper2.p.rapidapi.com/user/posts?username=${encodeURIComponent(username)}&count=20&cursor=0`;
 
+  console.log(`[${handle}] fetching: ${url}, key set: ${!!RAPIDAPI_KEY}`);
+
   const res = await fetch(url, {
     method: 'GET',
     headers: {
@@ -23,8 +25,10 @@ async function fetchUserVideos(handle: string) {
     },
   });
 
-  if (!res.ok) throw new Error(`RapidAPI error ${res.status}: ${await res.text()}`);
-  return res.json();
+  const body = await res.text();
+  console.log(`[${handle}] status: ${res.status}, body: ${body.slice(0, 300)}`);
+  if (!res.ok) throw new Error(`RapidAPI error ${res.status}: ${body.slice(0, 200)}`);
+  return JSON.parse(body);
 }
 
 function parseVideoList(json: any, fallbackHandle: string): any[] {
@@ -81,7 +85,9 @@ serve(async (req: Request) => {
       const handle = creator.handle;
       try {
         const json = await fetchUserVideos(handle);
+        console.log(`[${handle}] response keys: ${Object.keys(json ?? {}).join(', ')}`);
         const videoList = parseVideoList(json, handle);
+        console.log(`[${handle}] videoList length: ${videoList.length}`);
 
         for (const v of videoList) {
           const mapped = mapVideo(v, handle);

@@ -199,17 +199,17 @@ function GrowthDashboardSection({ videos, handle }) {
 
       {total === 0 ? (
         <div className="bg-white rounded-2xl p-8 text-center border border-wellinder-dark/5">
-          <p className="text-wellinder-dark/30 text-sm italic">TikTok 데이터 동기화 중입니다. 잠시 후 확인해주세요.</p>
+          <p className="text-wellinder-dark/30 text-sm italic">Syncing your TikTok data. Check back soon.</p>
         </div>
       ) : (
         <>
           {/* 핵심 지표 */}
           <div className="grid grid-cols-2 gap-3 mb-4">
             {[
-              { label: '총 업로드', value: total, unit: '개' },
-              { label: '누적 조회수', value: formatCount(totalViews), unit: '' },
-              { label: '평균 좋아요', value: formatCount(avgLikes), unit: '' },
-              { label: '저장율', value: saveRate, unit: '%' },
+              { label: 'Total Videos', value: total, unit: '' },
+              { label: 'Total Views', value: formatCount(totalViews), unit: '' },
+              { label: 'Avg Likes', value: formatCount(avgLikes), unit: '' },
+              { label: 'Save Rate', value: saveRate, unit: '%' },
             ].map(({ label, value, unit }) => (
               <div key={label} className="bg-white rounded-2xl p-4 border border-wellinder-dark/8 shadow-sm">
                 <p className="text-[9px] text-wellinder-dark/40 uppercase tracking-widest mb-1">{label}</p>
@@ -223,7 +223,7 @@ function GrowthDashboardSection({ videos, handle }) {
             <div className="bg-white rounded-2xl border border-wellinder-dark/8 shadow-sm overflow-hidden">
               <div className="grid grid-cols-2 divide-x divide-wellinder-dark/5">
                 <div className="p-4">
-                  <p className="text-[9px] text-wellinder-dark/40 uppercase tracking-widest mb-3">초기 3영상</p>
+                  <p className="text-[9px] text-wellinder-dark/40 uppercase tracking-widest mb-3">First 3 Videos</p>
                   {first3.map((v, i) => (
                     <div key={i} className="flex items-center justify-between mb-2">
                       <p className="text-[11px] text-wellinder-dark/40 truncate flex-1">{v.uploaded_at}</p>
@@ -231,12 +231,12 @@ function GrowthDashboardSection({ videos, handle }) {
                     </div>
                   ))}
                   <div className="mt-3 pt-3 border-t border-wellinder-dark/5">
-                    <p className="text-[9px] text-wellinder-dark/40">평균 조회수</p>
+                    <p className="text-[9px] text-wellinder-dark/40">Avg Views</p>
                     <p className="text-lg font-semibold text-wellinder-dark">{formatCount(first3Avg)}</p>
                   </div>
                 </div>
                 <div className="p-4">
-                  <p className="text-[9px] text-wellinder-dark/40 uppercase tracking-widest mb-3">최근 3영상</p>
+                  <p className="text-[9px] text-wellinder-dark/40 uppercase tracking-widest mb-3">Latest 3 Videos</p>
                   {last3.map((v, i) => (
                     <div key={i} className="flex items-center justify-between mb-2">
                       <p className="text-[11px] text-wellinder-dark/40 truncate flex-1">{v.uploaded_at}</p>
@@ -244,7 +244,7 @@ function GrowthDashboardSection({ videos, handle }) {
                     </div>
                   ))}
                   <div className="mt-3 pt-3 border-t border-wellinder-dark/5">
-                    <p className="text-[9px] text-wellinder-dark/40">평균 조회수</p>
+                    <p className="text-[9px] text-wellinder-dark/40">Avg Views</p>
                     <p className="text-lg font-semibold text-rose-500">{formatCount(last3Avg)}</p>
                   </div>
                 </div>
@@ -252,7 +252,7 @@ function GrowthDashboardSection({ videos, handle }) {
               {growth && (
                 <div className="px-4 py-3 bg-wellinder-cream/50 text-center border-t border-wellinder-dark/5">
                   <p className="text-sm text-wellinder-dark/60">
-                    성장률 <span className="font-bold text-wellinder-dark">{growth}배</span>{Number(growth) >= 2 ? ' 🚀' : Number(growth) >= 1 ? ' 📈' : ' 📊'}
+                    Growth <span className="font-bold text-wellinder-dark">{growth}x</span>{Number(growth) >= 2 ? ' 🚀' : Number(growth) >= 1 ? ' 📈' : ' 📊'}
                   </p>
                 </div>
               )}
@@ -802,10 +802,10 @@ export default function LoungePage() {
                 return (
                   <motion.div key={post.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
                     className="bg-white rounded-2xl p-6 border border-wellinder-dark/5">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <h3 className="font-serif text-wellinder-dark mb-1">{post.title}</h3>
-                        {post.content && <p className="text-wellinder-dark/60 text-sm leading-relaxed mb-3">{post.content}</p>}
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-serif text-wellinder-dark text-base mb-2">{post.title}</h3>
+                        {post.content && <p className="text-wellinder-dark/60 text-sm leading-relaxed mb-3 whitespace-pre-line">{post.content}</p>}
                         <div className="flex flex-wrap items-center gap-3">
                           {post.link && (
                             <a href={post.link} target="_blank" rel="noopener noreferrer"
@@ -820,15 +820,12 @@ export default function LoungePage() {
                           )}
                         </div>
                       </div>
-                      <button onClick={() => !done && !isExpired && handleParticipate(post.id)} disabled={done || isExpired}
-                        className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all ${
-                          done ? 'bg-green-50 text-green-600 border border-green-200'
-                          : isExpired ? 'bg-wellinder-dark/5 text-wellinder-dark/30 cursor-not-allowed'
-                          : 'bg-wellinder-dark text-white hover:bg-wellinder-dark/80'
-                        }`}>
-                        <CheckCircle className="w-3.5 h-3.5" />
-                        {done ? t.done : t.participate}
-                      </button>
+                      {done && (
+                        <div className="flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold bg-green-50 text-green-600 border border-green-200">
+                          <CheckCircle className="w-3.5 h-3.5" />
+                          {t.done}
+                        </div>
+                      )}
                     </div>
                     {/* TikTok Video Link Submission */}
                     <div className="mt-4 pt-4 border-t border-wellinder-dark/5">
@@ -885,18 +882,22 @@ export default function LoungePage() {
                 const done = participated.includes(post.id);
                 return (
                   <motion.div key={post.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-                    className="bg-white rounded-2xl p-5 border border-wellinder-dark/5 flex items-center justify-between gap-4">
-                    <div>
-                      <h3 className="text-sm font-medium text-wellinder-dark">{post.title}</h3>
-                      {post.content && <p className="text-wellinder-dark/50 text-xs mt-0.5">{post.content}</p>}
+                    className="bg-white rounded-2xl p-5 border border-wellinder-dark/5">
+                    <div className="flex items-start justify-between gap-3 mb-0">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm font-semibold text-wellinder-dark mb-1">{post.title}</h3>
+                        {post.content && <p className="text-wellinder-dark/50 text-sm leading-relaxed whitespace-pre-line">{post.content}</p>}
+                      </div>
                     </div>
-                    <button onClick={() => !done && handleParticipate(post.id)} disabled={done}
-                      className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all ${
-                        done ? 'bg-green-50 text-green-600 border border-green-200' : 'bg-wellinder-dark text-white hover:bg-wellinder-dark/80'
-                      }`}>
-                      <CheckCircle className="w-3.5 h-3.5" />
-                      {done ? t.done : t.participate}
-                    </button>
+                    <div className="flex justify-end mt-3">
+                      <button onClick={() => !done && handleParticipate(post.id)} disabled={done}
+                        className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all ${
+                          done ? 'bg-green-50 text-green-600 border border-green-200' : 'bg-wellinder-dark text-white hover:bg-wellinder-dark/80'
+                        }`}>
+                        <CheckCircle className="w-3.5 h-3.5" />
+                        {done ? t.done : t.participate}
+                      </button>
+                    </div>
                   </motion.div>
                 );
               })}

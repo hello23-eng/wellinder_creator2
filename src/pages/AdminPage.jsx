@@ -95,7 +95,7 @@ export default function AdminPage() {
 
     const channel = supabase
       .channel('admin-applications')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'creator_pool_applications' }, () => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'applications' }, () => {
         fetchApplications();
       })
       .subscribe();
@@ -136,7 +136,7 @@ export default function AdminPage() {
   const fetchCreators = async () => {
     setCreatorsLoading(true);
     const [appsRes, invitesRes, profilesRes] = await Promise.all([
-      supabase.from('creator_pool_applications').select('*').eq('status', 'approved').order('created_at', { ascending: false }),
+      supabase.from('applications').select('*').eq('status', 'approved').order('created_at', { ascending: false }),
       supabase.from('invites').select('email, consented_at, used_at'),
       supabase.from('creator_profiles').select('*'),
     ]);
@@ -449,24 +449,36 @@ export default function AdminPage() {
                     </p>
                   </div>
 
-                  {(app.status === 'pending' || app.status === null) && (
-                    <div className="flex gap-2 flex-shrink-0">
+                  <div className="flex gap-2 flex-shrink-0">
+                    {(app.status === 'pending' || app.status === null) && (
+                      <>
+                        <button
+                          onClick={() => handleAction(app, 'approved')}
+                          disabled={actionLoading === app.id}
+                          className="flex items-center gap-1.5 px-4 py-2 bg-green-50 text-green-700 border border-green-200 rounded-full text-sm font-medium hover:bg-green-100 transition-colors disabled:opacity-50"
+                        >
+                          <CheckCircle className="w-4 h-4" /> Approve
+                        </button>
+                        <button
+                          onClick={() => handleAction(app, 'rejected')}
+                          disabled={actionLoading === app.id}
+                          className="flex items-center gap-1.5 px-4 py-2 bg-red-50 text-red-700 border border-red-200 rounded-full text-sm font-medium hover:bg-red-100 transition-colors disabled:opacity-50"
+                        >
+                          <XCircle className="w-4 h-4" /> Reject
+                        </button>
+                      </>
+                    )}
+                    {app.status === 'approved' && (
                       <button
-                        onClick={() => handleAction(app, 'approved')}
-                        disabled={actionLoading === app.id}
-                        className="flex items-center gap-1.5 px-4 py-2 bg-green-50 text-green-700 border border-green-200 rounded-full text-sm font-medium hover:bg-green-100 transition-colors disabled:opacity-50"
+                        onClick={() => handleResendInvite(app)}
+                        disabled={resendLoading === app.id}
+                        className="flex items-center gap-1.5 px-4 py-2 bg-blue-50 text-blue-700 border border-blue-200 rounded-full text-sm font-medium hover:bg-blue-100 transition-colors disabled:opacity-50"
                       >
-                        <CheckCircle className="w-4 h-4" /> Approve
+                        <Mail className="w-4 h-4" />
+                        {resendLoading === app.id ? 'Sending...' : 'Resend Invite'}
                       </button>
-                      <button
-                        onClick={() => handleAction(app, 'rejected')}
-                        disabled={actionLoading === app.id}
-                        className="flex items-center gap-1.5 px-4 py-2 bg-red-50 text-red-700 border border-red-200 rounded-full text-sm font-medium hover:bg-red-100 transition-colors disabled:opacity-50"
-                      >
-                        <XCircle className="w-4 h-4" /> Reject
-                      </button>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               </motion.div>
             ))}
@@ -673,10 +685,13 @@ export default function AdminPage() {
               </div>
             </div>
             {syncResult && (
-              <div className={`mb-4 p-3 rounded-xl text-xs ${syncResult.error ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-700'}`}>
+              <div className={`mb-4 p-3 rounded-xl text-xs ${syncResult.error ? 'bg-red-50 text-red-600' : syncResult.errors?.length > 0 ? 'bg-amber-50 text-amber-700' : 'bg-green-50 text-green-700'}`}>
                 {syncResult.error
                   ? `Error: ${syncResult.error}`
-                  : `완료: ${syncResult.videos_upserted ?? 0}개 업데이트${syncResult.errors?.length > 0 ? ` / 오류: ${syncResult.errors[0]}` : ''}`
+                  : <div>
+                      <p className="font-semibold mb-1">완료: {syncResult.videos_upserted ?? 0}개 업데이트 ({syncResult.errors?.length ?? 0}개 오류)</p>
+                      {syncResult.errors?.map((e, i) => <p key={i} className="opacity-80 break-all">{e}</p>)}
+                    </div>
                 }
               </div>
             )}
