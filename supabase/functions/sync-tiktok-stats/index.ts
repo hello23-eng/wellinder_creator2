@@ -10,16 +10,12 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-function extractVideoId(url: string): string {
-  const match = url.match(/video\/(\d+)/);
-  return match ? match[1] : '';
-}
+// 핸들로 최근 영상 목록 가져오기 (1 API call per creator)
+async function fetchUserVideos(handle: string) {
+  const username = handle.replace('@', '');
+  const url = `https://tiktok-scraper2.p.rapidapi.com/user/posts?username=${encodeURIComponent(username)}&count=20&cursor=0`;
 
-async function fetchVideoStats(videoUrl: string) {
-  const videoId = extractVideoId(videoUrl);
-  const apiUrl = `https://tiktok-scraper2.p.rapidapi.com/video/info_v2?video_url=${encodeURIComponent(videoUrl)}&video_id=${videoId}`;
-
-  const res = await fetch(apiUrl, {
+  const res = await fetch(url, {
     method: 'GET',
     headers: {
       'x-rapidapi-host': 'tiktok-scraper2.p.rapidapi.com',
@@ -31,114 +27,84 @@ async function fetchVideoStats(videoUrl: string) {
   return res.json();
 }
 
-function parseStats(json: any) {
-  const detail = json?.data?.aweme_detail ?? json?.data ?? {};
-  const stats = detail.statistics ?? detail.stats ?? {};
-  const author = detail.author ?? {};
+function parseVideoList(json: any, fallbackHandle: string): any[] {
+  // 다양한 응답 구조 대응
+  const data = json?.data ?? {};
+  const list: any[] = data.aweme_list ?? data.videos ?? data.itemList ?? [];
+  return list;
+}
+
+function mapVideo(v: any, fallbackHandle: string) {
+  const stats = v.statistics ?? v.stats ?? {};
+  const author = v.author ?? {};
+  const createTime = v.create_time ?? v.createTime;
 
   return {
-    video_id: String(detail.aweme_id ?? detail.id ?? extractVideoId('')),
-    creator_handle: (author.unique_id ?? author.uniqueId ?? '').toLowerCase(),
+    video_id: String(v.aweme_id ?? v.id ?? ''),
+    video_url: v.video?.play_addr?.url_list?.[0]
+      ?? `https://www.tiktok.com/@${fallbackHandle}/video/${v.aweme_id ?? v.id}`,
+    creator_handle: (author.unique_id ?? author.uniqueId ?? fallbackHandle).toLowerCase().replace('@', ''),
     views: stats.play_count ?? stats.playCount ?? 0,
     likes: stats.digg_count ?? stats.diggCount ?? 0,
     saves: stats.collect_count ?? stats.collectCount ?? 0,
     comments: stats.comment_count ?? stats.commentCount ?? 0,
     shares: stats.share_count ?? stats.shareCount ?? 0,
-    posted_at: detail.create_time
-      ? new Date(detail.create_time * 1000).toISOString()
-      : null,
+    posted_at: createTime ? new Date(createTime * 1000).toISOString() : null,
+    scraped_at: new Date().toISOString(),
   };
 }
 
-serve(async (req) => {
+serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
 
   try {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-    const body = await req.json().catch(() => ({}));
 
-    // ── 단일 영상 ──────────────────────────────────────────────────────────────
-    if (body.video_url) {
-      const json = await fetchVideoStats(body.video_url);
-      const parsed = parseStats(json);
+    // tracked_creators에서 핸들 목록 가져오기
+    const { data: creators, error: creatorsError } = await supabase
+      .from('tracked_creators')
+      .select('handle');
 
-      const videoId = parsed.video_id || extractVideoId(body.video_url);
-      const handle = parsed.creator_handle || (body.creator_handle ?? '').toLowerCase().replace('@', '');
-
-      const { error } = await supabase.from('tiktok_videos').upsert({
-        video_id: videoId,
-        video_url: body.video_url,
-        creator_handle: handle,
-        views: parsed.views,
-        likes: parsed.likes,
-        saves: parsed.saves,
-        comments: parsed.comments,
-        shares: parsed.shares,
-        posted_at: parsed.posted_at,
-        scraped_at: new Date().toISOString(),
-      }, { onConflict: 'video_id' });
-
-      if (error) throw new Error('DB upsert failed: ' + error.message);
-
-      return new Response(JSON.stringify({ success: true, video_id: videoId }), {
+    if (creatorsError) throw new Error('tracked_creators 조회 실패: ' + creatorsError.message);
+    if (!creators || creators.length === 0) {
+      return new Response(JSON.stringify({ message: 'No tracked creators' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // ── 전체 sync (admin) ──────────────────────────────────────────────────────
-    if (body.sync_all) {
-      const { data: submissions } = await supabase
-        .from('video_submissions')
-        .select('video_url, user_email');
+    let totalUpserted = 0;
+    const errors: string[] = [];
 
-      let processed = 0;
-      const errors: string[] = [];
+    for (const creator of creators) {
+      const handle = creator.handle;
+      try {
+        const json = await fetchUserVideos(handle);
+        const videoList = parseVideoList(json, handle);
 
-      for (const sub of (submissions ?? [])) {
-        try {
-          const { data: appData } = await supabase
-            .from('applications')
-            .select('tiktok_handle')
-            .eq('email', sub.user_email)
-            .limit(1)
-            .maybeSingle();
+        for (const v of videoList) {
+          const mapped = mapVideo(v, handle);
+          if (!mapped.video_id) continue;
 
-          const json = await fetchVideoStats(sub.video_url);
-          const parsed = parseStats(json);
+          const { error } = await supabase
+            .from('tiktok_videos')
+            .upsert(mapped, { onConflict: 'video_id' });
 
-          const videoId = parsed.video_id || extractVideoId(sub.video_url);
-          const handle = parsed.creator_handle
-            || (appData?.tiktok_handle ?? '').toLowerCase().replace('@', '');
-
-          const { error } = await supabase.from('tiktok_videos').upsert({
-            video_id: videoId,
-            video_url: sub.video_url,
-            creator_handle: handle,
-            views: parsed.views,
-            likes: parsed.likes,
-            saves: parsed.saves,
-            comments: parsed.comments,
-            shares: parsed.shares,
-            posted_at: parsed.posted_at,
-            scraped_at: new Date().toISOString(),
-          }, { onConflict: 'video_id' });
-
-          if (error) errors.push(`${sub.video_url}: ${error.message}`);
-          else processed++;
-        } catch (e: any) {
-          errors.push(`${sub.video_url}: ${e.message}`);
+          if (error) errors.push(`${handle}/${mapped.video_id}: ${error.message}`);
+          else totalUpserted++;
         }
+      } catch (e: any) {
+        errors.push(`${handle}: ${e.message}`);
       }
-
-      return new Response(JSON.stringify({ success: true, processed, errors }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
     }
 
-    return new Response(JSON.stringify({ error: 'video_url or sync_all required' }), {
-      status: 400,
+    return new Response(JSON.stringify({
+      success: true,
+      creators_synced: creators.length,
+      videos_upserted: totalUpserted,
+      errors,
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 

@@ -556,16 +556,6 @@ export default function LoungePage() {
         await supabase.from('mission_participations').insert([{ user_id: session.user.id, post_id: postId }]);
         setParticipated(prev => [...prev, postId]);
       }
-      // TikTok 영상 stats 비동기로 가져오기 (fire-and-forget)
-      const { data: { session: s } } = await supabase.auth.getSession();
-      fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/sync-tiktok-stats`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${s.access_token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ video_url: url, creator_handle: creatorHandle }),
-      }).catch(() => {});
     }
     setSubmittingVideo(null);
   };
