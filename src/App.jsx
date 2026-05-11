@@ -1146,11 +1146,7 @@ function AuthRedirectHandler() {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'PASSWORD_RECOVERY') {
-        if (session?.user?.email === ADMIN_EMAIL) {
-          navigate('/admin-reset', { state: { fromRecovery: true } });
-        } else {
-          navigate('/reset-password', { state: { fromRecovery: true } });
-        }
+        navigate('/admin-reset', { state: { fromRecovery: true, isAdmin: session?.user?.email === ADMIN_EMAIL } });
       }
     });
     return () => subscription.unsubscribe();

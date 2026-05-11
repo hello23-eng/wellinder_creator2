@@ -13,10 +13,11 @@ export default function AdminResetPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const isAdmin = location.state?.isAdmin ?? true;
+
   useEffect(() => {
-    // 정상 복구 흐름(AuthRedirectHandler에서 state 전달)이 아니면 차단
     if (!location.state?.fromRecovery) {
-      navigate('/admin');
+      navigate(isAdmin ? '/admin' : '/lounge');
       return;
     }
 
@@ -57,7 +58,7 @@ export default function AdminResetPage() {
     }
 
     setDone(true);
-    setTimeout(() => navigate('/admin'), 2000);
+    setTimeout(() => navigate(isAdmin ? '/admin' : '/lounge'), 2000);
   };
 
   if (done) {
@@ -70,7 +71,7 @@ export default function AdminResetPage() {
         >
           <p className="text-4xl mb-4">✓</p>
           <h2 className="text-xl font-serif italic text-wellinder-dark">비밀번호가 변경됐어요</h2>
-          <p className="text-wellinder-dark/40 text-sm mt-2">어드민 페이지로 이동 중...</p>
+          <p className="text-wellinder-dark/40 text-sm mt-2">{isAdmin ? '어드민 페이지로 이동 중...' : 'Lounge로 이동 중...'}</p>
         </motion.div>
       </div>
     );
