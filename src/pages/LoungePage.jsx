@@ -765,32 +765,6 @@ export default function LoungePage() {
           )}
         </section>
 
-        {/* Challenge Schedule */}
-        <section className="mb-8">
-          <SectionHeader>{t.scheduleSection}</SectionHeader>
-          <div className="bg-white rounded-3xl border border-wellinder-dark/8 shadow-sm overflow-hidden divide-y divide-wellinder-dark/5">
-            {weeks.map((w) => (
-              <div key={w.num} className={`flex items-center gap-4 px-6 py-4 ${w.status === 'active' ? 'bg-wellinder-dark/[0.03]' : ''}`}>
-                <span className="text-[11px] font-semibold text-wellinder-dark/25 w-6 flex-shrink-0">
-                  {String(w.num).padStart(2, '0')}
-                </span>
-                <div className="flex-1 min-w-0">
-                  <p className={`text-sm font-medium ${w.status === 'active' ? 'text-wellinder-dark' : 'text-wellinder-dark/70'}`}>
-                    {t.weekNum(w.num)}
-                  </p>
-                  <p className="text-[11px] text-wellinder-dark/35 mt-0.5">{w.range}</p>
-                </div>
-                <span className={`text-[10px] font-semibold px-3 py-1 rounded-full flex-shrink-0 ${
-                  w.status === 'done' ? 'bg-green-50 text-green-600'
-                  : w.status === 'active' ? 'bg-wellinder-dark text-white'
-                  : 'bg-wellinder-dark/5 text-wellinder-dark/30'
-                }`}>
-                  {w.status === 'done' ? t.statusDone : w.status === 'active' ? t.statusActive : t.statusUpcoming}
-                </span>
-              </div>
-            ))}
-          </div>
-        </section>
 
         {/* My Progress */}
         <section className="mb-8">
