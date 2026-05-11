@@ -506,13 +506,13 @@ export default function LoungePage() {
   };
 
   const fetchData = async () => {
-    const [postsRes, partRes, shipRes, vsRes, tiktokRes, appRes] = await Promise.all([
+    const [postsRes, partRes, shipRes, vsRes, tiktokRes, tcRes] = await Promise.all([
       supabase.from('lounge_posts').select('*').order('created_at', { ascending: false }),
       supabase.from('mission_participations').select('post_id').eq('user_id', session.user.id),
       supabase.from('shipping_info').select('*').eq('user_id', session.user.id).maybeSingle(),
       supabase.from('video_submissions').select('post_id, video_url, submitted_at').eq('user_id', session.user.id),
       supabase.from('tiktok_videos').select('*').order('posted_at', { ascending: false }),
-      supabase.from('applications').select('tiktok_handle').eq('email', session.user.email).limit(1),
+      supabase.from('tracked_creators').select('handle').eq('email', session.user.email).limit(1),
     ]);
     setPosts(postsRes.data || []);
     setParticipated((partRes.data || []).map(d => d.post_id));
@@ -533,7 +533,7 @@ export default function LoungePage() {
     }));
     setTiktokVideos(videos);
 
-    const rawHandle = appRes.data?.[0]?.tiktok_handle || '';
+    const rawHandle = tcRes.data?.[0]?.handle || '';
     setCreatorHandle(rawHandle ? ('@' + rawHandle.replace('@', '').toLowerCase()) : '');
   };
 
