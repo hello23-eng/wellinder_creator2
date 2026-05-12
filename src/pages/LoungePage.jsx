@@ -877,57 +877,6 @@ export default function LoungePage() {
           </section>
         )}
 
-        {/* Shipping & Survey */}
-        <section className="mb-8">
-          <SectionHeader>{t.shippingSection}</SectionHeader>
-          <div className="bg-wellinder-dark text-white rounded-2xl px-5 py-4 mb-4 space-y-2">
-            <p className="text-sm font-semibold">⏰ {t.shippingDeadline}</p>
-            <p className="text-sm text-white/70">{t.shippingDiscord} <a href="https://chat.whatsapp.com/F1rmPc2wWIvCHDAzKN1h75?mode=gi_t" target="_blank" rel="noopener noreferrer" className="underline text-white hover:text-white/80">Join WhatsApp Group</a></p>
-          </div>
-          {shippingInfo ? (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-              className="bg-white rounded-3xl border border-wellinder-dark/8 shadow-sm p-10 text-center">
-              <p className="text-3xl mb-3">✓</p>
-              <h3 className="font-serif italic text-wellinder-dark text-lg mb-1">{t.submittedLabel}</h3>
-              <p className="text-wellinder-dark/40 text-sm">{t.submittedNote}</p>
-            </motion.div>
-          ) : shippingInfo === undefined ? null : (
-            <>
-              <p className="text-sm text-wellinder-dark/50 mb-3">{t.shippingNote}</p>
-              <form onSubmit={handleShippingSubmit}
-                className="bg-white rounded-3xl border border-wellinder-dark/8 shadow-sm overflow-hidden">
-                <div className="divide-y divide-wellinder-dark/5">
-                  <input type="text" placeholder={t.shippingName} value={shpName} onChange={e => setShpName(e.target.value)}
-                    className="w-full px-6 py-4 outline-none text-sm text-wellinder-dark placeholder:text-wellinder-dark/30 bg-transparent" />
-                  <textarea placeholder={t.shippingAddress} value={shpAddress} onChange={e => setShpAddress(e.target.value)}
-                    rows={3} className="w-full px-6 py-4 outline-none text-sm text-wellinder-dark placeholder:text-wellinder-dark/30 bg-transparent resize-none" />
-                  <input type="tel" placeholder={t.shippingPhone} value={shpPhone} onChange={e => setShpPhone(e.target.value)}
-                    className="w-full px-6 py-4 outline-none text-sm text-wellinder-dark placeholder:text-wellinder-dark/30 bg-transparent" />
-                </div>
-                <div className="px-6 py-6 border-t border-wellinder-dark/5">
-                  <p className="text-[11px] uppercase tracking-[0.15em] font-semibold text-wellinder-dark mb-4 leading-relaxed">{t.speakerQ}</p>
-                  <div className="space-y-0.5">
-                    {SPEAKER_OPTIONS.map(opt => (
-                      <Checkbox key={opt.value} checked={speakerPrefs.has(opt.value)} onChange={() => toggleSpeaker(opt.value)} label={opt[lang]} />
-                    ))}
-                  </div>
-                  {speakerPrefs.has('other') && (
-                    <input type="text" placeholder={t.speakerOtherPlaceholder} value={speakerOther} onChange={e => setSpeakerOther(e.target.value)}
-                      className="mt-3 w-full border border-wellinder-dark/10 rounded-2xl py-3 px-4 text-sm text-wellinder-dark placeholder:text-wellinder-dark/30 outline-none focus:border-wellinder-dark transition-colors bg-wellinder-cream/40" />
-                  )}
-                </div>
-                <div className="px-6 pb-6">
-                  <p className="text-[11px] text-wellinder-dark/35 leading-relaxed mb-4">{t.privacyNote}</p>
-                  {shpError && <p className="text-red-500 text-xs text-center mb-3">{shpError}</p>}
-                  <button type="submit" disabled={shpLoading}
-                    className="w-full bg-wellinder-dark text-white py-4 rounded-full font-semibold text-sm disabled:opacity-40 transition-opacity">
-                    {shpLoading ? t.submitting : t.submit}
-                  </button>
-                </div>
-              </form>
-            </>
-          )}
-        </section>
 
 
         {/* My Progress */}
