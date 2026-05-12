@@ -300,6 +300,17 @@ function GrowthDashboardSection({ videos, handle }) {
   const last3Avg = last3.length > 0 ? Math.round(last3.reduce((s, v) => s + v.views, 0) / last3.length) : 0;
   const growth = first3Avg > 0 ? (last3Avg / first3Avg).toFixed(1) : null;
 
+  // 그룹 랭킹: 크리에이터별 총 뷰수 집계
+  const creatorMap = {};
+  videos.forEach(v => {
+    if (!creatorMap[v.handle]) creatorMap[v.handle] = { handle: v.handle, totalViews: 0, count: 0 };
+    creatorMap[v.handle].totalViews += v.views;
+    creatorMap[v.handle].count += 1;
+  });
+  const groupRanking = Object.values(creatorMap).sort((a, b) => b.totalViews - a.totalViews);
+  const myRank = groupRanking.findIndex(c => c.handle === handle);
+  const maxGroupViews = groupRanking[0]?.totalViews || 1;
+
   return (
     <section className="mb-8">
       <p className="text-[10px] uppercase tracking-[0.25em] font-semibold text-wellinder-dark/40 mb-4">My Growth Dashboard 📈</p>
@@ -368,6 +379,50 @@ function GrowthDashboardSection({ videos, handle }) {
             </div>
           )}
         </>
+      )}
+
+      {/* 그룹 랭킹 — 내 데이터 + 다른 크리에이터 동시 표시 */}
+      {groupRanking.length > 0 && (
+        <div className="mt-4 bg-white rounded-2xl border border-wellinder-dark/8 shadow-sm overflow-hidden">
+          <div className="px-4 pt-4 pb-2 flex items-center justify-between">
+            <p className="text-[9px] text-wellinder-dark/40 uppercase tracking-widest">Creator Rankings</p>
+            {myRank >= 0 && (
+              <span className="text-[10px] font-semibold text-wellinder-dark/60">
+                Your rank: <span className="text-wellinder-dark font-bold">#{myRank + 1}</span> / {groupRanking.length}
+              </span>
+            )}
+          </div>
+          <div className="px-4 pb-4 space-y-2.5">
+            {groupRanking.map((c, i) => {
+              const isMe = c.handle === handle;
+              const barW = Math.max(4, Math.round((c.totalViews / maxGroupViews) * 100));
+              return (
+                <div key={c.handle} className={`rounded-xl px-3 py-2 ${isMe ? 'bg-wellinder-dark/5 ring-1 ring-wellinder-dark/15' : ''}`}>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-semibold text-wellinder-dark/30 w-4">{i + 1}</span>
+                      <span className={`text-[11px] font-medium truncate max-w-[120px] ${isMe ? 'text-wellinder-dark' : 'text-wellinder-dark/50'}`}>
+                        {c.handle}{isMe ? ' (me)' : ''}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] text-wellinder-dark/40">{c.count}v</span>
+                      <span className={`text-[11px] font-semibold ${isMe ? 'text-wellinder-dark' : 'text-wellinder-dark/50'}`}>
+                        {formatCount(c.totalViews)}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="h-1 bg-wellinder-dark/5 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all ${isMe ? 'bg-wellinder-dark' : 'bg-wellinder-dark/20'}`}
+                      style={{ width: `${barW}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       )}
     </section>
   );
