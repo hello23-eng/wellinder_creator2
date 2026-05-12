@@ -1,0 +1,19 @@
+on:
+    schedule:
+      - cron: '0 16 * * *'  # midnight SGT (UTC+8)
+    workflow_dispatch:
+
+  jobs:
+    sync:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Trigger sync-tiktok-stats
+          run: |
+            response=$(curl -s -o /tmp/sync_result.json -w "%{http_code}" \
+              -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/sync-tiktok-stats" \
+              -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+              -H "Content-Type: application/json" \
+              -d '{"sync_all":true}')
+            echo "HTTP status: $response"
+            cat /tmp/sync_result.json
+            if [ "$response" != "200" ]; then exit 1; fi
